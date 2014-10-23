@@ -15,9 +15,88 @@
 \usepackage{listings}          % format code
 \usepackage{enumitem}      % adjust spacing in enums
 \usepackage[colorlinks=true,allcolors=blue,breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
+\usepackage[tight]{subfigure}
+\usepackage{xspace}
+\usepackage{graphicx}
+\usepackage{mathpartir}
+
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+\usepackage{amsthm}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+%==============================================================================
+
+
+\newcommand{\cf}[1]{{\small\tt #1}}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{darkred}{rgb}{0.5,0,0}
+\newcommand{\KC}[1]{{\textcolor{red}{{KC: #1}}}}
+
+
+\lstloadlanguages{sql}
+\newcommand{\lstsql}{\lstset{
+      language=sql,
+      basicstyle=\ttfamily\footnotesize,
+      flexiblecolumns=false,
+      %basewidth={0.5em,0.45em},
+      %aboveskip={3pt},
+      %belowskip={3pt},
+      keywordstyle=\color{blue}\bfseries,
+      commentstyle=\color{darkgreen}\itshape,
+      % ugh, it keywords map/sort/zipwith.  should do this for
+      % consistency or figure out how to disable those other keywords:
+      morekeywords={string,REFERENCES}
+    }}
+\lstnewenvironment{codesql}
+    { % \centering
+			\lstsql
+      \lstset{}%
+      \csname lst@setfirstlabel\endcsname}
+    { %\centering
+      \csname lst@savefirstlabel\endcsname}
+
+
+\lstloadlanguages{haskell}
+\newcommand{\lsthaskell}{\lstset{
+      language=haskell,
+      basicstyle=\ttfamily\footnotesize,
+      flexiblecolumns=false,
+      %basewidth={0.5em,0.45em},
+      %aboveskip={3pt},
+      %belowskip={3pt},
+      keywordstyle=\color{blue}\bfseries,
+      commentstyle=\color{darkgreen}\itshape,
+      % ugh, it keywords map/sort/zipwith.  should do this for
+      % consistency or figure out how to disable those other keywords:
+      morekeywords={foldl,fold,username},
+      literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 % {=}{{$=$}}1
+               {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+               {\\\\}{{\char`\\\char`\\}}1
+               {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
+               {<=}{{$\leq$}}2 {=>}{{$\rightarrow$}}2
+               {\ .}{{$\circ$}}2 {\ .\ }{{$\circ$}}2
+               {>>}{{>>}}2 {>>=}{{>>=}}2 {=<<}{{=<<}}2
+               {|}{{$\mid$}}1
+							 {(-}{{$\in$}}1
+               {`member`}{{$\in$}}1
+               {s.empty}{{\{\}}}1
+               {leftbrace}{\{}1
+               {rightbrace}{\}}1
+               {profile0sing}{{ \{{\tt profile0}\}}}1
+               {\$singleton\$startv}{{ \hspace{2.4em} \{{\tt startv}\}}}1
+               {\$singleton\$n}{{  \{{\tt n}\}}}1
+               {dotdotdot}{{$\ldots$}}3
+    }}
+\lstnewenvironment{codehaskell}
+    { % \centering
+			\lsthaskell
+      \lstset{}%
+      \csname lst@setfirstlabel\endcsname}
+    { %\centering
+      \csname lst@savefirstlabel\endcsname}
 % known bug: http://tex.stackexchange.com/questions/1522/pdfendlink-ended-up-in-different-nesting-level-than-pdfstartlink
 \newcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
 
+\include{mydefs}
 
 
 \begin{document}
@@ -35,9 +114,9 @@ latency and tolerate partial failures, with the intention to provide a fast,
 always-on experience. However, geo-distribution does not come for free;
 application developers have to contend with weak consistency behaviors, and the
 lack of abstractions to composably construct high-level replicated data types,
-neccesitating complex application logic and invariably exposing inconsistencies
-to the user. Commercial distributed data stores and sevaral academic proposals
-do propose a lattice of stronger consisteny levels. However, assigning the
+necessitating complex application logic and invariably exposing inconsistencies
+to the user. Commercial distributed data stores and several academic proposals
+do propose a lattice of stronger consistency levels. However, assigning the
 correct consistency level for an operation is a error prone task.
 
 In this paper, we present Quelea, a declarative programming model for
@@ -53,5 +132,7 @@ applications, illustrate the effectiveness of our approach.
 \end{abstract}
 
 \input{intro}
+
+\input{motivation}
 
 \end{document}
