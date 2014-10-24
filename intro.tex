@@ -1,129 +1,110 @@
 \section{Introduction}
 
-Many real-world web applications --- such as Amazon, Facebook, Google, Twitter
---- replicate application state and logic across multiple \emph{replicas} within
-and across data centers. Replication is intended not only to improve application
-throughput and reduce user perceived latency, but also to tolerate partial
-failures without compromising the service availability. Traditionally
-programmers have relied on \emph{strong consistency} guarantees, such as
-Linerizability~\cite{Herlihy1990} or serializability~\cite{Serializability},
-provided by the underlying data store in order to build correct applications.
-While strong consistency is simple to reason about, the CAP
-theorem~\cite{Brewer2000,Gilbert} makes it impossible for a replicated data
-store to achieve strong consistency, while tolerating network partitions and
-remaining highly available. Thus, modern web applications, which aim to provide
-an "always on" experience, overwhelmingly embrace availability and partition
-tolerance at the expense of strong consistency. 
+Many real-world web services --- such as those built and maintained by
+Amazon, Facebook, Google, Twitter, etc. --- replicate application state and
+logic across multiple \emph{replicas} within and across data
+centers. Replication is intended not only to improve application throughput
+and reduce user-perceived latency, but also to tolerate partial failures
+without compromising overall service availability. Traditionally programmers
+have relied on \emph{strong consistency} guarantees such as
+linerarizability~\cite{Herlihy1990} or
+serializability~\cite{Serializability} in order to build correct
+applications. While strong consistency is an easily stated property, it
+masks the reality underlying large-scale distributed systems with respect to
+non-uniform latency (i.e., availability) and network
+partitions~\cite{Brewer2000,Gilbert}.  Indeed, modern web services, which
+aim to provide an "always on" experience, overwhelmingly favour availability
+and partition tolerance over strong consistency. Several \emph{weak
+  consistency} models such as eventual consistency, causal consistency,
+session guarantees, and timeline consistency have consequently been
+proposed.
 
-Nevetheless, to avoid exposing end user to absurdities such as negative balances
-in a bank account, or an item appearing in the shopping cart after it had been
-removed~\cite{Dynamo}, web applications \emph{do} require some level of
-consistency guarantees from the underlying data store. Accordingly, many
-commercial~\cite{} and research~\cite{} systems provide guarantees that are
-weaker than strong consistency, such as eventual consistency, causal
-consistency, session guarantees, and time line consistency. Each such \emph{weak
-consistency} guarantee imposes certain amount of penalty on the availability
-(hence, latency and throughput) of the system depending on the extent of
-inter-replica coordination required to ensure the guaranteed level of
-consistency. It is therefore incumbent on the application programmer to
-carefully reason about concurrent conflicting updates, and select the
-appropriate store-level weak consistency guarantee sufficient for preserving
-application-level integrity properties, while minimizing the adverse impact on
-the availability of the application. Understandably, this is an error prone
-process as the user not only has to understand the intricate behavior of the
-application, but also the semantics of the underlying store consistency levels,
-which are often presented informally~\cite{}.
+Under weak consistency, the developer needs to be aware of concurrent
+conflicting updates, and has to pay careful attention to avoid unwanted
+inconsistencies (e.g., negative balances in a bank account, or having an
+item appear in a shopping cart after it has been
+removed~\cite{Dynamo}). Oftentimes, the inconsistency leaks from the
+application and is witnessed by the user.  Ultimately, the developer must
+decide the consistency level appropriate for a particular operation; this is
+understandably an error-prone process requiring intricate knowledge of both
+the application as well as the semantics and implementation of the
+underlying data store.  More often than not, only informal descriptions are
+available~\cite{}.  Picking the correct consistency level is critical not
+only for correctness but also for scalability of the application. While
+choosing a weaker consistency level than required may introduce program
+errors and anomalies, choosing a stronger one than necessary level can
+negatively impact program scalability.
+
 
 %--KC--
 % The choice of correct consistency level is critical to the correctness and
 % scalability of the application. Choosing a weaker consistency level than
 % required introduces anomalies, while choosing a stronger than necessary level
 % affects program scalability.
-\KC{Do we include the LWW-Register number here to add emphasis to the fact that
-choosing the correct consistency level is essential for program scalability}.
+%\KC{Do we include the LWW-Register number here to add emphasis to the fact that
+%choosing the correct consistency level is essential for program scalability}.
+
 
 Moreover, weak consistency hinders compositional reasoning about programs.
-While applications are usually built around rich abstract data types, such as
-dictionaries, counters, queues, and graphs, geo-distributed stores typically
-only provide a minimal set of data types with in-built conflict resolution
-strategy such as last-writer-wins (LWW) register, counters and
-sets~\cite{Cassandra,DynamoDB}.  While traditional database systems enable
-composability through transactions, the state-of-the-art geo-distributed stores
-lack unrestricted transactional access to the data. Indeed, traditional database
-systems do offer a variety of transaction isolation levels~\cite{}, each with a
-particular runtime overhead, leaving the choice of correct consistency level to
-the programmer. Thus, the programmer working with geo-distributed stores has but
-to coerce the application state to the data store capabilities.
+While an application might be naturally expressed in terms of
+well-understood and expressive data types such as maps, trees, queues, or
+graphs, geo-distributed stores typically only provide a minimal set of data
+types with in-built conflict resolution strategies such as last-writer-wins
+(LWW) registers, counters, and sets~\cite{Cassandra,DynamoDB}.  Furthermor,
+while traditional database systems enable composability through
+transactions, existing geo-distributed stores lack unrestricted
+transactional access to the data.  Working with geo-distributed stores thus
+requires application state to be suitably coerced to work within the
+capabilities of the store.
 
-To address these issues, we introduce Quelea, a declarative programming system
-for eventually consistent data stores. Quelea's programming model is built
-around operation-based Commutative Replicated Data Types (CRDTs)
-~\cite{shapiroCRDT}. The state of an abstract data type in Quelea is modeled as
-a replicated \emph{append-only} log storing the history of all available
-\emph{update} operations\footnote{Available at each replica. Different replicas
-may have different logs as not all updates would have propagated to every
-replica.} performed on the data type . For instance, the state of a replicated
-counter ADT is stored on all replicas as a log of \emph{increment} and
-\emph{decrement} operations performed on the counter. An operation that indends
-to read the current value the counter at a replica only has to \emph{fold} over
-the history log at that replica. Our key observation is that under this model,
-consistency requirements of a replicated data type operation (eg:
-\emph{decrement}) can be expressed effectively in terms of assertions on
-\emph{membership} property of logs at various replicas. Quelea makes use of this
-observation to introduce a simple \emph{contract language} that is nevertheless
-capable of expressing fine-grained application-level consistency properties.
-The contract language is made up of a couple of primitive relations, namely
-\emph{visibility} and \emph{session order}, and a carefully choosen set of
-logical operators. Quelea expects application programmer to use the contract
-language to describe the set of legal executions allowed over the replicated
-data types.  
-% The executions descriptions are similar to the high-level axiomatic
-% description of relaxed memory models~\cite{Demange2013}.
-Subsequently, a contract enforcement system logically analyses contracts using
-an SMT solver~\cite{z3} and automatically tags each operation with the weakest
-store-level consistency guarantee that is required to satisfy application-level
-consistency requirements. In addition, the system statically reports an error if
-the given application-level consistency property cannot be satisfied by the
-store. 
+To address these issues, we describe \name, a declarative programming model
+and implementation for eventually consistent stores. The key novelty of
+\name\ is an expressive \emph{contract language} to declare and verify
+fine-grained application-level consistency properties.  The programmer uses
+the contract language to axiomatically describe the set of legal executions
+allowed over the replicated data type.  Contracts are constructed using
+primitive consistency relations such as \emph{visibility} and \emph{session
+  order} along with standard logical and relational operators.  A
+\emph{contract enforcement system} automatically maps each operation to a
+particular consistency level available on the store.  In addition, the
+system statically reports an error if the given application-level
+consistency property cannot be satisfied by the store.  
 
 The paper makes the following contributions:
 
 \begin{itemize}
 
-\item We introduce Quelea, a language for declaratively describing eventually
-consistent programs. Replicated data types in Quelea are defined as reductions
-over the set of previously seen updates on an object; new updates are simply
-appended to this set. Quelea is equipped with a contract language to describe
-fine-grained application-level consistency properties. The contracts are
-logically analyzed, and the corresponding operations are automatically assigned
-to the most efficient store consistency level under which the application-level
-contracts are guaranteed to hold.
+\item We introduce \name, a language for declaratively describing eventually
+  consistent programs that manipulate replicated data types. Contracts are
+  used to specify fine-grained application-level consistency properties, and
+  are analyzed to assign the most efficient and sound store consistency
+  level to the corresponding operation.
 
-\item Quelea supports coordination-free transactions over arbitrary datatypes.
-We extend our contract language to express fine-grained transaction isolation
-guarantees, and utilize the contract enforcement system to automatically assign
-the correct and most efficient isolation level for a transaction.
+\item \name supports coordination-free transactions over arbitrary
+  datatypes.  We extend our contract language to express fine-grained
+  transaction isolation guarantees, and utilize the contract enforcement
+  system to automatically assign the correct and most efficient isolation
+  level for a transaction.
 
-\item We present meta-theory that certifies the soundness of our contract
-enforcement system, and ensures that an operation is only executed if the
-required conditions on consistency are met.
+\item Metatheory that certifies the soundness of our contract enforcement
+  system, and ensures that an operation is only executed if the required
+  conditions on consistency are met is also given.
 
-\item Quelea is implemented as a shim layer over (and importantly without
-modifying) Cassandra, a general-purpose data store, illustrating the
-portability of our approach. An extensive experimental evaluation over a
-collection of real-world applications, including a Twitter-like micro-blogging
-site and an ebay-like auction site illustrates the practicality of our
-approach.
+\item \name is implemented as a shim layer over (and importantly without
+  modifying) Cassandra, a well-known general-purpose data store.  An
+  extensive experimental evaluation over a collection of real-world
+  applications, including a Twitter-like micro-blogging site and an
+  eBay-like auction site illustrates the practicality of our approach.
 
 \end{itemize}
 
 The rest of the paper is organized as follows. Section~\ref{sec:motivation}
-motivates Quelea and introduces the language through a series of examples.
-Section~\ref{sec:lang} presents the contract language, and
-section~\ref{sec:opsem} presents the operational semantics of the Quelea
-runtime system. Section~\ref{sec:txns} introduces transaction contracts and
+motivates \name and introduces the language through a series of examples.
+Section~\ref{sec:lang} describes the contract language, and
+Section~\ref{sec:opsem} presents an operational semantics.
+Section~\ref{sec:txns} introduces transaction contracts and
 classification. Section~\ref{sec:impl} describes the implementation and goes
 into detail about the optimizations needed to make the system practical.
-Section~\ref{sec:results} present the experimental evaluation.
-Section~\ref{sec:related} and~\ref{sec:concl} discuss the related work and
+Section~\ref{sec:results} discusses experimental evaluation.
+Section~\ref{sec:related} and~\ref{sec:concl} present related work and
 conclusions.
