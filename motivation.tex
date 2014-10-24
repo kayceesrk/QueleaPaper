@@ -159,9 +159,12 @@ getName (AddUser uid:_) _ = (Just uid, Nothing)
 \end{codehaskell}
 
 The definitions are a straight forward encoding of the expected behavior.
-The operation definitions presented here only capture the convergence
-properties of the replicated data type, and are not concerned with the
-consistency properties, which is expressed through the contract language.
+Quelea programming model provides the programmer complete freedom regarding the
+semantics and desired convergence property of the replicated data type, and
+indeed, we can encode the well-known CRDTs~\cite{SSS} in a declarative fashion.
+Observe that the operation definitions presented here only capture the
+convergence properties of the replicated data type, and are not concerned with
+the consistency properties, which is expressed through the contract language.
 
 \subsection{Contracts}
 
