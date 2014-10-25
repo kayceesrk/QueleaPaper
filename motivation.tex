@@ -1,133 +1,173 @@
 \section{Motivation}
+\label{sec:motivation}
 
-In this section, we motivate the need for declarative reasoning for eventually
-consistent data store.
+In this section, with help of a bank account example, we motivate the
+need for a framework to express and enforce fine-grained
+application-level consistency requirements under weak consistency
+models. 
+% \GK{The following text needs to be polished}
 
-\subsection{System Model}
-
-We assume a system model where the eventually consistent database is organized
-as a collection of key-indexed, object-valued tables. The objects stored in the
-tables are instances of the same replicated data type. The database is composed
-of a number of \emph{replicas}, and each object is fully replicated across all
-the replicas. Under this model, a client request for an operation with no
-application-level consistency requirement can be serviced if at least one of
-the replicas is reachable. Thus, with the addition of new replicas, and placing
-them close to the clients, leads to improved throughput and reduced latencies.
+% We assume a system model where the eventually consistent database is organized
+% as a collection of key-indexed, object-valued tables. The objects stored in the
+% tables are instances of the same replicated data type. The database is composed
+% of a number of \emph{replicas}, and each object is fully replicated across all
+% the replicas. Under this model, a client request for an operation with no
+% application-level consistency requirement can be serviced if at least one of
+% the replicas is reachable. Thus, with the addition of new replicas, and placing
+% them close to the clients, leads to improved throughput and reduced latencies.
 
 \subsection{Bank account database}
 
-Suppose our goal is to implement a bank account service on top an eventually
-consistent data store, with the following schema,
+Suppose our goal is to implement a highly available bank account
+service on top of an eventually consistent data store. For the sake of
+presentation, we restrict ourselves to bank account objects (records)
+with following simple schema:
 
 \begin{codesql}
 Create Table BankAccount (
-  userID int PRIMARY KEY,
-  userName string UNIQUE,
+  accountNo int PRIMARY KEY,
   balance float CHECK (balance >= 0))
 \end{codesql}
 
-\noindent with the following \emph{operations}.
+\noindent and with support for the following \emph{operations}:
 
 \begin{codehaskell}
-type UserName = String
--- returns false if the user name is already taken
-addAccount     :: UserName -> Bool
-getBalanceName :: UserName -> Float
-depositName    :: UserName -> Float -> ()
+type AccountNo = Int
+type Amount = Float
+getBalance :: AccountNo -> Amount
+deposit    :: AccountNo -> Amount -> ()
 -- returns false if the account has insufficient balance
-withdrawName   :: UserName -> Float -> Bool
+withdraw   :: AccountNo -> Amount -> Bool
 \end{codehaskell}
-
-Notice that the operations manipulating the table take user name as input.
-Since eventually consistent databases are non-relational~\cite{}, we need to
-maintain a \emph{secondary index} to look up records by user name.
-
-\begin{codesql}
-Create Table UserIndex (
-  userName string PRIMARY KEY,
-  userID int
-  FOREIGN KEY (userID)
-    REFERENCES BankAccount (userID) )
-\end{codesql}
 
 \begin{figure}[t]
 \centering
+\subfigure[Unsafe Withdraw]{\label{fig:unsafeWithdrawAnomaly}\includegraphics[width=0.31\columnwidth]{Figures/Motivation4}}
+\hfill
 \subfigure[Negative Balance]{\label{fig:negativeBalanceAnomaly}\includegraphics[width=0.31\columnwidth]{Figures/Motivation2}}
 \hfill
 \subfigure[Missing update]{\label{fig:missingUpdateAnomaly}\includegraphics[width=0.26\columnwidth]{Figures/Motivation1}}
-\hfill
-\subfigure[Monotonicity violation]{\label{fig:monotonicityAnomaly}\includegraphics[width=0.36\columnwidth]{Figures/Motivation3}}
+%\hfill
+%\subfigure[Monotonicity violation]{\label{fig:monotonicityAnomaly}\includegraphics[width=0.36\columnwidth]{Figures/Motivation3}}
 \caption{Anomalies possible under eventual consistency for the get balance operation.}
 \label{fig:cleanliness_examples}
 \end{figure}
 
+The sole attribute of a \cf{BankAccount} object, identified by its unique
+\cf{accountNo}, is its current \cf{balance}. A \cf{deposit} operation
+on a \cf{BankAccount} adds some \cf{Amount} to its \cf{balance},
+whereas a \cf{withdraw} operation subtracts. Operation \cf{getBalance}
+returns the current \cf{balance} in the account. A \cf{withdraw}
+operation succeeds and returns \cf{True} only if there is sufficient
+balance in the account. Otherwise, it fails and returns \cf{False}. 
+
+If we were to use a traditional database system to store
+\cf{BankAccount} objects, all that needs to be done is to define the
+\cf{BankAccount} schema, as shown above. The database management
+system effectively sequentializes all accesses to the database, and
+automatically enforces the required integerity constraints on the
+data, so that it is never possible for a \cf{getBalance} operation to
+return a negative balance, or for a \cf{withdraw} to succeed without
+having sufficient balance in the account. However, under eventual
+consistency, such anomalies are bound to occur as demonstrated in the
+following subsection. 
+
+
 \subsection{Anomalies}
 
-In a traditional database system, the programmer need only to define the
-application-level integrity constraints along with the schema, and the database
-management system automatically enforces the necessary coordination. However,
-under eventual consistency, the onus is on the programmer to ensure not only
-that the integrity constraints are preserved, but also to prevent any
-inconsistencies being exposed to the user. For example, it is easy to see that
-the withdraw operations must be strongly consistent operations to preserve the
-integrity constraint. However, it is possible that the get balance operation
-still returns a negative balance.
+Consider the execution shown in fig.~\ref{fig:negativeBalanceAnomaly}.
+Assume that all operations in the figure are on the same
+\cf{BankAccount} object. Execution contains two concurrent client
+sessions, where one of the sessions executes a \cf{withdraw} followed
+by a \cf{getBalance} operation. We say that \c{withdraw} precedes
+\cf{getBalance} in \emph{session order}, and visualize it as a
+directed \cf{so} edge from the former to the later. Edges labelled
+\cf{vis} in the figure capture the \emph{visibility} relation between
+operations; an operation is said to be \emph{visible} to other
+operation if the later can witness the effects of the former. Two
+operations that are not related either via \cf{vis} or \cf{so} are
+said to be concurrent. The figure shows an execution where concurrent
+\cf{withdraw}s in different sessions succeed independently, but a
+subsequent \cf{getBalance} operation that witnesses both the
+\cf{withdraw}s reports a negative balance. 
 
-Figure~\ref{fig:negativeBalanceAnomaly} illustrates such a potential execution.
-Assume that all operations are on the same object, and the balance on the
-account was initially 0. Here, \cf{vis} edges capture the visibility
-relation between the operations. In this case, the withdraw sees the deposit,
-but the get balance operation only witnesses the withdraw. Such an execution is
-possible under eventual consistency, where the \emph{effect} (update)
-corresponding to the withdraw reaches the replica to which the get balance is
-applied to before the causally preceding deposit effect. Alternatively, it is
-possible that a get balance operation does not see the effects from its own
-session (Figure~\ref{fig:missingUpdateAnomaly}), leading the user to
-incorrectly conclude that the previous update failed to go through. Here, the
-\cf{so} edge represents the session order that exists between the actions
-on the same thread.
+It is easy to see that the only way to ensure that integrity
+constraint on \cf{balance} is to prevent concurrent withdrawls on the
+\cf{BankAccount}. This can be done by insisting that \cf{withdraw} be
+executed with strong consistency. Although this prevents unsafe
+withdrawls from going through, a strongly consistent \cf{withdraw}
+itself is not sufficient to prevent \cf{getBalance} from ever
+reporting a negative balance to the end user.
 
-The anomalies discussed so far arise from weakly consistent behaviors on the
-same object. With operations on multiple objects on distinct tables, the
-programmer on eventually consistent databases has to take care of preserving
-integrity constraints for foreign keys, materialized views and secondary
-indexes. For example, Figure~\ref{fig:monotonicityAnomaly} illustrates the
-anomaly that arises from the lack of monotonic update visibility. Adding a new
-account involves a conditional insertion into the index table, followed by an
-insertion into the bank account table. Many eventually consistent data stores
-propose write-only transactions~\cite{}, and let us assume that add user
-operation is marked as a write-only transaction. Despite this, under eventual
-consistency, it is possible for a \cf{getBalanceName} operation to witness the
-first insertion but not the second, exposing an inconsistent state. The two
-reads may be served by different replicas, where the only the former has
-witnessed the effects of add user transaction. Assigning the correct store
-consistency level for the operations in this example such that the
-application-level constraints are preserved is a non-trivial task.
+Consider the execution shown in fig.~\ref{fig:negativeBalanceAnomaly},
+which consists of three concurrent sessions performing a \cf{deposit},
+a \cf{withdraw}, and a \cf{getBalance}, respectively, on the same
+\cf{BankAccount}. Assume that initial balance in the account is zero.
+As the \cf{vis} edge indicates, operation \cf{withdraw(50)} in session
+2, can witnesses the effects of \cf{deposit(100)} from session 1,
+leading it to rightfully conclude that the current balance is 100.
+Consequently, \cf{withdraw(50)} is performed safely. The effect of
+this \cf{withdraw} operation subsequently becomes visible to the
+\cf{getBalance} in Session 3. However, \cf{getBalance}, which can only
+see the effect of \cf{withdraw} from session 2, but not \cf{deposit}
+from session 1, reports the balance of negative 50 to the user.
+
+Negative balance is not the only inconsistency that the user is
+exposed to under an eventually consistent bank account. Figure
+~\ref{fig:missingUpdateAnomaly} shows an execution where
+\cf{getBalance} operation in a session does not witness the effects of
+\cf{withdraw} operation performed in the same session, possibly
+because \cf{getBalance} was served by a replica that hasn't yet merged
+the \cf{withdraw} effect, which could have been served by a different
+replica. This anomaly leads the user to incorrectly conclude that the
+\cf{withdraw} operation failed to go through.
+
+Although it is easy to understand the reasons behind the occurance of
+the aforementioned negative balance and missing update anomalies, the
+fix is not quite apparent. Making \cf{getBalance} a strongly
+consistent operation is definitely sufficient to avert anomalies, but
+is it really necessary? Given that a strongly consistent operation is
+significantly expensive, both in terms of latency and monetary value, we ideally
+would not want to request strong consistency, unless there are
+no alternatives available. Unfortunately, this requires us to
+understand subtle differences in semantics of various kinds of weak
+consistency alternatives, such as timeline consistency and session
+guarantees, offered by off-the-shelf eventually consistent data
+stores. This process is error-prone, and becomes further complicated
+in presence of transactions, as demonstrated in Sec.
+~\ref{sec:transactions}.
+
 
 \subsection{Implementation in Quelea}
 
-Quelea automates this error-prone task; the programmer need only to express the
-application-level consistency constraints in the contract language. Replicated
-data types in Quelea are defined as reductions over the set of effects similar
-to operation-based CRDTs~\cite{}. The following data type definitions capture
-the operations and effects on the bank account and user index objects.
-
+\name automates this error-prone task by letting the programmer
+declare application-level consistency constraints as \emph{contracts},
+obviating the need to understand store-level consistency guarantees,
+and relieving programmer from having to match application
+requirements with appropriate store-level alternatives. The
+cornerstone of declarative reasoning in \name is the programming model
+built around operation-based CRDTs~\cite{shapiroCRDT}. A replicated
+data type in \name is defined as a tagged union type, where each tag
+is the name of a unique operation defined on the data type. 
+%types in Quelea are defined as reductions over the set of effects.
+%The following data type definitions capture the operations and effects
+%on the bank account and user index objects.
+For example, following is the definition of the \cf{BankAccount}
+data type in \name:
 \begin{codehaskell}
-data BankAcc = AddUser UserName | Deposit Float
-             | Withdraw Float | GetBalance
-data UserIdx = AddName UserID | GetName
+data BankAccount =  Deposit Float | Withdraw Float 
+                 | GetBalance
 \end{codehaskell}
 
-Recall that the key of the bank account table is user id, which maps to a
-particular bank account object. In Quelea, an object state is nothing but the
-set of effects (called the \emph{context}) on this object. As such,
-\cf{Deposit} and \cf{Withdraw} effects simply include the amount deposited or
-withdrawn, and \cf{AddUser} effect includes the user name. Similarly, on the
-user index table, where the key is user name, the value is simply an effect
-(\cf{AddName}) binding some user id at this key. \cf{GetBalance} and
-\cf{GetName} correspond to the corresponding read-only operations. The complete
-definition of the operations on bank account and user index objects is given
-below.
+In Quelea, an object state is nothing but the set of effects (called
+the \emph{context}) on this object. As such, \cf{Deposit} and
+\cf{Withdraw} effects simply include the amount deposited or
+withdrawn, and \cf{AddUser} effect includes the user name. Similarly,
+on the user index table, where the key is user name, the value is
+simply an effect (\cf{AddName}) binding some user id at this key.
+\cf{GetBalance} and \cf{GetName} correspond to the corresponding
+read-only operations. The complete definition of the operations on
+bank account and user index objects is given below.
 
 \begin{codehaskell}
 -- Get balance takes no arguments and read-only
