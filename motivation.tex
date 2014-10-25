@@ -142,11 +142,11 @@ in presence of transactions, as demonstrated in Sec.
 
 \name automates this error-prone task by letting the programmer
 declare application-level consistency constraints as \emph{contracts}.
-This obviates the need to understand store-level consistency guarantees,
-and relieves the programmer from having to match application
-requirements with appropriate store-level alternatives. The
-cornerstone of declarative reasoning in \name is the programming model
-that draws largely on the concept of operation-based
+% This obviates the need to understand store-level consistency guarantees,
+% and relieves the programmer from having to match application
+% requirements with appropriate store-level alternatives. 
+The cornerstone of declarative reasoning in \name is the programming
+model that draws largely on the concept of operation-based
 CRDTs~\cite{shapiroCRDT}. The state of a replicated data object in
 \name is nothing but the set of effects applied on the object. For
 example, to represent a \cf{BankAccount} object in \name, we first
@@ -175,8 +175,8 @@ expected to produce a new effect along with a return value. For
 instance, following are the definitions of operations on
 \cf{BankAccount} type in \name (we represent sets as lists for
 clarity):
-\GK{Better define getBalance in terms of fold. It goes well with our
-narrative.}
+\GK{I think it is better define getBalance in terms of fold. It goes
+well with our narrative.}
 \begin{codehaskell}
 type BankAccount = [BankAccountEff]
 getBalance ::  BankAccount {- object -}
@@ -268,7 +268,7 @@ the anomalies described previously. The contract is shown below:
 \end{array}
 \end{smathpar}
 
-\GK{It is better to split this contract into two parts.}
+\GK{It may be better to split this contract into two parts.}
 If a withdraw $b$ is visible to the get balance operation, then all
 deposit operations $a$ visible to withdraw should be visible to the
 get balance operation. This prevents negative balance anomalies. The
