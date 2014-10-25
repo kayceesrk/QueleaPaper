@@ -75,21 +75,21 @@ following subsection.
 
 \subsection{Anomalies}
 
-Consider the execution shown in fig.~\ref{fig:negativeBalanceAnomaly}.
+Consider the execution shown in fig.~\ref{fig:unsafeWithdrawAnomaly}.
 Assume that all operations in the figure are on the same
-\cf{BankAccount} object. Execution contains two concurrent client
-sessions, where one of the sessions executes a \cf{withdraw} followed
-by a \cf{getBalance} operation. We say that \c{withdraw} precedes
-\cf{getBalance} in \emph{session order}, and visualize it as a
-directed \cf{so} edge from the former to the later. Edges labelled
-\cf{vis} in the figure capture the \emph{visibility} relation between
-operations; an operation is said to be \emph{visible} to other
-operation if the later can witness the effects of the former. Two
-operations that are not related either via \cf{vis} or \cf{so} are
-said to be concurrent. The figure shows an execution where concurrent
-\cf{withdraw}s in different sessions succeed independently, but a
-subsequent \cf{getBalance} operation that witnesses both the
-\cf{withdraw}s reports a negative balance. 
+\cf{BankAccount} object with initial balance as 100. Execution
+contains two concurrent client sessions, where one of the sessions
+executes a \cf{withdraw} followed by a \cf{getBalance} operation. We
+say that \c{withdraw} precedes \cf{getBalance} in \emph{session
+order}, and visualize it as a directed \cf{so} edge from the former to
+the later. Edges labelled \cf{vis} in the figure capture the
+\emph{visibility} relation between operations; an operation is said to
+be \emph{visible} to other operation if the later can witness the
+effects of the former. Two operations that are not related either via
+\cf{vis} or \cf{so} are said to be concurrent. The figure shows an
+execution where concurrent \cf{withdraw}s in different sessions
+succeed independently, but a subsequent \cf{getBalance} operation that
+witnesses both the \cf{withdraw}s reports a negative balance. 
 
 It is easy to see that the only way to ensure that integrity
 constraint on \cf{balance} is to prevent concurrent withdrawls on the
@@ -141,127 +141,173 @@ in presence of transactions, as demonstrated in Sec.
 \subsection{Implementation in Quelea}
 
 \name automates this error-prone task by letting the programmer
-declare application-level consistency constraints as \emph{contracts},
-obviating the need to understand store-level consistency guarantees,
-and relieving programmer from having to match application
+declare application-level consistency constraints as \emph{contracts}.
+This obviates the need to understand store-level consistency guarantees,
+and relieves the programmer from having to match application
 requirements with appropriate store-level alternatives. The
 cornerstone of declarative reasoning in \name is the programming model
-built around operation-based CRDTs~\cite{shapiroCRDT}. A replicated
-data type in \name is defined as a tagged union type, where each tag
-is the name of a unique operation defined on the data type. 
+that draws largely on the concept of operation-based
+CRDTs~\cite{shapiroCRDT}. The state of a replicated data object in
+\name is nothing but the set of effects applied on the object. For
+example, to represent a \cf{BankAccount} object in \name, we first
+define an sum type of all possible effects on a \cf{BankAccount}
+object:
 %types in Quelea are defined as reductions over the set of effects.
 %The following data type definitions capture the operations and effects
 %on the bank account and user index objects.
-For example, following is the definition of the \cf{BankAccount}
-data type in \name:
 \begin{codehaskell}
-data BankAccount =  Deposit Float | Withdraw Float 
-                 | GetBalance
+type Amount = Float
+data BankAccountEff = Deposit Amount
+                    | Withdraw Amount 
+                    | GetBalance
 \end{codehaskell}
-
-In Quelea, an object state is nothing but the set of effects (called
-the \emph{context}) on this object. As such, \cf{Deposit} and
-\cf{Withdraw} effects simply include the amount deposited or
-withdrawn, and \cf{AddUser} effect includes the user name. Similarly,
-on the user index table, where the key is user name, the value is
-simply an effect (\cf{AddName}) binding some user id at this key.
-\cf{GetBalance} and \cf{GetName} correspond to the corresponding
-read-only operations. The complete definition of the operations on
-bank account and user index objects is given below.
-
+Subsequently, any \cf{BankAccount} object can be simply represented as a set of
+effects of type \cf{BankAccountEff} that took effect on the object.
+For example, a \cf{BankAccount} object obtained by performing a
+deposit of 100 and a withdrawl of 50 on a fresh bank account is
+represented as following:
+\begin{center}
+  \{\cf{Deposit(100), Withdraw(50)}\}
+\end{center}
+An operation on a replicated data object in \name is simply defined as
+a reduction over the set of effects representing the object, and is
+expected to produce a new effect along with a return value. For
+instance, following are the definitions of operations on
+\cf{BankAccount} type in \name (we represent sets as lists for
+clarity):
+\GK{Better define getBalance in terms of fold. It goes well with our
+narrative.}
 \begin{codehaskell}
--- Get balance takes no arguments and read-only
-getBalance :: [BankAcc] {- context -} -> () {- args -}
-  -> (() {- ret val -}, Maybe BankAcc {- effect -})
+type BankAccount = [BankAccountEff]
+getBalance ::  BankAccount {- object -}
+  -> () {- args -}
+  -> (Amount {- ret val -}, 
+      Maybe BankAccountEff {- effect -})
 getBalance ctxt _ = (sum [v | Deposit v (- ctxt]
         - sum [v | Withdraw v (- ctxt], Nothing)
 
--- withdraw returns True on success
-withdraw :: [BankAcc] -> Float -> (Bool, Maybe BankAcc)
-withdraw c v = if sel1 $ getBalance c () >= v
-               then (True, Just $ Withdraw v)
+withdraw :: BankAccount -> Amount 
+  -> (Bool, Maybe BankAccountEff)
+withdraw c v = if fst (getBalance c ()) >= v
+               then (True, Just (Withdraw v))
                else (False, Nothing)
 
-deposit :: [BankAcc] -> v -> ((), Maybe BankAcc)
-deposit _ v = ((), Just $ Deposit v)
-
-addUser :: [BankAcc] -> UserName -> ((), Maybe BankAcc)
-addUser _ n = ((), Just $ AddUser n)
-
-addName :: [UserIdx] -> UserID -> (Bool, Maybe UserIdx)
-addName [] uid = (True, Just $ AddName uid)
-addName x:_ _ = (False, Nothing)
-
-getName :: [UserIdx] -> ()
-        -> (Maybe UserName, Maybe UserIdx)
-getName [] _ = (Nothing, Nothing)
-getName (AddUser uid:_) _ = (Just uid, Nothing)
+deposit :: BankAccount -> Amount
+  -> ((), Maybe BankAccountEff)
+deposit _ v = ((), Just (Deposit v))
 \end{codehaskell}
 
-The definitions are a straight forward encoding of the expected behavior.
-Quelea programming model provides the programmer complete freedom regarding the
-semantics and desired convergence property of the replicated data type, and
-indeed, we can encode the well-known CRDTs~\cite{SSS} in a declarative fashion.
-Observe that the operation definitions presented here only capture the
-convergence properties of the replicated data type, and are not concerned with
-the consistency properties, which is expressed through the contract language.
+A \cf{getBalance} operation accepts a \cf{BankAccount} object
+represented as a set of \cf{BankAccountEff}s, folds over the set
+adding deposits and subtracting withdraws, and returns the resultant
+amount, along with a new \cf{GetBalance} effect\footnote{wrapped
+inside a \cf{Maybe} type for technical reasons}. A \cf{withdraw}
+operation first checks if there is sufficient balance in the account.
+If the check passes, it returns \cf{True} along with a new
+\cf{Withdraw} effect. Otherwise, it returns \cf{False} and produces no
+effect. The definition of \cf{deposit} can be similarly understood.
+
+When a bank account operation is executed at one of the replicas in
+response to a client request, \cf{BankAccount} object is constructed
+using the effects available on the replica, and the definition of the
+current operation is applied on the object. Note the set of effects
+constituting the input \cf{BankAccount} object are the only effects
+that are \emph{visible} to the current operation.  Formally, we say
+that a \emph{visibility} relation exists between the input set of
+effects and the newly engendered effect. In contrast, a concurrent
+operation executing on a different replica can neither witness the
+effect of the current operation, not can its effect be visible to the
+current operation.
+
+It is worthwhile to note that the above definitions of
+\cf{BankAccount} operations are a straightforward encoding of the
+expected behavior.  \name programming model provides the programmer
+complete freedom regarding the semantics and desired convergence
+property of the replicated data type, and indeed, we can encode the
+well-known CRDTs~\cite{SSS} in a declarative fashion.  Observe that
+the operation definitions presented here only capture the convergence
+properties of the replicated data type, and are not concerned with the
+consistency properties, which is expressed through the contract
+language.
 
 \subsection{Contracts}
 
-The contract for the strongly consistent \cf{addName} operation is given below:
+We have previously observed that two \cf{withdraw} operations cannot
+be executed concurrently for the integrity constraint on the account
+balance to hold. Informally, this means that for any two distinct
+\cf{withdraw} operations $a$ and $b$ on a \cf{BankAccount} object,
+either the effect of $a$ must be visible to $b$, or the effect of $b$
+must be visible to $a$. \name lets us declare this consistency
+requirement as a contract over \cf{withdraw}:
 \begin{smathpar}
 \begin{array}{l}
-\rsf{addNameCtrt} = \forall (a:\rsf{AddName}). \\
-\qquad \sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} \vee \vis{\cureff}{a} \vee a = \cureff
+\rsf{withdrawCtrt}(b) = \forall a. ~a \neq b \conj \rsf{isWithdraw}(a) \conj \\
+\qquad \sameobj{a}{b} \Rightarrow \vis{a}{b} \vee \vis{b}{a} 
+\end{array}
+\end{smathpar}
+The above definition of $\rsf{withdrawCtrt}$ is parameterized over the
+effect ($b:\cf{BankAccountEff}$) generated by the \cf{withdraw}
+operation. The predicate $\rsf{isWithdraw}$ is true for a
+\cf{Withdraw} effect, and false for any other effect. $\sameobj{a}{b}$
+is true if and only if $a$ and $b$ are effects over the same
+\cf{BankAccount} object; we only require \cf{withdraw} operations on
+same bank account to be totally ordered. Operations on other bank
+accounts can be executed concurrently. Rest of the contract is a
+straightforward translation of its informal presentation discussed
+earlier. 
+
+For the \cf{getBalance}, we construct a contract  precisely to prevent
+the anomalies described previously. The contract is shown below:
+\begin{smathpar}
+\begin{array}{l}
+\rsf{getBalCtrt}(c) = \forall (a,b). ~ \rsf{isDeposit}(a) \conj
+  \rsf{isWithdraw}(b) \conj \\
+\qquad \vis{a}{b} \wedge \vis{b}{c} \Rightarrow \vis{a}{c} \\
+\qquad \vee (\soZ \cap \sameobjZ) (a,c) \Rightarrow \vis{a}{c} \\
+\qquad \vee (\soZ \cap \sameobjZ) (b,c) \Rightarrow \vis{b}{c}
 \end{array}
 \end{smathpar}
 
-In the above definition, $\cureff$ represents the current effect --- the effect
-emitted by the \cf{addName} operation. The contract simply states our
-high-level observation; for any effect $a$ which is also an \cf{AddName} effect
-on the same object, it must be the case that $a$ is visible to $\cureff$ or
-vice verse, or $a$ is $\cureff$. Here, $\sameobjZ$ and $\visZ$ are primitive
-relations. This contract ensures that any two \cf{addName} operations will be
-seen by each other. The contract for withdraw is similar to the
-\cf{addNameCtrt}.
+\GK{It is better to split this contract into two parts.}
+If a withdraw $b$ is visible to the get balance operation, then all
+deposit operations $a$ visible to withdraw should be visible to the
+get balance operation. This prevents negative balance anomalies. The
+rest of the contract says that a get balance operation must witness
+previous deposit and withdraw operations on the same object in the
+same session. This prevents missed update anomalies.
 
-Since the deposit operation does not have any restrictions, its contract is
-simply $\true$. Same is the case for \cf{addUser} operation. The contract for
-get balance operation is:
-\begin{smathpar}
-\begin{array}{l}
-\rsf{getBalCtrt} = \forall (a:\rsf{Deposit}), (b:\rsf{Withdraw}). \\
-\qquad \vis{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff} \\
-\qquad \vee (\soZ \cap \sameobjZ) (a,\cureff) \Rightarrow \vis{a}{\cureff} \\
-\qquad \vee (\soZ \cap \sameobjZ) (b,\cureff) \Rightarrow \vis{b}{\cureff}
-\end{array}
-\end{smathpar}
+Since the deposit operation does not have any restrictions, its
+contract is simply $\true$.
 
-If a withdraw $b$ is visible to the get balance operation, then all deposit
-operations $a$ visible to withdraw should be visible to the get balance
-operation. This prevents negative balance anomalies. The rest of the contract
-says that a get balance operation must witness previous deposit and withdraw
-operations on the same object in the same session. This prevents missed update
-anomalies.
+Note that the above contracts for \cf{withdraw} and \cf{getBalance}
+express their consistency requirements \emph{independent} of the
+semantics of the underlying store. To write such contracts, a
+programmer only needs to reason about the semantics of the application
+under the replication model professed by \name. The mapping of
+application-level consistency requirements to appropriate store-level
+guarantees is done automatically behind the screen. This process is
+described in the following two sections.
+% Similar to contracts on operations, Quelea supports contracts on transactions.
+% The contract on the \cf{getBalanceName} transaction is given below:
+% \begin{smathpar}
+% \begin{array}{l}
+% \rsf{getBalanceNameCtrt} = \forall (a:\rsf{GetName}), (b:\rsf{GetBalance}), \\
+% \quad (c:\rsf{AddName}), (d:\rsf{AddUser}). ~\trans{a}{b}{c}{d} \wedge \so{a}{b} \\
+% \qquad \wedge ~\vis{c}{a} \wedge \sameobj{d}{b} \Rightarrow \vis{d}{b}
+% \end{array}
+% \end{smathpar}
 
-Similar to contracts on operations, Quelea supports contracts on transactions.
-The contract on the \cf{getBalanceName} transaction is given below:
-\begin{smathpar}
-\begin{array}{l}
-\rsf{getBalanceNameCtrt} = \forall (a:\rsf{GetName}), (b:\rsf{GetBalance}), \\
-\quad (c:\rsf{AddName}), (d:\rsf{AddUser}). ~\trans{a}{b}{c}{d} \wedge \so{a}{b} \\
-\qquad \wedge ~\vis{c}{a} \wedge \sameobj{d}{b} \Rightarrow \vis{d}{b}
-\end{array}
-\end{smathpar}
+% $\trans{a}{b}{c}{d}$ says that the action pairs $a,b$ and $c,d$ are in the same
+% transaction, and the two transactions are distinct. The contract says
+% specifically forbids the anomaly presented in
+% Figure~\ref{fig:monotonicityAnomaly}. This is the desired semantics for the
+% \cf{getUserName} transaction.
 
-$\trans{a}{b}{c}{d}$ says that the action pairs $a,b$ and $c,d$ are in the same
-transaction, and the two transactions are distinct. The contract says
-specifically forbids the anomaly presented in
-Figure~\ref{fig:monotonicityAnomaly}. This is the desired semantics for the
-\cf{getUserName} transaction.
+% The programmer simply defines such contracts on the operations and the
+% transactions. Quelea logically analyzes the contracts, and maps the
+% corresponding operation to the precise store consistency and isolation level.
+% Thus, Quelea equips the programmer with a declarative model for reasoning and
+% expressing eventually consistent programs.
 
-The programmer simply defines such contracts on the operations and the
-transactions. Quelea logically analyzes the contracts, and maps the
-corresponding operation to the precise store consistency and isolation level.
-Thus, Quelea equips the programmer with a declarative model for reasoning and
-expressing eventually consistent programs.
+
+
