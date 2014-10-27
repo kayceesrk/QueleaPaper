@@ -67,18 +67,22 @@ binary relation, we write $R(\eff)$ to denote the set of all $\eff'$
 such that $(\eff,\eff') \in R$.  Conversely, we write $R^{-1}(\eff)$
 to denote the set of all $\eff'$ such that $(\eff',\eff) \in R$.  
 
-Rule $\rulelabel{Comm}$ captures inter-replica communication. The
-basic guarantee provided by the store is causal visibility. That is,
-an effect ($\eff$) is made visible at a replica $r$ only after all
-the effects that causally precede $\eff$ are made visible at $r$.
-Observe that this condition is applicable even for the effects that
-originate at replica $r$. 
+Basic gurantee provided by the store is causal visibility, which is
+captured by the rule $\rulelabel{EffVis}$ as a condition for an effect
+to be visible at a replica. The rule makes an effect ($\eff$) visible
+at a replica $r$ only after all the effects that causally precede
+$\eff$ are made visible at $r$. 
+% Observe that this condition is
+% applicable even for the effects that originate at replica $r$. 
 % It is helpful to think of effects being
 % stored in a \emph{write buffer} until causal consistency condition is
 % met, at which point they can be merged with the local state
 % ($\Theta(r)$). 
 It is important to note that that enforcing causal visibility does not
-require any inter-replica coordination.
+require any inter-replica coordination. Any eventually consistent
+store can provide causal visibility while being highly available.
+Therefore, we do not lose any generality by assuming that the store
+provides causal visiblity.
 
 Rule $\rulelabel{Oper}$ is an auxiliary reduction of the
 form:\vspace{-1.7mm}
