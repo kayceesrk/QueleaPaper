@@ -1,313 +1,252 @@
 \section{Motivation}
 \label{sec:motivation}
 
-In this section, with help of a bank account example, we motivate the
-need for a framework to express and enforce fine-grained
-application-level consistency requirements under weak consistency
-models. 
-% \GK{The following text needs to be polished}
+In this section, we motivate the need and benefit of declarative reasoning under
+eventual consistency with the help of an example. We begin with a description of
+our system and programming model, and introduce the primitive relations that
+constitute an essential part of our contract language.
 
-% We assume a system model where the eventually consistent database is organized
-% as a collection of key-indexed, object-valued tables. The objects stored in the
-% tables are instances of the same replicated data type. The database is composed
-% of a number of \emph{replicas}, and each object is fully replicated across all
-% the replicas. Under this model, a client request for an operation with no
-% application-level consistency requirement can be serviced if at least one of
-% the replicas is reachable. Thus, with the addition of new replicas, and placing
-% them close to the clients, leads to improved throughput and reduced latencies.
+\subsection{System Model}
+\label{sec:sysmod}
 
-\subsection{Bank account database}
-
-Suppose our goal is to implement a highly available bank account
-service on top of an eventually consistent data store. For the sake of
-presentation, we restrict ourselves to bank account objects (records)
-with following simple schema:
-
-\begin{codesql}
-Create Table BankAccount (
-  accountNo int PRIMARY KEY,
-  balance float CHECK (balance >= 0))
-\end{codesql}
-
-\noindent and with support for the following \emph{operations}:
-
-\begin{codehaskell}
-type AccountNo = Int
-type Amount = Float
-getBalance :: AccountNo -> Amount
-deposit    :: AccountNo -> Amount -> ()
--- returns false if the account has insufficient balance
-withdraw   :: AccountNo -> Amount -> Bool
-\end{codehaskell}
-
-\begin{figure}[t]
+\begin{figure}
 \centering
-\subfigure[Unsafe Withdraw]{\label{fig:unsafeWithdrawAnomaly}\includegraphics[width=0.31\columnwidth]{Figures/Motivation4}}
+\includegraphics[width=\columnwidth]{Figures/SystemModel}
+\caption{Quelea system model.}
+\label{fig:sysmod}
+\end{figure}
+
+Figure~\ref{fig:sysmod} provides a schematic diagram of our system model. The
+distributed store is composed of a collection of \emph{replicas}, each of which
+stores a set of \emph{objects} ($x,y,\ldots$). We assume that every object is
+replicated at every replica in the store. The state of an object at any replica
+is the set of all updates (\emph{effects}) performed on the object. For
+example, the state of $x$ at replica 1 is the set composed of effects $w^x_1$
+and $w^x_2$.
+
+Each object is associated with a set of \emph{operations}. The clients interact
+with the store by invoking the operations on objects. The sequence of operations
+invoked by a particular client on the store is called a \emph{session}. The
+data store is typically accessed by a large number of clients (and hence
+sessions) concurrently. Importantly, the clients are oblivious to which replica
+an operation is applied to; the data store may choose to route the operation to
+the closest replica for minimizing latency, or route it to a different replica
+in order to balance the load in the system. For example, the operations $foo$
+and $bar$ invoked by the same session on the same object, might end up being
+applied to different replicas because replica 1 to which $foo$ was applied to
+might be unreachable when invoking $bar$.
+
+Suppose an operation $foo$ is invoked on a object $x$ with arguments $arg_1$ at
+replica 1. The operation $foo$ simply \emph{reduces} over the current set of
+effects at that replica on that object ($w^x_1$ and $w^x_2$), produces a result
+$v1$ that is sent back to the client, and emits a \emph{single} new effect
+$w^x_4$, which is appended to the state $x$ at replica 1. Thus, every operation
+is evaluated over a \emph{snapshot} of the state of the object on which it is
+invoked. In this case, we say that the effect $w^x_4$ \emph{witnessed} $w^x_1$
+and $w^x_2$. Alternatively, $w^x_1$ and $w^x_2$ are \emph{visible} to $w^x_4$,
+written logically as $\vis{w^x_1}{w^x_4} \wedge \vis{w^x_2}{w^x_4}$, where
+$\visZ$ is the visibility relation between the effects. Visibility is an
+irreflexive (an operation cannot see its own effect) and asymmetric relation,
+and only relates effects produced by operations on the same object.
+
+Read-only operation execution is similar except that they do not produce a new
+effect. The effect added to a particular replica is asynchronously sent to
+other replicas. We assume that \emph{eventually}, an effect applied at one
+replica will be merged into all other replicas. The two effects $w^x_4$ and
+$w^x_5$ that arise from the same session are said to be in \emph{session order}
+(written logically as $\so{w^x_4}{w^x_5}$). Session order is a irreflexive,
+transitive relation. The effects $w^x_4$ and $w^x_5$ arising from operations
+applied to the same object $x$ are said to be under the \emph{same object}
+relation, written $\sameobj{w^x_4}{w^x_5}$. Finally, we can associate every
+effect with the operation that generated the effect with the help of a relation
+$\operZ$. In the current example, $\oper{w^x_4}{foo}$ and $\oper{w^x_5}{bar}$
+hold. For simplicity, we assume that all the operation names across all object
+types are distinct.
+
+The system model described allows all the inconsistencies associated with
+eventual consistency. The goal of our work is to identify the precise
+consistency level for each operation such that the application-level
+constraints are not violated. In the next section, we will concretely describe
+the challenges associated with constructing a consistent bank account on top of
+eventually consistent data stores. Subsequently, we will illustrate how our
+contract language, armed with the primitive relations $\visZ$, $\soZ$,
+$\sameobjZ$ and $\operZ$, mitigates these challenges.
+
+\subsection{Eventually Consistent Bank Account}
+
+Suppose our goal is to implement a highly available bank account on top of an
+eventually consistent data store, with the \emph{integrity} constraint that the
+balance should never drop below 0. Let us assume that the bank account object
+provides three operations: \cf{deposit}, \cf{withdraw} and \cf{getBalance},
+with the assumption that the withdraw fails if the account has insufficient
+balance to complete the withdraw operation. Our goal is to choose the correct
+consistency level for each operation such that (1) the balance never drops
+below zero and (2) the \cf{getBalance} operation never incorrectly show a
+negative balance. To be able to do this, we need to consider the anomalies that
+could arise under eventual consistency.
+
+\begin{figure}
+\centering
+\subfigure[Unsafe withdraw]{\label{fig:unsafeWithdrawAnomaly}\includegraphics[width=0.34\columnwidth]{Figures/Motivation4}}
 \hfill
-\subfigure[Negative Balance]{\label{fig:negativeBalanceAnomaly}\includegraphics[width=0.31\columnwidth]{Figures/Motivation2}}
+\subfigure[Negative balance]{\label{fig:negativeBalanceAnomaly}\includegraphics[width=0.31\columnwidth]{Figures/Motivation2}}
 \hfill
 \subfigure[Missing update]{\label{fig:missingUpdateAnomaly}\includegraphics[width=0.26\columnwidth]{Figures/Motivation1}}
-%\hfill
-%\subfigure[Monotonicity violation]{\label{fig:monotonicityAnomaly}\includegraphics[width=0.36\columnwidth]{Figures/Motivation3}}
 \caption{Anomalies possible under eventual consistency for the get balance operation.}
 \label{fig:cleanliness_examples}
 \end{figure}
 
-The sole attribute of a \cf{BankAccount} object, identified by its unique
-\cf{accountNo}, is its current \cf{balance}. A \cf{deposit} operation
-on a \cf{BankAccount} adds some \cf{Amount} to its \cf{balance},
-whereas a \cf{withdraw} operation subtracts. Operation \cf{getBalance}
-returns the current \cf{balance} in the account. A \cf{withdraw}
-operation succeeds and returns \cf{True} only if there is sufficient
-balance in the account. Otherwise, it fails and returns \cf{False}. 
+Consider the execution shown in Figure~\ref{fig:unsafeWithdrawAnomaly}. Assume
+that all operations in the figure are on the same bank account object with
+initial balance as 0. Session 1 performs a \cf{deposit} of 100, followed by a
+\cf{withdraw} of 80 in the same session. The \cf{withdraw} operation witnesses
+the deposit and succeeds\footnote{Although visibility and session order
+relations relate effects, we have abused the notation in these examples to
+relate operations, with the idea that the relations relate the effect emitted
+by those operations}. Subsequently, session 2 perform a \cf{withdraw}
+operation, but importantly, due to eventual consistency, only witnesses the
+\cf{deposit} from session 1, but not the subsequent withdraw. Hence, this
+\cf{withdraw} also \emph{incorrectly} succeeds, violating the integrity
+constraint. A subsequent \cf{getBalance} operation, that witnesses all the
+previous operations and reports a negative balance.
 
-If we were to use a traditional database system to store
-\cf{BankAccount} objects, all that needs to be done is to define the
-\cf{BankAccount} schema, as shown above. The database management
-system effectively sequentializes all accesses to the database, and
-automatically enforces the required integerity constraints on the
-data, so that it is never possible for a \cf{getBalance} operation to
-return a negative balance, or for a \cf{withdraw} to succeed without
-having sufficient balance in the account. However, under eventual
-consistency, such anomalies are bound to occur as demonstrated in the
-following subsection. 
+It is easy to see that the only way to ensure that integrity constraint on
+\cf{balance} is to prevent concurrent withdrawals on the same bank account
+object. This can be done by insisting that \cf{withdraw} be executed with
+strong consistency. Although this prevents the integrity constraint from being
+violated, a strongly consistent \cf{withdraw} itself is not sufficient to
+prevent \cf{getBalance} from ever reporting a negative balance to the end user.
 
+Consider the execution shown in fig.~\ref{fig:negativeBalanceAnomaly}, which
+consists of three concurrent sessions performing a \cf{deposit}, a
+\cf{withdraw}, and a \cf{getBalance} operation, respectively, on the same bank
+account object. Assume that initial balance in the account is zero. As the
+\cf{vis} edge indicates, operation \cf{withdraw(50)} in session 2, can
+witnesses the effects of \cf{deposit(100)} from session 1, leading it to
+rightfully conclude that the current balance is 100. Consequently,
+\cf{withdraw(50)} is performed safely. The effect of this \cf{withdraw}
+operation subsequently becomes visible to the \cf{getBalance} in Session 3.
+However, \cf{getBalance}, which only witnesses the effect of \cf{withdraw} from
+session 2, but not the \cf{deposit} from session 1, reports the balance of
+negative 50 to the user.
 
-\subsection{Anomalies}
-
-Consider the execution shown in fig.~\ref{fig:unsafeWithdrawAnomaly}.
-Assume that all operations in the figure are on the same
-\cf{BankAccount} object with initial balance as 100. Execution
-contains two concurrent client sessions, where one of the sessions
-executes a \cf{withdraw} followed by a \cf{getBalance} operation. We
-say that \c{withdraw} precedes \cf{getBalance} in \emph{session
-order}, and visualize it as a directed \cf{so} edge from the former to
-the later. Edges labelled \cf{vis} in the figure capture the
-\emph{visibility} relation between operations; an operation is said to
-be \emph{visible} to other operation if the later can witness the
-effects of the former. Two operations that are not related either via
-\cf{vis} or \cf{so} are said to be concurrent. The figure shows an
-execution where concurrent \cf{withdraw}s in different sessions
-succeed independently, but a subsequent \cf{getBalance} operation that
-witnesses both the \cf{withdraw}s reports a negative balance. 
-
-It is easy to see that the only way to ensure that integrity
-constraint on \cf{balance} is to prevent concurrent withdrawls on the
-\cf{BankAccount}. This can be done by insisting that \cf{withdraw} be
-executed with strong consistency. Although this prevents unsafe
-withdrawls from going through, a strongly consistent \cf{withdraw}
-itself is not sufficient to prevent \cf{getBalance} from ever
-reporting a negative balance to the end user.
-
-Consider the execution shown in fig.~\ref{fig:negativeBalanceAnomaly},
-which consists of three concurrent sessions performing a \cf{deposit},
-a \cf{withdraw}, and a \cf{getBalance}, respectively, on the same
-\cf{BankAccount}. Assume that initial balance in the account is zero.
-As the \cf{vis} edge indicates, operation \cf{withdraw(50)} in session
-2, can witnesses the effects of \cf{deposit(100)} from session 1,
-leading it to rightfully conclude that the current balance is 100.
-Consequently, \cf{withdraw(50)} is performed safely. The effect of
-this \cf{withdraw} operation subsequently becomes visible to the
-\cf{getBalance} in Session 3. However, \cf{getBalance}, which can only
-see the effect of \cf{withdraw} from session 2, but not \cf{deposit}
-from session 1, reports the balance of negative 50 to the user.
-
-Negative balance is not the only inconsistency that the user is
-exposed to under an eventually consistent bank account. Figure
-~\ref{fig:missingUpdateAnomaly} shows an execution where
-\cf{getBalance} operation in a session does not witness the effects of
-\cf{withdraw} operation performed in the same session, possibly
-because \cf{getBalance} was served by a replica that hasn't yet merged
-the \cf{withdraw} effect, which could have been served by a different
+Negative balance is not the only inconsistency that the user is exposed to
+under an eventually consistent bank account. Figure
+~\ref{fig:missingUpdateAnomaly} shows an execution where the \cf{getBalance}
+operation in a session does not witness the effects of \cf{withdraw} operation
+performed in the same session, possibly because \cf{getBalance} was served by a
+replica that has not yet merged the \cf{withdraw} effect, served by a different
 replica. This anomaly leads the user to incorrectly conclude that the
 \cf{withdraw} operation failed to go through.
 
-Although it is easy to understand the reasons behind the occurance of
-the aforementioned negative balance and missing update anomalies, the
-fix is not quite apparent. Making \cf{getBalance} a strongly
-consistent operation is definitely sufficient to avert anomalies, but
-is it really necessary? Given that a strongly consistent operation is
-significantly expensive, both in terms of latency and monetary value, we ideally
-would not want to request strong consistency, unless there are
-no alternatives available. Unfortunately, this requires us to
-understand subtle differences in semantics of various kinds of weak
-consistency alternatives, such as timeline consistency and session
-guarantees, offered by off-the-shelf eventually consistent data
-stores. This process is error-prone, and becomes further complicated
-in presence of transactions, as demonstrated in Sec.
-~\ref{sec:transactions}.
+\begin{figure}
+\centering
+\includegraphics[width=\columnwidth]{Graphs/BankAccount_Th_vs_Lat}
+\caption{Bank Account: Throughput vs Latency. Quelea is our implementation.
+Strong and Quelea are correct. High. Avail. and causal are incorrect (withdraw
+not strong). 20\% withdraw, 20\% deposit, 60\% getBalance.}
+\label{grf:BankAcc_Th_vs_Lat}
+\end{figure}
 
 
-\subsection{Implementation in Quelea}
-
-\name automates this error-prone task by letting the programmer
-declare application-level consistency constraints as \emph{contracts}.
-% This obviates the need to understand store-level consistency guarantees,
-% and relieves the programmer from having to match application
-% requirements with appropriate store-level alternatives. 
-The cornerstone of declarative reasoning in \name is the programming
-model that draws largely on the concept of operation-based
-CRDTs~\cite{shapiroCRDT}. The state of a replicated data object in
-\name is nothing but the set of effects applied on the object. For
-example, to represent a \cf{BankAccount} object in \name, we first
-define an sum type of all possible effects on a \cf{BankAccount}
-object:
-%types in Quelea are defined as reductions over the set of effects.
-%The following data type definitions capture the operations and effects
-%on the bank account and user index objects.
-\begin{codehaskell}
-type Amount = Float
-data BankAccountEff = Deposit Amount
-                    | Withdraw Amount 
-                    | GetBalance
-\end{codehaskell}
-Subsequently, any \cf{BankAccount} object can be simply represented as a set of
-effects of type \cf{BankAccountEff} that took effect on the object.
-For example, a \cf{BankAccount} object obtained by performing a
-deposit of 100 and a withdrawl of 50 on a fresh bank account is
-represented as following:
-\begin{center}
-  \{\cf{Deposit(100), Withdraw(50)}\}
-\end{center}
-An operation on a replicated data object in \name is simply defined as
-a reduction over the set of effects representing the object, and is
-expected to produce a new effect along with a return value. For
-instance, following are the definitions of operations on
-\cf{BankAccount} type in \name (we represent sets as lists for
-clarity):
-\GK{I think it is better define getBalance in terms of fold. It goes
-well with our narrative.}
-\begin{codehaskell}
-type BankAccount = [BankAccountEff]
-getBalance ::  BankAccount {- object -}
-  -> () {- args -}
-  -> (Amount {- ret val -}, 
-      Maybe BankAccountEff {- effect -})
-getBalance ctxt _ = (sum [v | Deposit v (- ctxt]
-        - sum [v | Withdraw v (- ctxt], Nothing)
-
-withdraw :: BankAccount -> Amount 
-  -> (Bool, Maybe BankAccountEff)
-withdraw c v = if fst (getBalance c ()) >= v
-               then (True, Just (Withdraw v))
-               else (False, Nothing)
-
-deposit :: BankAccount -> Amount
-  -> ((), Maybe BankAccountEff)
-deposit _ v = ((), Just (Deposit v))
-\end{codehaskell}
-
-A \cf{getBalance} operation accepts a \cf{BankAccount} object
-represented as a set of \cf{BankAccountEff}s, folds over the set
-adding deposits and subtracting withdraws, and returns the resultant
-amount, along with a new \cf{GetBalance} effect\footnote{wrapped
-inside a \cf{Maybe} type for technical reasons}. A \cf{withdraw}
-operation first checks if there is sufficient balance in the account.
-If the check passes, it returns \cf{True} along with a new
-\cf{Withdraw} effect. Otherwise, it returns \cf{False} and produces no
-effect. The definition of \cf{deposit} can be similarly understood.
-
-When a bank account operation is executed at one of the replicas in
-response to a client request, \cf{BankAccount} object is constructed
-using the effects available on the replica, and the definition of the
-current operation is applied on the object. Note the set of effects
-constituting the input \cf{BankAccount} object are the only effects
-that are \emph{visible} to the current operation.  Formally, we say
-that a \emph{visibility} relation exists between the input set of
-effects and the newly engendered effect. In contrast, a concurrent
-operation executing on a different replica can neither witness the
-effect of the current operation, not can its effect be visible to the
-current operation.
-
-It is worthwhile to note that the above definitions of
-\cf{BankAccount} operations are a straightforward encoding of the
-expected behavior.  \name programming model provides the programmer
-complete freedom regarding the semantics and desired convergence
-property of the replicated data type, and indeed, we can encode the
-well-known CRDTs~\cite{SSS} in a declarative fashion.  Observe that
-the operation definitions presented here only capture the convergence
-properties of the replicated data type, and are not concerned with the
-consistency properties, which is expressed through the contract
-language.
+Although it is easy to understand the reasons behind the occurrence of the
+aforementioned negative balance and missing update anomalies, the fix is not
+quite apparent. Making \cf{getBalance} a strongly consistent operation is
+definitely sufficient to avert anomalies, but is it really necessary? Given
+that a strongly consistent operation is significantly expensive
+(Figure~\ref{grf:BankAcc_Th_vs_Lat} \KC{Should I include the numbers here? If
+yes, I'll expand the text.}), both in terms of availability and monetary
+overheads~\cite{DynamoDB,Pileus}, we ideally would not want to request strong
+consistency, unless there are no alternatives available. Unfortunately, this
+requires us to understand subtle differences in semantics of various kinds of
+weak consistency alternatives, offered by the data stores.
 
 \subsection{Contracts}
 
-We have previously observed that two \cf{withdraw} operations cannot
-be executed concurrently for the integrity constraint on the account
-balance to hold. Informally, this means that for any two distinct
-\cf{withdraw} operations $a$ and $b$ on a \cf{BankAccount} object,
-either the effect of $a$ must be visible to $b$, or the effect of $b$
-must be visible to $a$. \name lets us declare this consistency
+\name automates this error-prone task by letting the programmer declare
+application-level consistency constraints as \emph{contracts}. The key
+intuition is that, in the case of the bank account example, any execution that
+does not exhibit the anomalies described in the previous section is a
+\emph{well-formed} execution on the bank account object. In the same vein as
+axiomatic memory models for shared memory multicore
+processors~\cite{Demange2013,Sarkar2011}, the programmer axiomatically
+describes the set of legal executions on top of each replicated date type over
+a trace of operation invocations on that type. Quelea ensures that any
+execution on top of such datatypes always belongs to the set of well-formed
+executions on that type.
+
+In the bank account example, we observed that, in order to preserve the
+integrity constraint, the \cf{withdraw} operation must be strongly consistent.
+That is, given two \cf{withdraw} operations $a$ and $b$, either $a$ is visible
+to $b$ or vice versa. Utilizing the primitive relations described in
+Section~\ref{sec:sysmod}, we express this application-level consistency
 requirement as a contract over \cf{withdraw}:
 \begin{smathpar}
 \begin{array}{l}
-\rsf{withdrawCtrt}(b) = \forall a. ~a \neq b \conj \rsf{isWithdraw}(a) \conj \\
-\qquad \sameobj{a}{b} \Rightarrow \vis{a}{b} \vee \vis{b}{a} 
+\forall (a : \rcf{withdraw}).~\sameobj{a}{\cureff} \Rightarrow a = \cureff \vee \vis{a}{\cureff} \vee \vis{\cureff}{a}
 \end{array}
 \end{smathpar}
-The above definition of $\rsf{withdrawCtrt}$ is parameterized over the
-effect ($b:\cf{BankAccountEff}$) generated by the \cf{withdraw}
-operation. The predicate $\rsf{isWithdraw}$ is true for a
-\cf{Withdraw} effect, and false for any other effect. $\sameobj{a}{b}$
-is true if and only if $a$ and $b$ are effects over the same
-\cf{BankAccount} object; we only require \cf{withdraw} operations on
-same bank account to be totally ordered. Operations on other bank
-accounts can be executed concurrently. Rest of the contract is a
-straightforward translation of its informal presentation discussed
-earlier. 
+In the above contract, $\cureff$ stands for the effect emitted by the
+\cf{withdraw} operation. The syntax $a : \rcf{withdraw}$ states that $a$ is an
+effect which was emitted by a \cf{withdraw} operation i.e)
+$\oper{a}{\rcf{withdraw}}$ holds. The contract says that, if the current
+operation emits an effect $\cureff$, then for any operation $a$ which was
+emitted by a \cf{withdraw} operation, it is the case that $a = \cureff$ or $a$
+is visible to $\cureff$ or vice versa. Any execution on a bank account object
+that preserves the above contract for a \cf{withdraw} operation is said to have
+a correct implementation of \cf{withdraw}.
 
-For the \cf{getBalance}, we construct a contract  precisely to prevent
-the anomalies described previously. The contract is shown below:
+For the \cf{getBalance}, we construct a contract  precisely to prevent the
+anomalies described previously. The contract is shown below:
 \begin{smathpar}
 \begin{array}{l}
-\rsf{getBalCtrt}(c) = \forall (a,b). ~ \rsf{isDeposit}(a) \conj
-  \rsf{isWithdraw}(b) \conj \\
-\qquad \vis{a}{b} \wedge \vis{b}{c} \Rightarrow \vis{a}{c} \\
-\qquad \vee (\soZ \cap \sameobjZ) (a,c) \Rightarrow \vis{a}{c} \\
-\qquad \vee (\soZ \cap \sameobjZ) (b,c) \Rightarrow \vis{b}{c}
+\forall (a:\rcf{deposit}), (b:\rcf{withdraw}), (c: \rcf{deposit} \vee \rcf{withdraw}). \\
+\qquad \vis{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff} \\
+\qquad \wedge~ (\soZ \cap \sameobjZ) (c,\cureff) \Rightarrow \vis{c}{\cureff}
 \end{array}
 \end{smathpar}
 
-\GK{It may be better to split this contract into two parts.}
-If a withdraw $b$ is visible to the get balance operation, then all
-deposit operations $a$ visible to withdraw should be visible to the
-get balance operation. This prevents negative balance anomalies. The
-rest of the contract says that a get balance operation must witness
-previous deposit and withdraw operations on the same object in the
-same session. This prevents missed update anomalies.
+If a \cf{withdraw} $b$ is visible to the get balance operation, then all
+\cf{deposit} operations $a$ visible to the \cf{withdraw} should be visible to
+the get balance operation. This prevents negative balance anomalies. The syntax
+$c : \rcf{deposit} \vee \rcf{withdraw}$ states that $c$ is an effect that was
+emitted either by a \cf{deposit} operation or by a \cf{withdraw} operation. The
+contract language provides relational operators to compose relations. The
+syntax $(R_1 \cap R_2)(a,b)$ is equivalent to $R_1(a,b) \wedge R_2(a,b)$. The
+last line of the above contract says that if a \cf{deposit} or a \cf{withdraw}
+precedes a \cf{getBalance} operation in session order, and is applied on the
+same object as the \cf{getBalance} operation, then it must be the case that the
+\cf{getBalance} operation witnesses the effects of the preceding operations.
+Since the deposit operation does not have any restrictions, its contract is
+simply $\true$.
 
-Since the deposit operation does not have any restrictions, its
-contract is simply $\true$.
+\subsection{From Contracts to Implementation}
 
-Note that the above contracts for \cf{withdraw} and \cf{getBalance}
-express their consistency requirements \emph{independent} of the
-semantics of the underlying store. To write such contracts, a
-programmer only needs to reason about the semantics of the application
-under the replication model professed by \name. The mapping of
-application-level consistency requirements to appropriate store-level
-guarantees is done automatically behind the screen. This process is
-described in the following two sections.
-% Similar to contracts on operations, Quelea supports contracts on transactions.
-% The contract on the \cf{getBalanceName} transaction is given below:
-% \begin{smathpar}
-% \begin{array}{l}
-% \rsf{getBalanceNameCtrt} = \forall (a:\rsf{GetName}), (b:\rsf{GetBalance}), \\
-% \quad (c:\rsf{AddName}), (d:\rsf{AddUser}). ~\trans{a}{b}{c}{d} \wedge \so{a}{b} \\
-% \qquad \wedge ~\vis{c}{a} \wedge \sameobj{d}{b} \Rightarrow \vis{d}{b}
-% \end{array}
-% \end{smathpar}
+Notice that the contracts for \cf{withdraw} and \cf{getBalance} only express
+the application-level consistency requirements, and make no reference to the
+semantics of the underlying store. To write such contracts, a programmer only
+needs to reason about the semantics of the application under the \name system
+model. The mapping of application-level consistency requirements to appropriate
+store-level guarantees is done automatically behind the screen.
 
-% $\trans{a}{b}{c}{d}$ says that the action pairs $a,b$ and $c,d$ are in the same
-% transaction, and the two transactions are distinct. The contract says
-% specifically forbids the anomaly presented in
-% Figure~\ref{fig:monotonicityAnomaly}. This is the desired semantics for the
-% \cf{getUserName} transaction.
+How might one go about ensuring that any execution adheres to the contract? The
+challenge is that contract is a declarative characterization of correctness of
+execution, while what we need is an operational procedure for \emph{enforcing}
+the contracts. One strategy is to adopt speculative execution as espoused by
+other eventually consistent systems, where operations are tentatively applied
+as they are received from the client or other replicas. We can maintain a
+runtime manifestation of the axiomatic characterization and check the
+well-formedness at runtime, and rollback the execution if
+ill-formed~\cite{rxcml}. However, the overhead of state maintenance and the
+complexity of user-defined contracts (unlike simple tests such as cyclic
+dependence) make this technique unviable.
 
-% The programmer simply defines such contracts on the operations and the
-% transactions. Quelea logically analyzes the contracts, and maps the
-% corresponding operation to the precise store consistency and isolation level.
-% Thus, Quelea equips the programmer with a declarative model for reasoning and
-% expressing eventually consistent programs.
-
-
-
+Instead, Quelea statically analyzes the contracts using an SMT solver, and maps
+each operation to a particular store-level consistency under which the contract
+would be preserved. In particular, the key idea is that the system implementor
+axiomatically describes the store semantics in the same contract language as
+the one used to express the contract on the operation. We translate the
+contracts down to decidable subset of first-order logic~\cite{}, and discharge
+proof obligation of checking whether a particular store consistency level is
+sufficient for the given contract with the help of an SMT solver. The next
+section describes the contract language and classification.

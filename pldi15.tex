@@ -27,6 +27,7 @@
 
 
 \newcommand{\cf}[1]{{\small\tt #1}}
+\newcommand{\rcf}[1]{\mathrm{\cf{#1}}}
 \newcommand{\conj}{~\wedge~}
 \definecolor{darkgreen}{rgb}{0,0.5,0}
 \definecolor{darkred}{rgb}{0.5,0,0}
@@ -118,8 +119,9 @@ application developers have to contend with weak consistency behaviors, and the
 lack of abstractions to composably construct high-level replicated data types,
 necessitating complex application logic and invariably exposing inconsistencies
 to the user. Commercial distributed data stores and several academic proposals
-do propose a lattice of stronger consistency levels. However, assigning the
-correct consistency level for an operation is a error prone task.
+do propose to provide a lattice of consistency levels, with stronger
+consistency at the cost of latency and throughput. However, correctly assigning
+the consistency level for an operation is a error prone task.
 
 In this paper, we present Quelea, a declarative programming model for
 eventually consistent data stores. Quelea allows expressive convergent
@@ -128,9 +130,9 @@ is equipped with a \emph{contract} language, capable of expressing fine-grained
 application-level consistency properties. A \emph{contract enforcement system}
 logically analyses the contracts using an SMT solver, and automatically maps it
 to the store's consistency level. We describe an implementation of Quelea on
-top of an off-the-shelf eventually consistent data store, and support
-coordination-free transactions. Several benchmarks including two large web
-applications, illustrate the effectiveness of our approach.
+top of an off-the-shelf eventually consistent data store, and provide support
+for \emph{coordination-free} transactions. Several benchmarks including two
+large web applications, illustrate the effectiveness of our approach.
 \end{abstract}
 
 \input{intro}
