@@ -139,16 +139,27 @@ replica that has not yet merged the \cf{withdraw} effect, served by a different
 replica. This anomaly leads the user to incorrectly conclude that the
 \cf{withdraw} operation failed to go through.
 
+\begin{figure}
+\centering
+\includegraphics[width=\columnwidth]{Graphs/BankAccount_Th_vs_Lat}
+\caption{Bank Account: Throughput vs Latency. Quelea is our implementation.
+Strong and Quelea are correct. High. Avail. and causal are incorrect (withdraw
+not strong). 20\% withdraw, 20\% deposit, 60\% getBalance.}
+\label{grf:BankAcc_Th_vs_Lat}
+\end{figure}
+
+
 Although it is easy to understand the reasons behind the occurrence of the
 aforementioned negative balance and missing update anomalies, the fix is not
 quite apparent. Making \cf{getBalance} a strongly consistent operation is
 definitely sufficient to avert anomalies, but is it really necessary? Given
-that a strongly consistent operation is significantly expensive, both in terms
-of availability and monetary overheads~\cite{DynamoDB,Pileus}, we ideally would
-not want to request strong consistency, unless there are no alternatives
-available. Unfortunately, this requires us to understand subtle differences in
-semantics of various kinds of weak consistency alternatives, offered by the
-data stores.
+that a strongly consistent operation is significantly expensive
+(Figure~\ref{grf:BankAcc_Th_vs_Lat} \KC{Should I include the numbers here? If
+yes, I'll expand the text.}), both in terms of availability and monetary
+overheads~\cite{DynamoDB,Pileus}, we ideally would not want to request strong
+consistency, unless there are no alternatives available. Unfortunately, this
+requires us to understand subtle differences in semantics of various kinds of
+weak consistency alternatives, offered by the data stores.
 
 \subsection{Contracts}
 
@@ -209,7 +220,7 @@ same object as the \cf{getBalance} operation, then it must be the case that the
 Since the deposit operation does not have any restrictions, its contract is
 simply $\true$.
 
-\subsection{From contracts to implementation}
+\subsection{From Contracts to Implementation}
 
 Notice that the contracts for \cf{withdraw} and \cf{getBalance} only express
 the application-level consistency requirements, and make no reference to the
