@@ -1,0 +1,177 @@
+\section{Contract Language}
+\label{sec:contract-lang}
+
+% Contract Language Syntax
+% ------------------------
+\input{contract-syntax.tex}
+
+In this section, we formalize the contract language of \name, and
+describe our contract classification scheme, which analyzes a contract
+and maps it to the weakest store consistency level sufficient to
+satisfy its consistency requirements.
+
+% classifies contracts on the basis of the weakest
+% store-level consistency guarantee
+
+\subsection{Syntax}
+
+The syntax of our core contract language is shown in Fig.
+~\ref{fig:contract-lang}. The language is based on first-order logic
+(FOL), and admits prenex quantification over typed effect variables.
+We use a special effect variable ($\cureff$) to denote the effect of
+\emph{current operation} - the operation for which a contract is being
+written. The type of an effect is simply the label of the operation
+(eg: \cf{withdraw}) that engendered the effect. We admit disjuntion in
+types to let an effect variable range over effects of multiple
+operations. Since each replicated data type comes with a unique set of
+operations (therefore, unique set of types for effects), our contract
+language is implictly parameterized over a replicated data type
+specification.
+\GK{I think sec 2. is the right place to introduce the idea of rdt
+spec via the bank account example.}
+
+Quantifier-free propositions in our contract language are
+conjunctions, disjunctions and implications of predicates expressing
+relations between pairs of effect variables. Syntactic class of
+relations is seeded with primitive $\visZ$, $\soZ$, and $\sameobjZ$
+relations, and also admits derived relations that are expressible as
+union, intersection, or transitive closure\footnote{Strictly speaking,
+$R^{+}$ is not the transitive closure of $R$, as transitive closure is
+not expressible in FOL. Instead, $R^{+}$ in our language denotes
+\emph{a} superset of transitive closure of $R$. Formally, $R^{+}$ is
+any relation $R'$ such that forall $x$, $y$, and $z$, a) $R(x,y)
+\Rightarrow R'(x,y)$, and b) $R'(x,y) \conj R'(y,z) \Rightarrow
+R'(x,z)$} of primitive relations. Commonly used derived relations are
+the \emph{same object session order} ($\sooZ$), and the the
+\emph{happens before order} ($\hboZ$) defined as following:
+\begin{smathpar}
+\begin{array}{lcl}
+{\sf soo} & = &  {\sf so} \cap {\sf sameobj}\\
+{\sf hbo} & = & ({\sf soo} \cup {\sf vis})^{+}\\
+\end{array}
+\end{smathpar}
+
+Note that our contract language (stripped of its syntactic sugar) is a
+carefully chosen subset of first-order logic that is known to be
+decidable~\cite{epr}. In particular, for any two contracts ($\cv_1$
+and $\cv_2$) in our language, the implication check $\cv_1 \Rightarrow
+\cv_2$ is decidable, allowing us to automatically deduce that $\cv_2$
+is weaker than $\cv_1$. We formally define the \emph{weaker than}
+relation among contracts as following: 
+\begin{definition}
+A contract $\cv_2$ is said to be weaker than $\cv_1$ (denoted $\cv_2
+\le \cv_1$ ) if and only if:
+\begin{center}
+$\Delta \vdash \cv_1 \Rightarrow \cv_2$
+\end{center}
+\end{definition}
+\noindent The context $\Delta$ in the above definition captures assumptions
+about the nature of primitive relations, such as the assumption that
+$\Rvis$ and $\Rso$ are irreflexive.
+
+This ability to statically compare contracts is key to contract
+classification and subsequent enforcement. This is described in the
+following subsection.
+
+\subsection{Contract Classification}
+
+Application-level consistency requirements expressed by \name
+contracts can have varying impact on the available of the data store
+trying to meet the requirements. We identify three major classes of
+contracts that differ on this parameter: 
+% For instance, total-order requirement
+% expressed by the \cf{withdraw} contract (Sec. ~\ref{sec:motivation})
+% imposes global coordination among all replicas, and consequently makes
+% the store unavailable for any concurrent session. In contrast, the
+% trivial (\cf{true}) contract of the \cf{deposit} operation expresses
+% no special consistency requirements; any replica can serve a deposit
+% request immediately, and the store remains available to concurrent
+% sessions. Based on how a contract affects the availability of the data
+% store, we classify it into one of the following three categories:
+
+\begin{itemize}
+\item \textbf{Unavailable}: These are the contracts that are
+satisfiable only under strong consistency. The need for global
+coordination to satisfy such contracts makes the store unavailable for
+concurrent sessions. An example is the total-order contract on
+\cf{withdraw} (Sec. ~\ref{sec:motivation}).
+\item \textbf{Sticky-available}: These are the contracts that require
+see a \emph{causally consistent} snapshot of the store that
+\emph{must} include some or all of the operations from the same
+session. By applying all operations of a session to the same logical
+replica (colloquially, \emph{sticking} a session to a replica), it is
+possible for a store to satisfy such contracts, while remaining highly
+available. The \cf{getBalance} contract that is sufficient to prevent
+the missing update anomaly is a sticky available contract.
+\item \textbf{Highly-available}: Contracts that only require to see
+\emph{some} causally consistent snapshop of the store are said to
+require \emph{causal visiblity} guarantee. This guarantee can be
+achieved by forcing every replica to reveal only those effects whose
+preceding effects are already included in the replica. Consequently,
+such contracts can always be satisfied by the store, letting it remain
+highly available for other requests.
+\end{itemize}
+
+It is important to note that, although finer distinctions can be made
+between availability implications of contracts, the above
+classification scheme is the one that is known to have practical
+significance\cite{bailisHAT}. More importantly, the consistency levels
+described in the classification scheme, namely strong consistency
+({\sf sc}), causal consistency ({\sc cc}), and causal visibility ({\sf
+cv}), can be implemented efficiently on most off-the-shelf eventually
+consistent data stores\cite{...}. By determining which of the
+aformentioned classes a contract falls into, the corresponding
+implementation of the consistency level on the data store can be used
+to satisfy the contract efficiently. Nonetheless, our classification
+scheme is extendible, meaning that a new availability class can be
+carved out of existing ones with the advent of new data stores
+supporting efficient enforcement of finer consistency levels.
+
+To classify contracts into one of the aforementioned availability
+classes, we need to determine if the corresponding consistency
+guarantee is sufficient to satisfy the contract. Towards this end, we
+encode the {\sf sc}, {\sf cc}, and {\sf cv} consistency guarantees as
+formulas in our contract language ($\hboZ$, the happens-before order,
+was defined previously in the same section):
+\begin{smathpar}
+\stretcharraybig
+\begin{array}{rcl}
+{\sf sc} & = 		 & \forall a. (\hbo{a}{\cureff} \vee \hbo{\cureff}{a} \vee a = \cureff) \\
+         & & \conj (\hbo{a}{\cureff} \Rightarrow \vis{a}{\cureff}) \\
+				 & & \conj (\hbo{\cureff}{a} \Rightarrow \vis{\cureff}{a}) \\
+{\sf cc} & = & \forall a. \hbo{a}{\cureff} \Rightarrow \vis{a}{\cureff} \\
+{\sf cv} & = & \forall a,b. \hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff} \\
+\end{array}
+\end{smathpar}
+Comparing ($\le$) a contract formula against the above formulas of
+{\sf sc}, {\sf cc}, and {\sf cv} will let us determine if the contract
+can be satisfied under strong consistency, causal consistency, and
+causal visiblity consistency guarantees, respectively. Note that {\sf
+sc}, {\sf cc} and {\sf cv} are themselves totally ordered with respect
+to the $\le$ relation:
+\begin{center}
+$\cvc \le \ccc \le \scc$
+\end{center}
+This concurs with the intuition that any contract satisfiable under
+$\ccc$ or $\cvc$ is satisfiable under $\scc$ , and any contract that
+is satisfiable under $\cvc$ is satisfiable under $\ccc$. Nonetheless,
+we determine the availability class of a contract based on the
+\emph{weakest} guarantee (among $\cvc$, $\ccc$, and $\scc$) required
+to satisfy the contract. The classification scheme is presented
+formally as rules in Figure ~\ref{sem:classfiy}.
+% Contract classification rules
+% ------------------------------
+\input{contract-classification}
+The rules to classify contracts into availability classes are
+straightforward. The remaining rule judges a contract as {\sf
+WellFormed} if and only if it can be satisfied under strong
+consistency. We only consider well-formed contracts for classification
+and subsequent enforcement at run-time. The rest are reported as
+errors.
+
+As a result of our automatic classification scheme, a store that can
+enforce $\scc$, $\ccc$, and $\cvc$ contracts can also enforce any
+well-formed \name contract by determining its availability class.  The
+following section formally describes operational semantics of one such
+store, along with a meta-theoretic result that certifies the soundness
+of our classification-based contract enforcement strategy.

@@ -1,0 +1,35 @@
+\newcommand{\DDe}[1]{#1}
+\begin{figure}
+\begin{smathpar}
+\stretcharraybig
+\begin{array}{l}
+\stretcharraybig
+\begin{array}{c}
+\vspace{3mm}
+\RuleTwo
+{\Delta \vdash \DDe{\cv} \le \DDe{\scc}}
+{{\sf WellFormed}(\cv)}  \qquad
+
+\RuleTwo
+{\Delta \vdash \DDe{\cv} \le \DDe{\cvc}}
+{{\sf HighlyAvailable}(\cv)} \\
+
+\vspace{3mm}
+\RuleTwo
+{\Delta \vdash \DDe{\cv} \not\le \DDe{\cvc}\\
+ \Delta \vdash \DDe{\cv} \le \DDe{\ccc}}
+{{\sf StickyAvailable}(\cv)} \qquad
+
+\RuleTwo
+{\Delta \vdash \DDe{\cv} \not\le \DDe{\ccc}\\
+ \Delta \vdash \DDe{\cv} \le \DDe{\scc}}
+{{\sf Unavailable}(\cv)}
+
+\end{array}
+\end{array}
+\end{smathpar}
+\vspace{-5mm}
+
+\caption{Contract classification.}
+\label{sem:classify}
+\end{figure}

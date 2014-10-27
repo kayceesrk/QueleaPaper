@@ -1,0 +1,718 @@
+\begin{theorem}[Well-formedness preservation]
+  \label{lem:core-preservation}
+  If $\E$ is well-formed and $\E; \Theta; \Sigma \goesto \E'; \Theta';
+  \Sigma'$, then $\E'$ is well-formed.
+  \end{theorem}
+\begin{proof}
+  Let $\E = (\EffSoup,\visZ,\soZ)$ and $\E'=(\EffSoup',\Rvis',\Rso')$.
+  We prove by case analysis on the derivation $\E; \Theta; \Sigma 
+    \goesto \E'; \Theta'; \Sigma'$. Cases:
+    \begin{itemize}
+      \item Case \rulelabel{Comm}: The rule does not change the
+      execution state (i.e., $\E' = \E$); so, well-formedness is
+      trivially preserved.
+
+      \item Case \rulelabel{HA}: $\Sigma = \tuplee{s,~op(v); \sigma} \pll
+      \Sigma_0$, and $\Sigma' = \tuplee{s,\sigma} \pll \Sigma_0$,
+      where $\Sigma_0$ represents reset of the session soup. From the
+      definition of well-formedness, we have:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \forall a\in\EffSoup. ~\msentails{E}{\Ctrts(a)} & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Let us call $\Ctrts(op)$ as $\cv$. We have the following hypotheses:
+      \begin{smathpar}
+      \begin{array}{cr}
+        {\sf HighlyAvailable}(\cv) & H\npp \\
+        \E;\Theta;\tuplee{s,op(v); \sigma} 
+          \;\xhookrightarrow{\eff,r}\; 
+        \E';\Theta';\tuplee{s,\sigma} & H\npp\\
+      \end{array}
+      \end{smathpar}
+      The last hypothesis indicates that $op(v)$ is executed on
+      replica $r$ yielding effect $\eff$. Inversion on $H2$ gives:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \EffSoup' = \EffSoup \cup \{\eff\} & H\npp\\
+        \visZ' = \Theta(r)\times\eff ~\cup~ \visZ & H\npp\\
+        \Rso' = \EffSoup_{{\sf SessID}=s,\,{\sf SeqNo}<i}\times\eff ~\cup~ \Rso & H\npp\\
+      \end{array}
+      \end{smathpar}
+      From Hypotheses $H0$ and $H3$, we deduce that in order to prove:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \forall a\in\EffSoup'. ~\msentails{E'}{\Ctrts(a)} & \\
+      \end{array}
+      \end{smathpar}
+      It suffices to prove the following goal:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\cv} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      By destructing $H1$, we get:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \hasTyp{}{\De{\cvc \Rightarrow \cv}} & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Applying (\emph{eapply}) lemma~\ref{lem:1} using $H6$ with
+      $E:=E'$, we deduce that to prove $G0$, it is sufficient to
+      prove: 
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\De{\cvc}} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      $G1$ becomes our new goal. Expanding the definition of $\cvc$:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\De{\forall a,b. \hbo{a}{b} \wedge \vis{b}{\eff} \Rightarrow 
+          \vis{a}{\eff}}} & \\
+      \end{array}
+      \end{smathpar}
+      By definition $\De{\forall a.\psi} = \forall a.
+      \De{\psi}$ and  $\De{\psi_1 \Rightarrow \psi_2} = \De{\psi_1}
+      \Rightarrow \De{\psi_2}$. Further, the model $\E'$ defines
+      $\EffSoup'$ as the universe of values. Therefore, the goal can
+      be rewritten:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \forall (a,b\in\EffSoup').
+        \msentails{E'}{\De{\hbo{a}{b} \wedge
+        \vis{b}{\eff}} \Rightarrow 
+          \De{\vis{a}{\eff}}} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      New hypotheses after \emph{intros}:
+      \begin{smathpar}
+      \begin{array}{cr}
+        a \in \EffSoup' & H\npp\\
+        b \in \EffSoup' & H\npp\\
+      \end{array}
+      \end{smathpar}
+      And new goal:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\De{\hbo{a}{b} \wedge
+        \vis{b}{\eff}} \Rightarrow 
+          \De{\vis{a}{\eff}}} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      From the definition of \emph{models} relation of
+      first-order logic (i.e., semantics of first-order logic),
+      \emph{inversion} on $G3$ adds following hypothesis:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{\E'}{\De{ \hbo{a}{b} \wedge
+        \vis{b}{\eff}}}  & H\npp\\
+      \end{array}
+      \end{smathpar}
+      New goal following the inversion:
+      \begin{smathpar}
+      \begin{array}{cr}
+          \msentails{\E'}{\De{\vis{a}{\eff}}}& G\mpp\\
+      \end{array}
+      \end{smathpar}
+      From the definition of $\De{.}$, $H7$ expands to:
+      \begin{smathpar}
+      \begin{array}{cr}
+          (\msentails{E'}{\hbo{a}{b}}) \wedge
+          (\msentails{E'}{\Rvis'(b,\eff)}) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      \E' provides interpretation for $\Rvis$ as $\Rvis'$, and $\Rso$
+      as $\Rso'$. Therefore, inverting $H10$ gives:
+      \begin{smathpar}
+      \begin{array}{cr}
+          {{\sf hbo'}(a,b)} \wedge \Rvis'(b,\eff) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      In $H11$, ${\sf hbo'} = (\Rso' \cup \Rvis')^{+}$. Similarly,
+      inverting the goal $G4$:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \Rvis'(a,\eff) & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      Inversion on $H11$:
+      \begin{smathpar}
+      \begin{array}{cr}
+          {{\sf hbo'}(a,b)} & H\npp\\
+          \Rvis'(b,\eff) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Since $\eff$ is unique, from $H13$ and $H4$ we have the following:
+      \begin{smathpar}
+      \begin{array}{cr}
+            b\in\Theta(r)& H\npp\\
+      \end{array}
+      \end{smathpar}
+      Applying lemma~\ref{lem:local-state-is-cc} using $H12$ and $H14$
+      with $\Rvis=\Rvis'$ and $\Rso=\Rso'$, we derive:
+      \begin{smathpar}
+      \begin{array}{cr}
+        a \in \Theta(r) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Now, from $H4$ and $H15$, we deduce:
+      \begin{smathpar}
+      \begin{array}{cr}
+        (a,\eff) \in \Rvis'& \\
+      \end{array}
+      \end{smathpar}
+      which is what needs to be proven ($G5$).
+      \item Case \rulelabel{SA}: $\Sigma = \tuplee{s,~op(v); \sigma} \pll
+      \Sigma_0$, and $\Sigma' = \tuplee{s,\sigma} \pll \Sigma_0$. From the definition of
+      well-formedness, we have:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \forall a\in\EffSoup. ~\msentails{E}{\Ctrts(a)} & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Let us call $\Ctrts(op)$ as $\cv$. We have the following hypotheses:
+      \begin{smathpar}
+      \begin{array}{cr}
+        {\sf StickyAvailable}(\cv) & H\npp \\
+        \E;\Theta;\tuplee{s,op(v); \sigma} 
+          \;\xhookrightarrow{\eff,r}\; 
+        \E';\Theta';\tuplee{s,\sigma} & H\npp\\
+        \E'.\soZ^{-1}(\eff) \subseteq \Theta(r) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      $H18$ indicates that $op(v)$ is executed on
+      replica $r$ yielding effect $\eff$. Inversion on $H18$ gives:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \EffSoup' = \EffSoup \cup \{\eff\} & H\npp\\
+        \visZ' = \Theta(r)\times\eff ~\cup~ \visZ & H\npp\\
+        \Rso' = \EffSoup_{{\sf SessID}=s,\,{\sf SeqNo}<i}\times\eff ~\cup~ \Rso & H\npp\\
+      \end{array}
+      \end{smathpar}
+      From $H19$ and $H22$, we have:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \EffSoup_{{\sf SessID}=s,\,{\sf SeqNo}<i} \in \Theta(r) &
+        H\npp \\
+      \end{array}
+      \end{smathpar}
+      From $H16$ and $H20$, we know that in order to prove:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \forall a\in\EffSoup'. ~\msentails{E'}{\Ctrts(a)} & \\
+      \end{array}
+      \end{smathpar}
+      It suffices to prove the following goal:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\cv} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      By destructing $H17$, we get:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \hasTyp{}{\De{\ccc \Rightarrow \cv}} & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Applying (\emph{eapply}) lemma~\ref{lem:1} using $H24$ with
+      $E:=E'$, we deduce that to prove $G0$, it is sufficient to
+      prove: 
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\De{\ccc}} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      $G7$ becomes our new goal. Expanding the definition of $\ccc$:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\De{\forall a. \hbo{a}{\eff} \Rightarrow
+        \vis{a}{\eff}}} & \\
+      \end{array}
+      \end{smathpar}
+      By definition $\De{\forall a.\psi} = \forall a.
+      \De{\psi}$ and  $\De{\psi_1 \Rightarrow \psi_2} = \De{\psi_1}
+      \Rightarrow \De{\psi_2}$. Further, the model $\E'$ defines
+      $\EffSoup'$ as the universe of values. Therefore, the goal can
+      be rewritten:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \forall (a,b\in\EffSoup').
+        \msentails{E'}{\De{\hbo{a}{\eff}} \Rightarrow 
+          \De{\vis{a}{\eff}}} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      New hypotheses after \emph{intros}:
+      \begin{smathpar}
+      \begin{array}{cr}
+        a \in \EffSoup' & H\npp\\
+      \end{array}
+      \end{smathpar}
+      And new goal:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\De{\hbo{a}{\eff}} \Rightarrow 
+          \De{\vis{a}{\eff}}} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      From the definition of \emph{models} relation of
+      first-order logic (i.e., semantics of first-order logic),
+      \emph{inversion} on $G9$ adds following hypothesis:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{\E'}{\De{ \hbo{a}{\eff}}}  & H\npp\\
+      \end{array}
+      \end{smathpar}
+      New goal following the inversion:
+      \begin{smathpar}
+      \begin{array}{cr}
+          \msentails{\E'}{\De{\vis{a}{\eff}}}& G\mpp\\
+      \end{array}
+      \end{smathpar}
+      By inversion on $H26$:
+      \begin{smathpar}
+      \begin{array}{cr}
+          {{\sf hbo'}(a,\eff)}& H\npp\\
+      \end{array}
+      \end{smathpar}
+      where ${\sf hbo'} = (\Rso' \cup \Rvis')^{+}$. Similarly,
+      inverting the goal $G4$, we get the current goal:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \Rvis'(a,\eff) & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      Inverting $H27$, we get two cases:
+      \begin{itemize}
+        \item SCase 1: Hypotheses:
+        \begin{smathpar}
+        \begin{array}{cr}
+          (\Rso' \cup \Rvis')(a,\eff) & H\npp\\
+        \end{array}
+        \end{smathpar}
+        Inversion on $H28$ leads to two subcases. In one case, we
+        assume $\Rvis'(a,\eff)$ and try to prove the goal $G11$. The
+        proof for this case mimics the proof for Case \rulelabel{HA}.
+        Alternatively, in second case, we assume:
+        \begin{smathpar}
+        \begin{array}{cr}
+          \Rso'(a,\eff) & H\npp\\
+        \end{array}
+        \end{smathpar}
+        and prove $G11$. From $H29$ and $H19$, we infer:
+        \begin{smathpar}
+        \begin{array}{cr}
+          a \in \Theta(r) & H\npp\\
+        \end{array}
+        \end{smathpar}
+        Now, from $H30$ and $H21$ we know:
+        \begin{smathpar}
+        \begin{array}{cr}
+          (a,\eff) \in \Rvis' & \\
+        \end{array}
+        \end{smathpar}
+        from which the goal ($G11$) follows.
+
+        \item SCase 2: Hypotheses (after abbreviating the occurance
+        of$(\Rso' \cup \Rvis')^{+}$ as {\sf hbo'}):
+        \begin{smathpar}
+        \begin{array}{cr}
+          \exists(c\in\EffSoup').{\sf hbo'}(a,c) \wedge (\Rso' \cup
+          \Rvis')(c,\eff) & H\npp\\
+        \end{array}
+        \end{smathpar}
+        Inverting $H31$, followed by expanding $\Rso' \cup \Rvis'$:
+        \begin{smathpar}
+        \begin{array}{cr}
+          c\in\EffSoup' & H\npp\\
+           {\sf hbo'}(a,c) \wedge (\Rso'(c,\eff) \vee \Rvis'(c,\eff))& H\npp\\
+        \end{array}
+        \end{smathpar}
+        Inverting the disjunction in $H33$, we get two cases:
+        \begin{itemize}
+          \item SSCase R: Hypothesis is
+          \begin{smathpar}
+          \begin{array}{cr}
+             {\sf hbo'}(a,c) \wedge \Rvis'(c,\eff)& H\npp\\
+          \end{array}
+          \end{smathpar}
+          Observe that hypothesis $H34$ and current goal ($G11$) are
+          same as hypothesis $H11$ and goal ($G5$) in Case
+          \rulelabel{HA}. The proof for this SSCase is also the same.
+
+          \item SSCase L: Hypothesis is
+          \begin{smathpar}
+          \begin{array}{cr}
+             {\sf hbo'}(a,c) \wedge \Rso'(c,\eff)& H\npp\\
+          \end{array}
+          \end{smathpar}
+          Inverting $H35$:
+          \begin{smathpar}
+          \begin{array}{cr}
+             {\sf hbo'}(a,c)& H\npp\\
+             \Rso'(c,\eff)& H\npp\\
+          \end{array}
+          \end{smathpar}
+          From $H37$ and $H19$, we infer:
+          \begin{smathpar}
+          \begin{array}{cr}
+            c \in \Theta(r) & H\npp \\
+          \end{array}
+          \end{smathpar}
+          Applying lemma~\ref{lem:local-state-is-cc} using $H36$ and
+          $H38$ with $\Rso=\Rso'$ and $\Rvis=\Rvis'$, we get:
+          \begin{smathpar}
+          \begin{array}{cr}
+            a \in \Theta(r) & H\npp\\
+          \end{array}
+          \end{smathpar}
+          Proof follows from $H39$ and $H21$.
+        % End of SSCase
+        \end{itemize}
+      % End of SCases
+      \end{itemize}
+
+      \item Case \rulelabel{UA}: $\Sigma = \tuplee{s,~op(v); \sigma} \pll
+      \Sigma_0$, and $\Sigma' = \tuplee{s,\sigma} \pll \Sigma_0$. From the definition of
+      well-formedness, we have:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \forall a\in\EffSoup. ~\msentails{E}{\Ctrts(a)} & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Let us call $\Ctrts(op)$ as $\cv$. We have the following hypotheses:
+      \begin{smathpar}
+      \begin{array}{cr}
+        {\sf Unavailable}(\cv) & H\npp \\
+        \E;\Theta;\tuplee{s,op(v); \sigma} 
+          \;\xhookrightarrow{\eff,r}\; 
+        \E';\Theta_0;\tuplee{s,\sigma} & H\npp\\
+        \E.A \subseteq \Theta(r) & H\npp\\
+        \forall r'\in \dom(\Theta_0). \Theta'(r') = \Theta_0(r') \cup
+          \{\eta\} & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Inversion on $H42$ gives:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \EffSoup' = \EffSoup \cup \{\eff\} & H\npp\\
+        \visZ' = \Theta(r)\times\{\eff\} ~\cup~ \visZ & H\npp\\
+        \Rso' = \EffSoup_{{\sf SessID}=s,\,{\sf SeqNo}<i}\times\eff ~\cup~ \Rso & H\npp\\
+      \end{array}
+      \end{smathpar}
+      From Hypotheses $H0$ and $H3$, we deduce that in order to prove:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \forall a\in\EffSoup'. ~\msentails{E'}{\Ctrts(a)} & \\
+      \end{array}
+      \end{smathpar}
+      It suffices to prove the following goal:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\cv} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      By destructing $H1$, we get:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \hasTyp{}{\De{\scc \Rightarrow \cv}} & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Applying (\emph{eapply}) lemma~\ref{lem:1} using $H6$ with
+      $E:=E'$, we deduce that to prove $G0$, it is sufficient to
+      prove: 
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\De{\scc}} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      $G1$ becomes our new goal. Expanding the definition of $\scc$:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\forall a. \De{\phi_1 \wedge \phi_2 \wedge \phi_3}} &
+        G\mpp\\
+      \end{array}
+      \end{smathpar}
+      where $\phi_1, \phi_2$ and $\phi_3$ are defined as:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \phi_1 =  (\hbo{a}{\eff} \vee \hbo{\eff}{a} \vee a =
+        \eff) & H\npp\\
+        \phi_2 = (\hbo{a}{\eff} \Rightarrow \vis{a}{\eff}) & H\npp\\
+        \phi_3 = (\hbo{\eff}{a} \Rightarrow \vis{\eff}{a})& H\npp\\
+      \end{array}
+      \end{smathpar}
+      After inversion followed by \emph{intros}, new hypothesis:
+      \begin{smathpar}
+      \begin{array}{cr}
+        a\in\EffSoup' & H\npp\\
+      \end{array}
+      \end{smathpar}
+      New goal:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\De{\phi_1 \wedge \phi_2 \wedge \phi_3}} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      Inverting \emph{models} relation in $G15$ followed by inverting
+      conjunction, we get three goals:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\De{\phi_1 }} & G\mpp\\
+        \msentails{E'}{\De{\phi_2 }} & G\mpp\\
+        \msentails{E'}{\De{\phi_3 }} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      Substituting definitions of $\phi_1$, $\phi_2$ and $\phi_3$ in
+      $G16-18$ and expanding: 
+      \begin{smathpar}
+      \begin{array}{cr}
+         {\sf hbo'}(a,\eff) \vee {\sf hbo'}(\eff,a)  \vee a = \eff & G\mpp\\
+         {\sf hbo'}(a,\eff) \Rightarrow \Rvis'(a,\eff) & G\mpp\\
+         {\sf hbo'}(\eff,a) \Rightarrow \Rvis'(\eff,a) & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      From $H45$ and $H52$, we know that either $a\in\EffSoup$ or
+      $a=\eff$. When $a=\eff$:
+      \begin{itemize}
+        \item $G19$ follows trivially.
+        \item Since ${\sf hbo'}$ is irreflexive, ${\sf
+        hbo'}(\eff,\eff) = false$. Therefore, $G20$ and $G21$ are valid vacuosly.
+      \end{itemize}
+      When $a \in A$:
+      \begin{itemize}
+        \item From $H43$ we know that $a \in \Theta(r)$. Using $H46$, we
+        derive:
+        \begin{smathpar}
+        \begin{array}{cr}
+          \Rvis'(a,\eff) & H\npp\\
+        \end{array}
+        \end{smathpar}
+        which proves $G20$
+
+        \item We prove $G19$ by proving:
+        \begin{smathpar}
+        \begin{array}{cr}
+          {\sf hbo'}(a,\eff)& G\mpp\\
+        \end{array}
+        \end{smathpar}
+        From previous case, we know that:
+        \begin{smathpar}
+        \begin{array}{cr}
+          \Rvis'(a,\eff) & H\npp\\
+        \end{array}
+        \end{smathpar}
+        Introducting disjunction:
+        \begin{smathpar}
+        \begin{array}{cr}
+          (\Rvis' \cup \Rso')(a,\eff) & H\npp\\
+        \end{array}
+        \end{smathpar}
+        Now, since ${\sf hbo'} = (\Rvis' \cup \Rso')^{+}$, proof
+        follows from $H54$.
+          
+        %% AXIOMS ON VIS, SO & HBO NEED TO BE PROVEN FOR VIS', SO' &
+        %% HBO'.
+        \item From previous case, we know that ${\sf hbo'}(a,\eff)$.
+        Since ${\sf hbo'}$ is asymmetric, ${\sf hbo'}(\eff,a) =
+        false$. Hence, $G21$ follows vacuosly.
+      \end{itemize}
+    % End of main cases
+    \end{itemize}
+  \qed
+\end{proof}
+
+\begin{lemma}[Encoding Implication]
+  \label{lem:1}
+  Forall contracts $\psi_1$ and $\psi_2$, if $\De{\psi_1 \Rightarrow
+  \psi_2}$ is a valid formula in first-order logic (i.e.,
+  $\hasTyp{\cdot} {\De{\psi_1 \Rightarrow \psi_2}}$), then any
+  execution state ($\E$) that is a model of $\De{\psi_1}$ is also the
+  model of $\De{\psi_2}$ (i.e., $(\msentails{\E}{\De{\psi_1}})
+  \Rightarrow (\msentails{\E}{\De{\psi_2}})$).
+\end{lemma}
+\begin{proof}
+  By definition, $\De{\psi_1 \Rightarrow \psi_2} = \De{\psi_1}
+  \Rightarrow \De{\psi_2}$. Since $\De{\phi_1}$ and $\De{\phi_2}$ are
+  formulas in first-order logic, the proof now follows directly from
+  the soundness result of first-order logic.
+\qed
+\end{proof}
+
+\begin{lemma}[Local State is Causally Consistent]
+  \label{lem:local-state-is-cc}
+  In a replicated data store $\E; \Theta; \Sigma$, local state of
+  every replica $r$ in the store (i.e., $\Theta(r)$) is causally
+  consistent. That is:\vspace*{0.04in}\\
+  $\forall (r\in{\sf dom}(\Theta)). \forall (\eff \in \Theta(r)). \\
+  \hspace*{0.8in}\forall (a\in\E.A). \hbo{a}{\eff} \Rightarrow a \in \Theta(r)$\vspace*{0.04in}\\
+  where ${\sf hbo} = (\E.\Rvis \cup \E.\Rso)^{+}$
+\end{lemma}
+\begin{proof}
+  By induction on $(\E; \Theta; \Sigma)$. Cases:
+  \begin{itemize}
+    \item Case \rulelabel{Comm}: Hypotheses:
+    \begin{smathpar}
+    \begin{array}{cr}
+      r \in {\sf ReplID} & H\npp \\
+      \eff \in A & H\npp \\
+      \eff \notin \Theta(r)& H\npp \\
+      \E.\visZ^{-1}(\eff) \cup \E.\soZ^{-1}(\eff) \subseteq \Theta(r)
+      & H\npp \\
+      \Theta = \Theta_0[r \mapsto \{\eff\} \cup \Theta_0(r)] & H\npp \\
+    \end{array}
+    \end{smathpar}
+    Inductive Hypothesis:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \hspace*{-0.5in}\forall (r\in{\sf dom}(\Theta_0)). \forall (\eff \in
+        \Theta_0(r)). & \\
+      \hspace*{0.3in}\forall (a\in\E.A). \hbo{a}{\eff} \Rightarrow a \in \Theta_0(r) & IH\npp \\
+    \end{array}
+    \end{smathpar}
+    From $H4$ and $IH5$, it suffices to prove:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \forall (a\in\E.A). \hbo{a}{\eff} \Rightarrow a \in \Theta(r) & G\mpp\\
+    \end{array}
+    \end{smathpar}
+    After \emph{intros}, hypotheses:
+    \begin{smathpar}
+    \begin{array}{cr}
+      a\in\E.A & H\npp\\
+      \hbo{a}{\eff} & H\npp \\
+    \end{array}
+    \end{smathpar}
+    Goal:
+    \begin{smathpar}
+    \begin{array}{cr}
+      a \in \Theta(r) & G\mpp \\
+    \end{array}
+    \end{smathpar}
+    Inversion on $H7$ leads to two cases:
+    \begin{itemize}
+      \item SCase \emph{$a$ directly precedes $\eff$ }: Hypothesis:
+      \begin{smathpar}
+      \begin{array}{cr}
+        (\E.\Rvis \cup \E.\Rso)(a,\eff) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      From $H3$ and $H8$, we conclude that $a \in \Theta(r)$.
+      
+      \item SCase \emph{$a$ transitively precedes $\eff$}: Hypothesis:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \exists (c \in \E.A). \hbo{a}{c} \wedge (\E.\Rvis \cup
+        \E.\Rso)(c,\eff) & H\npp \\
+      \end{array}
+      \end{smathpar}
+      Inverting $H9$:
+      \begin{smathpar}
+      \begin{array}{cr}
+        c \in \E.A & H\npp \\
+        \hbo{a}{c} & H\npp \\
+        (\E.\Rvis \cup \E.\Rso)(c,\eff) & H\npp \\
+      \end{array}
+      \end{smathpar}
+      From $H3$ and $H12$, we have:
+      \begin{smathpar}
+      \begin{array}{cr}
+        c \in \Theta(r) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      From $IH5$, $H13$ and $H11$, we conclude that $a \in \Theta(r)$.
+    \end{itemize}
+
+    \item Cases \rulelabel{HA} and \rulelabel{SA}: Local state is
+    unmodified. That is, $\Theta$ remains unchanged. Hence, proof
+    follows directly from inductive hypothesis for these cases.
+
+    \item Case \rulelabel{UA}: $\Sigma = \tuplee{s,\sigma} \pll
+    \Sigma_1$. Hypotheses:
+    \begin{smathpar}
+    \begin{array}{cr}
+      r \in {\sf ReplID} & H\npp \\
+      {\sf Unavailable}(\cv) & H\npp \\
+      \E_1;\Theta_1;\tuplee{s,op(v); \sigma} 
+        \;\xhookrightarrow{\eff,r}\; 
+      \E;\Theta_2;\tuplee{s,\sigma} & H\npp\\
+      \E_1.A \subseteq \Theta_1(r) & H\npp\\
+      \dom(\Theta) = \dom(\Theta_2) & H\npp\\
+      \forall r'\in \dom(\Theta). \Theta(r') = \Theta_2(r') \cup
+      \{\eff\} & H\npp\\
+    \end{array}
+    \end{smathpar}
+    Inductive hypothesis:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \hspace*{-0.5in}\forall (r'\in{\sf dom}(\Theta_1)). \forall (\eff' \in
+        \Theta_1(r')). & \\
+      \hspace*{0.3in}\forall (a\in\E_1.A). \hbo{a}{\eff'} \Rightarrow a
+        \in \Theta_1(r') & IH\npp \\
+    \end{array}
+    \end{smathpar}
+    The goal:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \hspace*{-0.5in}\forall (r'\in{\sf dom}(\Theta)). \forall (\eff' \in
+        \Theta(r')). & \\
+      \hspace*{0.3in}\forall (a\in\E.A). \hbo{a}{\eff'} \Rightarrow a
+        \in \Theta(r') & G\mpp \\
+    \end{array}
+    \end{smathpar}
+    Inverting $H16$:
+    \begin{smathpar}
+    \begin{array}{cr}
+        \E.\EffSoup = \E_1.\EffSoup \cup \{\eff\} & H\npp\\
+        \E.\visZ = \Theta_1(r)\times \{\eff\} ~\cup~ \E_1.\visZ & H\npp\\
+        \E.\Rso = \E_1.\EffSoup_{{\sf SessID}=s,\,{\sf SeqNo}<i}\times
+          \{\eff\} ~\cup~ \E_1.\Rso & H\npp\\
+        \Theta_2 = \Theta_1 & H\npp\\
+    \end{array}
+    \end{smathpar}
+    Using $H24$ to rewrite $H19$:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \forall r'\in \dom(\Theta). \Theta(r') = \Theta_1(r') \cup
+      \{\eff\} & H\npp\\
+    \end{array}
+    \end{smathpar}
+    Using $H25$ and $IH20$, we can reduce the goal ($G2$) to:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \forall (r'\in{\sf dom}(\Theta)). 
+      \forall (a\in\E.\EffSoup). \hbo{a}{\eff} \Rightarrow a
+        \in \Theta(r') & G\mpp \\
+    \end{array}
+    \end{smathpar}
+    After \emph{intros}, hypotheses:
+    \begin{smathpar}
+    \begin{array}{cr}
+      r' \in \dom(\Theta) & H\npp \\
+      a \in \E.\EffSoup & H\npp\\
+      \hbo{a}{\eff} & H\npp\\
+    \end{array}
+    \end{smathpar}
+    Goal:
+    \begin{smathpar}
+    \begin{array}{cr}
+      a \in \Theta(r) & G\mpp \\
+    \end{array}
+    \end{smathpar}
+    From $H27$ and $H21$, we know that either $a \in \E_1.\EffSoup$ or
+    $a = \eff$.
+    \begin{itemize}
+      \item If $a \in \E_1.\EffSoup$, then from $H17$, we know that $a
+      \in \Theta_1(r)$. However, from $H25$ we know that $\Theta_1(r)
+      \subset \Theta(r)$, which lets us conclude that $a \in
+      \Theta(r)$.
+
+      \item If $a = \eta$, then $H28$ is $\hbo{\eff}{\eff}$, which is
+      $false$ since {\sf hbo} is irreflexive.
+      \emph{ex\_falso\_quodlibet}.
+    \end{itemize}
+  % End of main cases  
+  \end{itemize}
+\qed
+\end{proof}
+
