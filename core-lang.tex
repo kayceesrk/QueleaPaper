@@ -1,45 +1,42 @@
 \section{Operational Semantics}
 \label{sec:core-opsem}
 
-We demonstrate our ideas using a replicated data store formalized as a
-triple $\E;\Theta;\Sigma$, where $\E$ denotes the execution state,
-$\Theta$ maps replicas to their local state, and $\Sigma$, the session
-soup, is the set of client sessions interacting with the store.
-Operational semantics given in Figure~\ref{sem:oper} succinctly
-capture the behaviour of the store that is relevant to demonstrate the
-operational significance of contract classification. For the sake of
-clarity, we only consider a single replicated object of well-defined
-type (for eg: a replicated object of type \cf{BankAccount}) in our
-formalization.  Our semantics are parametric over the specification of
-this replicated data type.  Figure~\ref{sem:oper} formalizes
-replicated data type (RDT) specification as tuple
-$(\tau,\Ops,\Ctrts)$, where $\tau$ is the data type, $\Ops$ maps
-labels ($op$) of operations on $\tau$ to their definitions, while
-$\Ctrts$ maps them to their consistency contracts ($\cv$). The
-definition of an operation is expected to be a lambda expression in
-the server-side language\footnote{Since a replicated object is
-maintained by a server, we call the language in which replicated data
-type operations are defined as \emph{server-side language}.}, although
-we do not enforce this in our formalization. We intentionally leave
-the server-side language underspecified to demonstrate that our ideas
-are independent of the choice of the programming language used to
-implement the replicated data type. 
+We formalize a replicated data store as a triple $\E;\Theta;\Sigma$,
+where $\E$ denotes the execution state, $\Theta$ maps replicas to
+their local state, and $\Sigma$, the session soup, is the set of
+concurrent client sessions interacting with the store.  Operational
+semantics given in Figure~\ref{sem:oper} succinctly capture the
+behaviour of the store that is relevant to demonstrate the operational
+significance of contract classification. For the sake of clarity, we
+only consider a single replicated object of well-defined type (for eg:
+a replicated object of type \cf{BankAccount}) in our formalization.
+Our semantics are parametric over the specification of this replicated
+data type.  Figure~\ref{sem:oper} formalizes replicated data type
+(RDT) specification as tuple $(\tau,\Ops,\Ctrts)$, where $\tau$ is the
+data type, $\Ops$ maps labels ($op$) of operations on $\tau$ to their
+definitions, while $\Ctrts$ maps them to their consistency contracts
+($\cv$). The definition of an operation is expected to be a lambda
+expression in the server-side language\footnote{Since a replicated
+object is maintained by a server, we call the language in which
+replicated data type operations are defined as \emph{server-side
+language}.}, although we do not enforce this in our formalization. We
+intentionally leave the server-side language underspecified to
+demonstrate that our ideas are independent of the choice of the
+programming language used to implement the replicated data type. 
 
 % Core Operational Semantics
 % --------------------------
 \input{core-opsem.tex}
 
-Clients interact with the store via multiple concurrent sessions. For
+A session is modeled simply as a sequence of actions on the replicated
+object maintained by the store, where an action is defined as an
+application of replicated data type operation to a value. For
 technical reasons, we tag every session in the session soup ($\Sigma$)
 with a unique {\sf SessID} and the sequence number of next operation
-in that session. As shown in Fig.~\ref{sem:oper}, we model a session
-simply as a sequence of actions on the replicated object maintained by
-the store, where an action is defined as an application of replicated
-data type operation to a value. As with the server-side language, our
-development is also orthogonal to the choice of the client-side
-language, but we require both the languages to agree on the syntactic
-class of values that replicated data type operations ($op$) produce
-and consume. 
+in that session. As with the server-side language, our development is
+also orthogonal to the choice of the client-side language, but we
+require both the languages to agree on the syntactic class of values
+that replicated data type operations ($op$) produce and consume. 
 
 An execution state $\E$ is a tuple $\Exec$ where $\EffSoup$ is a set
 of effects, and $\visZ,\soZ \subseteq \EffSoup \times
@@ -56,12 +53,13 @@ if $s'=s$ and $i'\ge i$. An effect generated at a replica becomes
 visible at rest of the replicas eventually. The local state of a
 replica $r$ (i.e., $\Theta(r)$) is a set of effects that are currently
 visible at $r$. An operation $op$ performed at replica $r$ can only
-witness the set of effects ($\Theta(r)$) visible at $r$.  Note that
-in presence of multiple replicated objects, $\visZ$ only relates
-effects of operations performed on a single object. For instance, a
-{\sf withdraw} operation can witness (via $\visZ$) a {\sf deposit}
-operation on the same bank account, but not a {\sf deposit} on a
-different account. Often, in our formalization, we use $\visZ$ and
+witness the set of effects ($\Theta(r)$) visible at $r$.  
+% Note that in presence of multiple replicated objects, $\visZ$ only
+% relates effects of operations performed on a single object. For
+% instance, a {\sf withdraw} operation can witness (via $\visZ$) a {\sf
+% deposit} operation on the same bank account, but not a {\sf deposit}
+% on a different account. 
+Often, in our formalization, we use $\visZ$ and
 $\soZ$ binary relations to obtain a set of effects visible to a given
 effect $\eff$, or set of effects that precede a given effect $\eff$ in
 the session order. As a syntactic convenience, whenever $R$ is a
@@ -82,12 +80,12 @@ originate at replica $r$.
 It is important to note that that enforcing causal visibility does not
 require any inter-replica coordination.
 
-Rule $\rulelabel{Oper}$ is an auxiliary reduction of the form
-
+Rule $\rulelabel{Oper}$ is an auxiliary reduction of the
+form:\vspace{-1.7mm}
 \begin{smathpar}
 \auxred{\Theta} {(\E,\langle s,i,op(v) \rangle)} {r} {(\E',\eff)}
+\vspace{-1.7mm}
 \end{smathpar}
-
 \noindent Under the store configuration $\Theta$, the rule captures
 the progress in execution (from $\E$ to $\E'$) due to the application
 of operation $op$ to replica $r$ resulting in a new effect $\eff$.
@@ -144,12 +142,12 @@ well-formedness condition over execution states:
 \begin{definition}[Well-formed execution]
 An execution state $\E = \Exec$ corresponding to an execution of
 operations over a replicated datatype with specification $\rdtspec =
-(\tau,\Ops,\Ctrts)$ is said to be well-formed if and only if 
-$\forall \eff \in \EffSoup. ~\E \models \De{\cv[\eff/\cureff]}$, where $\cv =
+(\tau,\Ops,\Ctrts)$ is said to be well-formed if and only if $\forall
+\eff \in \EffSoup. ~\E \models \DDe{[\eff/\cureff]\cv}$, where $\cv =
 \Ctrts(\operZ(\eff))$.
 \end{definition}
 
-Symbol $\models$ denotes the standard \emph{models} relation of
+$\models$ denotes the standard \emph{models} relation of
 first-order logic.  A valid model for a first-order formula defines
 the universe of discourse, and provides interpretations for free
 symbols in the formula such that the formula is true under given
