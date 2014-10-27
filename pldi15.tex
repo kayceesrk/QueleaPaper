@@ -8,7 +8,7 @@
 %
 % the following standard packages may be helpful, but are not required
 %
-\usepackage{SIunits}            % typset units correctly
+%\usepackage{SIunits}            % typset units correctly
 \usepackage{courier}            % standard fixed width font
 \usepackage[scaled]{helvet} % see www.ctan.org/get/macros/latex/required/psnfss/psnfss2e.pdf
 \usepackage{url}                  % format URLs
@@ -18,7 +18,10 @@
 \usepackage[tight]{subfigure}
 \usepackage{xspace}
 \usepackage{graphicx}
+\usepackage{mathtools}
 \usepackage{mathpartir}
+\usepackage{amssymb}
+\usepackage{amsmath}
 
 \usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
 \usepackage{amsthm}
@@ -138,5 +141,9 @@ large web applications, illustrate the effectiveness of our approach.
 \input{intro}
 
 \input{motivation}
+
+\input{contract-language}
+
+\input{core-lang}
 
 \end{document}
