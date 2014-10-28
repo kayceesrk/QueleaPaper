@@ -3,7 +3,7 @@
 
 In this section, we present the meta-theoretic result that certifies
 the soundness of our classification-based contract enforcement
-strategy. 
+strategy.
 % We show that any data store can correctly enforce $\scc$,
 % $\ccc$, and $\ecc$ guarantees can satisfy application-level
 % consistency constraints of all \name contracts.
@@ -27,9 +27,11 @@ classification scheme is independent of store semantics. Accordingly,
 we abstain from making any specific assumptions about semantics of the
 store. However, we do assume the existence of a reduction relation of
 form:
-\begin{smathpar} 
+
+\begin{smathpar}
   \auxred{} {(\E,\Sigma)} {\eff} {(\E',\Sigma')}
 \end{smathpar}
+
 \noindent The relation captures store's progress in execution (from
 $\E$ to $\E'$) due to the application of an operation from one of the
 sessions in $\Sigma$ to a replica, generating a new effect ($\eff$).
@@ -40,7 +42,7 @@ formulas, and also fixes the domain of quantification to set of all
 effects ($\EffSoup$) observed during the execution. Therefore, $\E$ is
 a potential model for any contract formula ($\cv$). If $\E$ is indeed
 a model of $\cv$ (i.e., $\E \models \cv$), we say that the store
-enforced the contract $\cv$ in execution $\E$. 
+enforced the contract $\cv$ in execution $\E$.
 
 % Core Operational Semantics
 % --------------------------
@@ -51,12 +53,12 @@ We now state the soundness of contract enforcement as following:
 \begin{theorem}[Soundness of Contract Enforcement]
 \label{lem:core-preservation}
 Let $\cv$ be the contract of a replicated data type operation $op$,
-and let $\tau$ denote the consistency class of $\cv$ 
+and let $\tau$ denote the consistency class of $\cv$
 as determined by the contract classification scheme. Forall execution
-states $\E$, $\E'$ such that 
-$\auxred{} {(\E,\langle (op,\tau);\,\sigma \rangle \pll \Sigma)} {\eff} 
+states $\E$, $\E'$ such that
+$\auxred{} {(\E,\langle (op,\tau);\,\sigma \rangle \pll \Sigma)} {\eff}
  {(\E',\langle \sigma \rangle \pll \Sigma)}$
-if $\E' \models [\eff/\cureff]\,\cv(\tau)$, then $\E' \models [\eff/\cureff]\,\cv$ 
+if $\E' \models [\eff/\cureff]\,\cv(\tau)$, then $\E' \models [\eff/\cureff]\,\cv$
 \end{theorem}
 
 The theorem states that if a data store correctly enforces $\scc$,

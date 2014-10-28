@@ -151,25 +151,19 @@ application-level contract into one of these following classes:
 
 \end{itemize}
 
+% Contract classification rules
+% ------------------------------
+\input{contract-classification}
+
 \noindent Observe that the contracts $\scc$, $\ccc$ and $\ecc$ are themselves
 totally ordered with respect to the $\le$ relation: $\ecc \le \ccc \le \scc$.
 This concurs with the intuition that any contract satisfiable under $\ecc$ or
 $\ccc$ is satisfiable under $\scc$, and any contract that is satisfiable under
 $\ecc$ is satisfiable under $\ccc$. Nonetheless, we determine the class of a
 contract based on the \emph{weakest} guarantee (among $\ecc$, $\ccc$, and
-$\scc$) required to satisfy the contract.
-
-% Contract classification rules
-% ------------------------------
-\input{contract-classification}
-
-The classification scheme is presented formally in Figure~\ref{sem:classify}.
-Along with three straightforward rules that classify contracts into consistency
-classes, the classification scheme also presents a rule that judge
-well-formedness of a contract. A contract is well-formed if and only if it is
-satisfiable under $\scc$ - the strongest possible consistency guarantee any
-store can provide. The $\le$ relation used by the rules is defined formally
-below:
+$\scc$) required to satisfy the contract. The classification scheme is
+presented formally in Figure~\ref{sem:classify}. The $\le$ relation used by the
+rules is defined formally below:
 
 \begin{definition}
 A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
@@ -182,4 +176,8 @@ A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 The $\Delta$ referred in the above defintion captures assumptions about the
 nature of primitive relations, such as $\Rvis$ and $\Rso$ are irreflexive, and
 the happens-before relation $\hbZ$ is acyclic, preventing thin-air reads.
-\KC{Ideally, we need to list all the axioms somewhere.}
+\KC{Ideally, we need to list all the axioms somewhere.} Along with three
+straightforward rules that classify contracts into consistency classes, the
+classification scheme also presents a rule that judge well-formedness of a
+contract. A contract is well-formed if and only if it is satisfiable under
+$\scc$ - the strongest possible consistency guarantee any store can provide.
