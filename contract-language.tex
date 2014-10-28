@@ -122,6 +122,7 @@ application-level contract into one of these following classes:
   semantics that remain highly-available~\cite{BailisHAT,COPS}; the store
   always exposes a causal cut of the updates. This semantics can be formally
   captured in terms of the following contract definition:
+
 \vspace{-1em}
 \begin{smathpar}
 \ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
