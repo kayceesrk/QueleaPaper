@@ -78,14 +78,14 @@ mapping.  The paper makes the following contributions:
 	We extend our contract language to express fine-grained transaction isolation
 	guarantees, and utilize the contract enforcement system to automatically
 	assign the correct and most efficient isolation level for a transaction.
-\item We provide metatheory that certifies the soundness of our contract enforcement
-	system, and ensures that an operation is only executed if the required
-	conditions on consistency are met.
-\item \name is implemented as a transparent shim layer over
-  Cassandra~\cite{Cassandra}, a well-known general-purpose data store.  An
-  extensive experimental evaluation over a collection of real-world
-  applications, including a Twitter-like micro-blogging site and an
-  eBay-like auction site illustrates the practicality of our approach.
+\item We provide metatheory that certifies the soundness of our contract
+	enforcement system, and ensures that an operation is only executed if the
+	required conditions on consistency are met.
+\item An implementation of \name as a transparent shim layer over
+	Cassandra~\cite{Cassandra}, a well-known general-purpose data store.  An
+	extensive experimental evaluation over a collection of real-world
+	applications, including a Twitter-like micro-blogging site and an eBay-like
+	auction site illustrates the practicality of our approach.
 \end{itemize}
 
 The rest of the paper is organized as follows. The next section describes

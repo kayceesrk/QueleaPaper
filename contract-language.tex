@@ -80,7 +80,7 @@ stores~\cite{Pileus}.
 
 Our goal is to classify contracts, and map the operation they describe to
 the \emph{weakest} store-level consistency level that  nonetheless
-satisfies the contract's constraints. To this end, we need a mechanism to 
+satisfies the contract's constraints. To this end, we need a mechanism to
 compare the ``strength'' of a contract. Let $\cv_{op}$ be a contract for a
 particular operation $op$, and $\cv_{st}$ capture a particular store
 consistency level. We would like to determine whether $op$ can be
@@ -104,7 +104,6 @@ decidable~\cite{epr}.  Since first-order logic is sound and complete
 $\cv_{st} \Rightarrow \cv_{op}$.  Due to the decidability of our
 contract language, this implication check is automatically discharged
 with the help of a theorem prover. 
-
 
 \subsection{Contract Classification}
 
@@ -130,9 +129,10 @@ application-level contract into one of these following classes:
   semantics that remain highly-available~\cite{BailisHAT,COPS}; the store
   always exposes a causal cut of the updates. This semantics can be formally
   captured in terms of the following contract definition:
-\vspace{-0.6em}
+\vspace{-0.8em}
+
 \begin{smathpar}
-\ecc = \forall a,b. \hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
+\ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
 \end{smathpar}
 \noindent where $\small \hboZ = ((\soZ \cap \sameobjZ) \cup \visZ)^+$.
 
