@@ -154,19 +154,19 @@ application-level contract into one of these following classes:
 
 \end{itemize}
 
-\noindent Observe that the contracts $\scc$, $\ccc$ and $\ecc$ are
-themselves totally ordered with respect to the $\le$ relation: $\ecc \le
-\ccc \le \scc$. This concurs with the intuition that any contract
-satisfiable under $\ecc$ or $\ccc$ is satisfiable under $\scc$ , and any
-contract that is satisfiable under $\ecc$ is satisfiable under
-$\ccc$. Nonetheless, we determine the class of a contract based on the
-\emph{weakest} guarantee (among $\ecc$, $\ccc$, and $\scc$) required to
-satisfy the contract. The classification scheme is presented formally
-in Figure~\ref{sem:classify}; here, $\Delta$ captures assumptions about the nature of primitive
-relations, such as $\Rvis$ and $\Rso$ are irreflexive, and the happens-before
-relation $\hbZ$ is acyclic, preventing thin-air reads. \KC{Ideally, we need to
-list all the axioms somewhere.}  The following definition thus precisely
-captures our intuition about contract strength in terms of these rules:
+\noindent Observe that the contracts $\scc$, $\ccc$ and $\ecc$ are themselves
+totally ordered with respect to the $\le$ relation: $\ecc \le \ccc \le \scc$.
+This concurs with the intuition that any contract satisfiable under $\ecc$ or
+$\ccc$ is satisfiable under $\scc$ , and any contract that is satisfiable under
+$\ecc$ is satisfiable under $\ccc$. Nonetheless, we determine the class of a
+contract based on the \emph{weakest} guarantee (among $\ecc$, $\ccc$, and
+$\scc$) required to satisfy the contract. The classification scheme is
+presented formally in Figure~\ref{sem:classify}; here, $\Delta$ captures
+assumptions about the nature of primitive relations, such as $\Rvis$ and $\Rso$
+are irreflexive, and the happens-before relation $\hbZ$ is acyclic, preventing
+thin-air reads. \KC{Ideally, we need to list all the axioms somewhere.}  The
+following definition thus precisely captures our intuition about contract
+strength in terms of these rules:
 
 \begin{definition}
 A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}

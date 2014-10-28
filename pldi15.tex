@@ -60,6 +60,29 @@
     { %\centering
       \csname lst@savefirstlabel\endcsname}
 
+\lstloadlanguages{python}
+\newcommand{\lstpython}{\lstset{
+      language=python,
+      basicstyle=\ttfamily\footnotesize,
+      flexiblecolumns=false,
+      %basewidth={0.5em,0.45em},
+      %aboveskip={3pt},
+      %belowskip={3pt},
+      keywordstyle=\color{blue}\bfseries,
+      commentstyle=\color{darkgreen}\itshape,
+      % ugh, it keywords map/sort/zipwith.  should do this for
+      % consistency or figure out how to disable those other keywords:
+      morekeywords={atomically},
+			literate={psi1}{{$\psi_1$}}1 {psi2}{{$\psi_2$}}1
+    }}
+\lstnewenvironment{codepython}
+    { % \centering
+			\lstpython
+      \lstset{}%
+      \csname lst@setfirstlabel\endcsname}
+    { %\centering
+      \csname lst@savefirstlabel\endcsname}
+
 
 \lstloadlanguages{haskell}
 \newcommand{\lsthaskell}{\lstset{

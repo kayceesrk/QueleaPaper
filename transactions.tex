@@ -9,11 +9,66 @@ multiple objects. However, given that classical transaction models such as
 serializability~\cite{} and snapshot isolation~\cite{} require inter-replica
 coordination, these systems espouse \emph{coordination-free transactions} that
 remain available under network partitions, but only provide weaker isolation
-guarantees.
+guarantees. Coordination-free transactions have intricate consistency semantics
+and widely varying runtime overheads. As with operation-level consistency, the
+onus is on the programmer to pick the correct transaction kind, the choice of
+which is complicated by the consistency requirement of the operations it
+composes.
 
-Coordination-free transactions have intricate consistency semantics and widely
-varying runtime overheads. As with operation-level consistency, the onus is on
-the programmer to pick the correct transaction kind, the choice of which is
-complicated by the consistency requirement of the operations it composes. \name
-automates the choice of assigning the correct and most efficient transaction
-isolation level.
+\subsection{Syntax Extension}
+
+\name automates the choice of assigning the correct and most efficient
+transaction isolation level. Similar to contracts on individual operations, the
+programmer associates contracts with transactions, declaratively expressing its
+consistency specification. We extend the contract language with a new term
+under quantifier-free propositions ${\small \txnZ}~S_1~S_2$, where $S_1$ and
+$S_2$ are sets of effects, and introduce a new primitive equivalence relation
+$\small \sametxnZ$ that holds for effects from the same transaction. $\small
+\txn{a,b}{c,d}$ is just syntactic sugar for $\small \sametxn{a}{b} ~\wedge~
+\sametxn{c}{d} ~\wedge~ \neg\sametxn{a}{c}$, where $a$ and $b$ considered to
+belong to the \emph{current} transaction. We assume that operations not part of
+any transaction to belong to their own unique transaction. While the
+transactions may have varying isolation guarantees, we make the standard
+assumption that all transactions provide atomicity. Hence, we include the
+following axiom in $\Delta$: $\small \forall a,b,c.~\txn{a}{b,c} ~\wedge~
+\sameobj{a}{b} ~\wedge~ \sameobj{b}{c} ~\wedge~ \vis{b}{a} \Rightarrow
+\vis{c}{a}$.
+
+\subsection{Transactional Bank Account}
+
+In order to illustrate the utility of declarative reasoning for transactions,
+let us extend our running bank account example with use two accounts (objects)
+-- current ($c$) and savings ($s$). Each account provides operations
+\cf{withdraw}, \cf{deposit} and \cf{getBalance}, with the same contracts as
+defined previously. We consider two transactions -- \cf{save(amt)}, which
+transfers \cf{amt} from current to savings, and \cf{totalBalance} returns
+the sum of the balances of individual accounts. The pseudo code for the
+transactions is given below:
+
+\noindent \begin{minipage}[t]{0.5\columnwidth}
+\begin{codepython}
+def save(amt):
+  atomically psi1:
+    b = c.withdraw(amt)
+    if (b): s.deposit(amt)
+\end{codepython}
+\end{minipage}
+\begin{minipage}[t]{0.5\columnwidth}
+\begin{codepython}
+def totalBalance():
+  atomically psi2:
+    b1 = c.getBalance()
+    b2 = s.getBalance()
+    return b1 + b2
+\end{codepython}
+\end{minipage}
+
+\noindent where $\cv_1$ and $\cv_2$ are the contracts on the corresponding
+transactions. Our goal is to ensure that \cf{totalBalance} returns the result
+obtained from a consistent snapshot of the object states.
+
+While making both transactions serializable would ensure correctness,
+distributed stores rarely offer serializable transactions. Moreover,
+serializability is unavailable and hinders scalability. As we will see, these
+transactions can be satisfied with much weaker isolation guarantees. Despite
+the atomicity offered by the transaction, anomalies are still possible.
