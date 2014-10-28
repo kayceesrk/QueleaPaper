@@ -3,22 +3,20 @@
 \stretcharraybig
 \begin{array}{rclcl}
 \multicolumn{5}{l}{
-  {x,y,z} \in \mathit{Effect\; Variable} \qquad
-  {\cureff} \in \mathit{Current\; Effect} 
+  {x,y,z} \in \mathtt{EffVar} \qquad
+  {\cureff} \in \mathtt{CurEff} \qquad
+  {\sf Op} \in \mathtt{OperName}
 }\\
-\multicolumn{5}{c}{
-  {\sf Op} \in \mathit{Operation \; Labels}
-}\\
-\cv 		& \in & \mathit{Contract} 	& \coloneqq & \forall (x : \tau).\cv 
+\cv 		& \in & \mathtt{Contract} 	& \coloneqq & \forall (x : \tau).\cv
         \ALT \pi \\
-\tau		& \in	& \mathit{Effect\; Type}	& \coloneqq &  {\sf Op} 
-        \ALT \kappa \vee \kappa \\
-\pi			&	\in & \mathit{Prop} & \coloneqq & \true \ALT R(x,y) 
+\tau		& \in	& \mathtt{EffType}	& \coloneqq &  {\sf Op}
+        \ALT \tau \vee \tau \\
+\pi			&	\in & \mathtt{Prop} & \coloneqq & \true \ALT R(x,y)
         \ALT \pi \vee \pi \\
-			  & 		&	 &  & \ALT \pi \wedge \pi \ALT \pi \Rightarrow \pi \\
-R				& \in & \mathit{Relation}	& \coloneqq & \visZ \ALT \soZ 
+			  & 		&	 &  \ALT & \pi \wedge \pi \ALT \pi \Rightarrow \pi \\
+R				& \in & \mathtt{Relation}	& \coloneqq & \visZ \ALT \soZ
         \ALT \sameobjZ \ALT R^+ \\
-				&			&	 &  & \ALT R \cup R \ALT R \cap R \\
+				&			&	 &  \ALT & R \cup R \ALT R \cap R \\
 \end{array}
 \end{smathpar}
 \caption{The Contract Language}

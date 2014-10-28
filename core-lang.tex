@@ -1,6 +1,11 @@
 \section{Operational Semantics}
 \label{sec:core-opsem}
 
+In this section, we describe the operational semantics of a store that safely
+discharges operations based on the classification given in the previous section. We also present the
+meta-theoretic result that certifies the soundness of our classification-based
+contract enforcement strategy.
+
 We formalize a replicated data store as a triple $\E;\Theta;\Sigma$,
 where $\E$ denotes the execution state, $\Theta$ maps replicas to
 their local state, and $\Sigma$, the session soup, is the set of
@@ -22,7 +27,7 @@ replicated data type operations are defined as \emph{server-side
 language}.}, although we do not enforce this in our formalization. We
 intentionally leave the server-side language underspecified to
 demonstrate that our ideas are independent of the choice of the
-programming language used to implement the replicated data type. 
+programming language used to implement the replicated data type.
 
 % Core Operational Semantics
 % --------------------------
@@ -36,7 +41,7 @@ with a unique {\sf SessID} and the sequence number of next operation
 in that session. As with the server-side language, our development is
 also orthogonal to the choice of the client-side language, but we
 require both the languages to agree on the syntactic class of values
-that replicated data type operations ($op$) produce and consume. 
+that replicated data type operations ($op$) produce and consume.
 
 An execution state $\E$ is a tuple $\Exec$ where $\EffSoup$ is a set
 of effects, and $\visZ,\soZ \subseteq \EffSoup \times
@@ -53,31 +58,31 @@ if $s'=s$ and $i'\ge i$. An effect generated at a replica becomes
 visible at rest of the replicas eventually. The local state of a
 replica $r$ (i.e., $\Theta(r)$) is a set of effects that are currently
 visible at $r$. An operation $op$ performed at replica $r$ can only
-witness the set of effects ($\Theta(r)$) visible at $r$.  
+witness the set of effects ($\Theta(r)$) visible at $r$.
 % Note that in presence of multiple replicated objects, $\visZ$ only
 % relates effects of operations performed on a single object. For
 % instance, a {\sf withdraw} operation can witness (via $\visZ$) a {\sf
 % deposit} operation on the same bank account, but not a {\sf deposit}
-% on a different account. 
+% on a different account.
 Often, in our formalization, we use $\visZ$ and
 $\soZ$ binary relations to obtain a set of effects visible to a given
 effect $\eff$, or set of effects that precede a given effect $\eff$ in
 the session order. As a syntactic convenience, whenever $R$ is a
 binary relation, we write $R(\eff)$ to denote the set of all $\eff'$
 such that $(\eff,\eff') \in R$.  Conversely, we write $R^{-1}(\eff)$
-to denote the set of all $\eff'$ such that $(\eff',\eff) \in R$.  
+to denote the set of all $\eff'$ such that $(\eff',\eff) \in R$.
 
 Basic gurantee provided by the store is causal visibility, which is
 captured by the rule $\rulelabel{EffVis}$ as a condition for an effect
 to be visible at a replica. The rule makes an effect ($\eff$) visible
 at a replica $r$ only after all the effects that causally precede
-$\eff$ are made visible at $r$. 
+$\eff$ are made visible at $r$.
 % Observe that this condition is
-% applicable even for the effects that originate at replica $r$. 
+% applicable even for the effects that originate at replica $r$.
 % It is helpful to think of effects being
 % stored in a \emph{write buffer} until causal consistency condition is
 % met, at which point they can be merged with the local state
-% ($\Theta(r)$). 
+% ($\Theta(r)$).
 It is important to note that that enforcing causal visibility does not
 require any inter-replica coordination. Any eventually consistent
 store can provide causal visibility while being highly available.
@@ -103,7 +108,7 @@ relies on the reduction relation ($\rdtredsto$) of the server-side
 language to reduce the application $\Ops(op)(v,~ctxt)$ to a value
 $v'$.  Subsequently, the the attributes of execution state, namely
 $\EffSoup$, $\visZ$ and $\soZ$, are extended to incorporate
-the new effect ($\eff$). 
+the new effect ($\eff$).
 
 If the operation $op$ is highly-available (rule $\rulelabel{HA}$), we
 simply apply the operation to any replica $r$. Since the store
@@ -160,7 +165,7 @@ for $\Rvis$ and $\Rso$ relations, while fixing the universe of
 discourse to be the set of all generated effects ($\EffSoup$).
 Intuitively, the well-formedness definition captures the idea that for
 every generated effect, the contract on the corresponding operation is
-satisfied under the given execution state. 
+satisfied under the given execution state.
 
 Our main meta-theoretic result guarantees the soundness of our
 operational semantics in enforcing all contractual obligations by
