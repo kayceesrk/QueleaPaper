@@ -17,12 +17,14 @@ requirements.
 
 The syntax of our core contract language is shown in Fig.
 ~\ref{fig:contract-lang}. The language is based on first-order logic (FOL), and
-admits prenex universal quantification over typed effect variables. We use a special
-effect variable ($\cureff$) to denote the effect of \emph{current operation} -
-the operation for which a contract is being written. The type of an effect is
-simply the name of the operation (eg: \cf{withdraw}) that induced the
-effect. We admit disjuntion in types to let an effect variable range over
-multiple operation names.
+admits prenex universal quantification over typed effect variables. We use a
+special effect variable ($\cureff$) to denote the effect of \emph{current
+operation} - the operation for which a contract is being written. The type of
+an effect is simply the name of the operation (eg: \cf{withdraw}) that induced
+the effect. We admit disjuntion in types to let an effect variable range over
+multiple operation names. The contract $\small \forall (a : \tau_1 \vee
+\tau_2).~\psi$ is just syntactic sugar for $\small \forall a. (\oper{a}{\tau_1}
+\vee \oper{a}{\tau_2}) \Rightarrow \psi$.
 
 Quantifier-free propositions in our contract language are conjunctions,
 disjunctions and implications of predicates expressing relations between pairs
@@ -83,11 +85,12 @@ consistency level. We would like to determine whether $op$ can be
 the resulting execution does not violate $\cv_{op}$.
 
 Since our contracts represent axiomatic definition of program executions, let
-$\Mod{\cv}$ be the set of all executions under which contract $\cv$ is satisfied. If
-every execution $\E \in \Mod{\cv_{st}}$ is also a member of $\Mod{\cv_{op}}$,
-then $op$ can be safely discharged under the store consistency level
-$\cv_{st}$. Formally, $\Mod{\cv_{st}} \subseteq \Mod{\cv_{op}}$. This is the
-model-theoretic consequence relation, written as $\cv_{st} \models_m \cv_{op}$.
+$\Mod{\cv}$ be the set of all executions under which contract $\cv$ is
+satisfied. If every execution $\E \in \Mod{\cv_{st}}$ is also a member of
+$\Mod{\cv_{op}}$, then $op$ can be safely discharged under the store
+consistency level $\cv_{st}$. Formally, $\Mod{\cv_{st}} \subseteq
+\Mod{\cv_{op}}$. This is the model-theoretic consequence relation, written as
+$\cv_{st} \models_m \cv_{op}$.
 
 Observe that our contract language (stripped of its syntactic sugar) is a
 carefully chosen subset of first-order logic that is known to be
@@ -113,15 +116,15 @@ application-level contract into one of these following classes:
 \setlength{\itemsep}{2pt}
 
 \item \textbf{Eventually consistency}: Eventually consistent operations can
-  be satisfied as long as the client can reach at least one replica. For
-  example, \cf{deposit} is an eventually consistent operation; its semantics
-  does not require its action to manifest on all replicas before other
-  operations in its session are allowed to proceed. While eventually
-  consistent data store typically offer \emph{basic} eventual consistency
-  with all possible anomalies, we assume that our store provides stronger
-  semantics that remain highly-available~\cite{BailisHAT,COPS}; the store
-  always exposes a causal cut of the updates. This semantics can be formally
-  captured in terms of the following contract definition:
+	be satisfied as long as the client can reach at least one replica. For
+	example, \cf{deposit} is an eventually consistent operation; its semantics
+	does not require its action to manifest on all replicas before other
+	operations in its session are allowed to proceed. While eventually consistent
+	data store typically offer \emph{basic} eventual consistency with all
+	possible anomalies, we assume that our store provides stronger semantics that
+	remain highly-available~\cite{BailisHAT,COPS}; the store always exposes a
+	causal cut of the updates. This semantics can be formally captured in terms
+	of the following contract definition:
 
 \vspace{-1em}
 \begin{smathpar}
@@ -130,18 +133,19 @@ application-level contract into one of these following classes:
 \noindent where $\small \hboZ = ((\soZ \cap \sameobjZ) \cup \visZ)^+$.
 
 \item \textbf{Causal consistency}: Operations with causally consistent
-  contracts are required to see a causally consistent snapshot of the object
-  state, including the actions performed on the same session.  The latter
-  requirement entails that if two operations $o_1$ and $o_2$ from the same
-  session are applied to two different replicas $r_1$ and $r_2$, the second
-  operation cannot be discharged until the effect of $o_1$ is merged with
-  $o_2$ in both $r_1$ and $r_2$.  We assume that causality is only tracked
-  through operations on the same object; two operations in the same session
-  but on different objects are considered causally unrelated under this
-  definition. Stores typically avoid tracking causality across objects to
-  mitigate overheads when causality tracking is unnecessary.  The corresponding
-  store semantics is captured by the contract $\ccc$ presented in
-  Section~\ref{sec:store_sem}.
+	contracts are required to see a causally consistent snapshot of the object
+	state, including the actions performed on the same session.  The latter
+	requirement entails that if two operations $o_1$ and $o_2$ from the same
+	session are applied to two different replicas $r_1$ and $r_2$, the second
+	operation cannot be discharged until the effect of $o_1$ is merged with $o_2$
+	in both $r_1$ and $r_2$.  \cf{getBalance} operation is classified as a
+	causally consistent operation. We assume that causality is only tracked
+	through operations on the same object; two operations in the same session but
+	on different objects are considered causally unrelated under this definition.
+	Stores typically avoid tracking causality across objects to mitigate
+	overheads when causality tracking is unnecessary.  The corresponding store
+	semantics is captured by the contract $\ccc$ presented in
+	Section~\ref{sec:store_sem}.
 
 \item \textbf{Strong Consistency}: Strongly consistent operations may block
   indefinitely under network partitions. An example is the total-order

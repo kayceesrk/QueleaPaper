@@ -1,0 +1,19 @@
+\section{Transaction Contracts}
+
+While contracts on individual operations offer the programmer object-level
+declarative reasoning, real-world scenarios often involve operations that span
+multiple objects. In order to address this problem, several recent
+systems~\cite{COPS,BurckhardtESOP,BailisHAT} have proposed a variety of
+transactions, with varying semantics, in order to compose operations on
+multiple objects. However, given that classical transaction models such as
+serializability~\cite{} and snapshot isolation~\cite{} require inter-replica
+coordination, these systems espouse \emph{coordination-free transactions} that
+remain available under network partitions, but only provide weaker isolation
+guarantees.
+
+Coordination-free transactions have intricate consistency semantics and widely
+varying runtime overheads. As with operation-level consistency, the onus is on
+the programmer to pick the correct transaction kind, the choice of which is
+complicated by the consistency requirement of the operations it composes. \name
+automates the choice of assigning the correct and most efficient transaction
+isolation level.
