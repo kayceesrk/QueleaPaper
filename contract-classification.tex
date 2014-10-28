@@ -5,23 +5,23 @@
 \hspace{-0.5em}
 \vspace{3mm}
 \RuleTwo
-{\Delta \vdash \DDe{\cv} \le \DDe{\scc}}
+{\DDe{\cv} \le \DDe{\scc}}
 {{\sf WellFormed}(\cv)}  \qquad
 
 \RuleTwo
-{\Delta \vdash \DDe{\cv} \le \DDe{\ecc}}
+{\DDe{\cv} \le \DDe{\ecc}}
 {{\sf EventuallyConsistent}(\cv)} \\
 
 \hspace{-0.5em}
 \vspace{3mm}
 \RuleTwo
-{\Delta \vdash \DDe{\cv} \not\le \DDe{\ecc}
+{\DDe{\cv} \not\le \DDe{\ecc}
 \quad \Delta \vdash \DDe{\cv} \le \DDe{\ccc}}
 {{\sf CausallyConsistent}(\cv)} \qquad
 
 \RuleTwo
-{\Delta \vdash \DDe{\cv} \not\le \DDe{\ccc}
-\quad \Delta \vdash \DDe{\cv} \le \DDe{\scc}}
+{\DDe{\cv} \not\le \DDe{\ccc}
+\quad \DDe{\cv} \le \DDe{\scc}}
 {{\sf StronglyConsistent}(\cv)}
 
 \end{array}
