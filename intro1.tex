@@ -1,0 +1,110 @@
+\section{Introduction}
+
+Many real-world web services --- such as those built and maintained by
+Amazon, Facebook, Google, Twitter, etc. --- replicate application state and
+logic across multiple \emph{replicas} within and across data
+centers. Replication is intended not only to improve application throughput
+and reduce user-perceived latency, but also to tolerate partial failures
+without compromising overall service availability. Traditionally programmers
+have relied on \emph{strong consistency} guarantees such as
+linerarizability~\cite{Herlihy1990} or
+serializability~\cite{Serializability} in order to build correct
+applications. While strong consistency is an easily stated property, it
+masks the reality underlying large-scale distributed systems with respect to
+non-uniform latency (i.e., availability) and network
+partitions~\cite{Brewer2000,Gilbert}.  Indeed, modern web services, which
+aim to provide an "always on" experience, overwhelmingly favour availability
+and partition tolerance over strong consistency. Several \emph{weak
+  consistency} models such as eventual consistency, causal consistency,
+session guarantees, and timeline consistency have consequently been
+proposed.
+
+Under weak consistency, the developer needs to be aware of concurrent
+conflicting updates, and has to pay careful attention to avoid unwanted
+inconsistencies (e.g., negative balances in a bank account, or having an
+item appear in a shopping cart after it has been
+removed~\cite{Dynamo}). Oftentimes, the inconsistency leaks from the
+application and is witnessed by the user.  Ultimately, the developer must
+decide the consistency level appropriate for a particular operation; this is
+understandably an error-prone process requiring intricate knowledge of both
+the application as well as the semantics and implementation of the
+underlying data store.  More often than not, only informal descriptions are
+available~\cite{}.  Picking the correct consistency level is critical not
+only for correctness but also for scalability of the application. While
+choosing a weaker consistency level than required may introduce program
+errors and anomalies, choosing a stronger one than necessary level can
+negatively impact program scalability.
+
+
+%--KC--
+% The choice of correct consistency level is critical to the correctness and
+% scalability of the application. Choosing a weaker consistency level than
+% required introduces anomalies, while choosing a stronger than necessary level
+% affects program scalability.
+%\KC{Do we include the LWW-Register number here to add emphasis to the fact that
+%choosing the correct consistency level is essential for program scalability}.
+
+
+Moreover, weak consistency hinders compositional reasoning about programs.
+While an application might be naturally expressed in terms of
+well-understood and expressive data types such as maps, trees, queues, or
+graphs, geo-distributed stores typically only provide a minimal set of data
+types with in-built conflict resolution strategies such as last-writer-wins
+(LWW) registers, counters, and sets~\cite{Cassandra,DynamoDB}.  Furthermor,
+while traditional database systems enable composability through
+transactions, existing geo-distributed stores lack unrestricted
+transactional access to the data.  Working with geo-distributed stores thus
+requires application state to be suitably coerced to work within the
+capabilities of the store.
+
+To address these issues, we describe \name, a declarative programming model
+and implementation for eventually consistent stores. The key novelty of
+\name\ is an expressive \emph{contract language} to declare and verify
+fine-grained application-level consistency properties.  The programmer uses
+the contract language to axiomatically describe the set of legal executions
+allowed over the replicated data type.  Contracts are constructed using
+primitive consistency relations such as \emph{visibility} and \emph{session
+  order} along with standard logical and relational operators.  A
+\emph{contract enforcement system} automatically maps each operation to a
+particular consistency level available on the store.  In addition, the
+system statically reports an error if the given application-level
+consistency property cannot be satisfied by the store.  
+
+The paper makes the following contributions:
+
+\begin{itemize}
+
+\item We introduce \name, a language for declaratively describing eventually
+  consistent programs that manipulate replicated data types. Contracts are
+  used to specify fine-grained application-level consistency properties, and
+  are analyzed to assign the most efficient and sound store consistency
+  level to the corresponding operation.
+
+\item \name supports coordination-free transactions over arbitrary
+  datatypes.  We extend our contract language to express fine-grained
+  transaction isolation guarantees, and utilize the contract enforcement
+  system to automatically assign the correct and most efficient isolation
+  level for a transaction.
+
+\item Metatheory that certifies the soundness of our contract enforcement
+  system, and ensures that an operation is only executed if the required
+  conditions on consistency are met is also given.
+
+\item \name is implemented as a shim layer over (and importantly without
+  modifying) Cassandra, a well-known general-purpose data store.  An
+  extensive experimental evaluation over a collection of real-world
+  applications, including a Twitter-like micro-blogging site and an
+  eBay-like auction site illustrates the practicality of our approach.
+
+\end{itemize}
+
+The rest of the paper is organized as follows. Section~\ref{sec:motivation}
+motivates \name and introduces the language through a series of examples.
+Section~\ref{sec:lang} describes the contract language, and
+Section~\ref{sec:opsem} presents an operational semantics.
+Section~\ref{sec:txns} introduces transaction contracts and
+classification. Section~\ref{sec:impl} describes the implementation and goes
+into detail about the optimizations needed to make the system practical.
+Section~\ref{sec:results} discusses experimental evaluation.
+Section~\ref{sec:related} and~\ref{sec:concl} present related work and
+conclusions.

@@ -17,16 +17,16 @@ requirements.
 
 The syntax of our core contract language is shown in Fig.
 ~\ref{fig:contract-lang}. The language is based on first-order logic (FOL), and
-admits prenex quantification over typed effect variables. We use a special
+admits prenex universal quantification over typed effect variables. We use a special
 effect variable ($\cureff$) to denote the effect of \emph{current operation} -
 the operation for which a contract is being written. The type of an effect is
-simply the name of the operation (eg: \cf{withdraw}) that engendered the
+simply the name of the operation (eg: \cf{withdraw}) that induced the
 effect. We admit disjuntion in types to let an effect variable range over
 multiple operation names.
 
 Quantifier-free propositions in our contract language are conjunctions,
 disjunctions and implications of predicates expressing relations between pairs
-of effect variables. Syntactic class of relations is seeded with primitive
+of effect variables. The syntactic class of relations is seeded with primitive
 $\visZ$, $\soZ$, and $\sameobjZ$ relations, and also admits derived relations
 that are expressible as union, intersection, or transitive
 closure\footnote{Strictly speaking, $R^{+}$ is not the transitive closure of
@@ -56,7 +56,7 @@ strong consistency is captured by the contract:
 \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
 \end{smathpar}
 
-Similarly, a store that offers per-object causal consistency is captured by the
+\noindent Similarly, a store that offers per-object causal consistency is captured by the
 contract:
 
 \vspace{-1em}
@@ -64,7 +64,7 @@ contract:
 \ccc = \forall a.~(\hboZ \cap \sameobjZ) (a,\cureff) \Rightarrow \vis{a}{\cureff}
 \end{smathpar}
 
-This ability to represent store semantics and application-level consistency in
+\noindent This ability to represent store semantics and application-level consistency in
 the same language is vital to contract classification. Observe that out
 contract language does not incorporate real (i.e., wall-clock) time. Hence, the
 contract language cannot describe store semantics based on real time such as
@@ -73,16 +73,17 @@ stores~\cite{Pileus}.
 
 \subsection{Contract Comparison}
 
-Our goal is to classify the contracts, and map the corresponding operation to
-the \emph{weakest} store level consistency. To this end, we need to be able to
-compare the strengths of contracts. Let $\cv_{op}$ be a contract for a
+Our goal is to classify contracts, and map the operation they describe to
+the \emph{weakest} store-level consistency level that  nonetheless
+satisfies the contract's constraints. To this end, we need a mechanism to
+compare the ``strength'' of a contract. Let $\cv_{op}$ be a contract for a
 particular operation $op$, and $\cv_{st}$ capture a particular store
-consistency level. We would like to determine whether $op$ can be \emph{safely
-discharged} at the store consistency level $\cv_{st}$ such that the resulting
-execution does not violate $\cv_{op}$.
+consistency level. We would like to determine whether $op$ can be
+\emph{safely discharged} at the store consistency level $\cv_{st}$ such that
+the resulting execution does not violate $\cv_{op}$.
 
 Since our contracts represent axiomatic definition of program executions, let
-$\Mod{\cv}$ be the set of all executions under which $\cv$ is satisfied. If
+$\Mod{\cv}$ be the set of all executions under which contract $\cv$ is satisfied. If
 every execution $\E \in \Mod{\cv_{st}}$ is also a member of $\Mod{\cv_{op}}$,
 then $op$ can be safely discharged under the store consistency level
 $\cv_{st}$. Formally, $\Mod{\cv_{st}} \subseteq \Mod{\cv_{op}}$. This is the
@@ -90,12 +91,77 @@ model-theoretic consequence relation, written as $\cv_{st} \models_m \cv_{op}$.
 
 Observe that our contract language (stripped of its syntactic sugar) is a
 carefully chosen subset of first-order logic that is known to be
-decidable~\cite{epr}. Due to the completeness theorem~\cite{completeness},
-$\cv_{st} \models_m \cv_{op}$ if and only if $\cv_{st} \Rightarrow \cv_{op}$.
-Due to the decidability of our contract language this implication check is
-automatically discharged with the help of a theorem prover. In this case, we
-say that $\cv_{op}$ is \emph{weaker than} $\cv_{st}$ (written $\cv_{op} \le
-\cv_{st}$). Formally,
+decidable~\cite{epr}.  Completeness of the logic~\cite{completeness} allows us
+to claim that $\cv_{st} \models_m \cv_{op}$ if and only if $\cv_{st}
+\Rightarrow \cv_{op}$. Due to the decidability of our contract language, this
+implication check is automatically discharged with the help of a theorem
+prover. In this case, we say that $\cv_{op}$ is \emph{weaker than} $\cv_{st}$
+(written $\cv_{op} \le \cv_{st}$).
+
+\subsection{Contract Classification}
+
+While the store semantics offered by commercial and research data stores
+vary widely, for our purposes, we identify three particular consistency
+levels -- eventual, causal, and strong, commonly offered by many distributed
+stores with tunable consistency, with increasing overhead in terms of
+latency and availability. Indeed, the techniques presented here can be
+extended to other consistency stratifications. We assign each
+application-level contract into one of these following classes:
+
+
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+
+\item \textbf{Eventually consistency}: Eventually consistent operations can
+  be satisfied as long as the client can reach at least one replica. For
+  example, \cf{deposit} is an eventually consistent operation; its semantics
+  does not require its action to manifest on all replicas before other
+  operations in its session are allowed to proceed. While eventually
+  consistent data store typically offer \emph{basic} eventual consistency
+  with all possible anomalies, we assume that our store provides stronger
+  semantics that remain highly-available~\cite{BailisHAT,COPS}; the store
+  always exposes a causal cut of the updates. This semantics can be formally
+  captured in terms of the following contract definition:
+\vspace{-1em}
+\begin{smathpar}
+\ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
+\end{smathpar}
+\noindent where $\small \hboZ = ((\soZ \cap \sameobjZ) \cup \visZ)^+$.
+
+\item \textbf{Causal consistency}: Operations with causally consistent
+  contracts are required to see a causally consistent snapshot of the object
+  state, including the actions performed on the same session.  The latter
+  requirement entails that if two operations $o_1$ and $o_2$ from the same
+  session are applied to two different replicas $r_1$ and $r_2$, the second
+  operation cannot be discharged until the effect of $o_1$ is merged with
+  $o_2$ in both $r_1$ and $r_2$.  We assume that causality is only tracked
+  through operations on the same object; two operations in the same session
+  but on different objects are considered causally unrelated under this
+  definition. Stores typically avoid tracking causality across objects to
+  mitigate overheads when causality tracking is unnecessary.  The corresponding
+  store semantics is captured by the contract $\ccc$ presented in
+  Section~\ref{sec:store_sem}.
+
+\item \textbf{Strong Consistency}: Strongly consistent operations may block
+  indefinitely under network partitions. An example is the total-order
+  contract on \cf{withdraw} operation. The corresponding store semantics is
+  captured by the contract $\scc$ presented in Section~\ref{sec:store_sem}.
+
+\end{itemize}
+
+\noindent Observe that the contracts $\scc$, $\ccc$ and $\ecc$ are
+themselves totally ordered with respect to the $\le$ relation: $\ecc \le
+\ccc \le \scc$. This concurs with the intuition that any contract
+satisfiable under $\ecc$ or $\ccc$ is satisfiable under $\scc$ , and any
+contract that is satisfiable under $\ecc$ is satisfiable under
+$\ccc$. Nonetheless, we determine the class of a contract based on the
+\emph{weakest} guarantee (among $\ecc$, $\ccc$, and $\scc$) required to
+satisfy the contract. The classification scheme is presented formally
+in Figure~\ref{sem:classify}; here, $\Delta$ captures assumptions about the nature of primitive
+relations, such as $\Rvis$ and $\Rso$ are irreflexive, and the happens-before
+relation $\hbZ$ is acyclic, preventing thin-air reads. \KC{Ideally, we need to
+list all the axioms somewhere.}  The following definition thus precisely
+captures our intuition about contract strength in terms of these rules:
 
 \begin{definition}
 A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
@@ -105,73 +171,10 @@ A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \end{definition}
 \vspace{-1em}
 
-\noindent where $\Delta$ captures assumptions about the nature of primitive
-relations, such as $\Rvis$ and $\Rso$ are irreflexive, and the happens-before
-relation $\hbZ$ is acyclic, preventing thin-air reads. \KC{Ideally, we need to
-list all the axioms somewhere.}
-
-\subsection{Contract Classification}
-
-While the store semantics offered by commercial and research data stores vary
-widely, for our exposition, we identify three particular consistency levels --
-eventual, causal and strong, commonly offered by many distributed store with
-tunable consistency, with increasing overhead in terms of latency and
-availability. Indeed, the techniques presented here can be extended to other
-consistency stratifications in a straight forward manner. We assign each
-application-level contract into one of these following classes:
-
-
-\begin{itemize}
-\setlength{\itemsep}{2pt}
-
-\item \textbf{Eventually consistency}: Eventually consistent operations can be
-satisfied as long as the client can reach at least one replica. For example,
-\cf{deposit} is a highly-available operation. While eventually consistent data
-store typically offer \emph{basic} eventual consistency with all possible
-anomalies, we assume that our store provides stronger semantics that remains
-highly-available~\cite{BailisHAT,COPS}; the store always exposes causal cut of
-the updates. This semantics can be formally captured as:
-
-\vspace{-1em}
-\begin{smathpar}
-\ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
-\end{smathpar}
-
-\noindent where $\small \hboZ = ((\soZ \cap \sameobjZ) \cup \visZ)^+$.
-
-\item \textbf{Causal consistency}: Operations with causally consistent
-contracts are required to see a causally consistent snapshot of the object
-state, including the actions performed on the same session.  The latter
-requirement entails that if two operations $o_1$ and $o_2$ from the same
-session are applied to two different replicas $r_1$ and $r_2$, the second
-operation cannot be discharged until the effect of $o_1$ is merged with $r_2$.
-We assume that causality is only tracked through operations on the same object;
-two operations in the same session but on different objects are considered
-causally unrelated under this definition. Stores typically avoid tracking
-causaility across objects to mitigate the overhead due to unintended causality.
-The corresponding store semantics is captured by the contract $\ccc$ presented
-in Section~\ref{sec:store_sem}.
-
-\item \textbf{Strong Consistency}: Strongly consistent operations may be block
-indefinitely under network partitions. An example is the total-order contract
-on \cf{withdraw} operation. The corresponding store semantics is captured by
-the contract $\scc$ presented in Section~\ref{sec:store_sem}.
-
-\end{itemize}
-
-Observe that the contracts $\scc$, $\ccc$ and $\ecc$ are themselves totally
-ordered with respect to the $\le$ relation: $\ecc \le \ccc \le \scc$. This
-concurs with the intuition that any contract satisfiable under $\ecc$ or $\ccc$
-is satisfiable under $\scc$ , and any contract that is satisfiable under $\ecc$
-is satisfiable under $\ccc$. Nonetheless, we determine the class of a contract
-based on the \emph{weakest} guarantee (among $\ecc$, $\ccc$, and $\scc$)
-required to satisfy the contract. The classification scheme is presented
-formally as rules in Figure~\ref{sem:classify}.
-
 % Contract classification rules
 % ------------------------------
 \input{contract-classification}
 
-The rules to classify contracts into availability classes are straightforward.
-The remaining rule judges a contract as {\sf WellFormed} if and only if it can
-be satisfied under strong consistency. The rest are reported as errors.
+%% The rules to classify contracts into availability classes are straightforward.
+%% The remaining rule judges a contract as {\sf WellFormed} if and only if it can
+%% be satisfied under strong consistency. The rest are reported as errors.
