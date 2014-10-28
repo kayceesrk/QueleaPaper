@@ -162,6 +162,7 @@ vice versa. Utilizing the primitive relations described in
 Section~\ref{sec:sysmod}, we express this application-level consistency
 requirement as a contract or specification over \cf{withdraw}:
 
+\vspace{-1em}
 \begin{smathpar}
 \begin{array}{l}
 \forall (a : \rcf{withdraw}).~\sameobj{a}{\cureff} \Rightarrow a = \cureff \vee \vis{a}{\cureff} \vee \vis{\cureff}{a}
@@ -180,6 +181,7 @@ Any execution on a bank account object that preserves the above contract for a
 
 For \cf{getBalance}, we construct the following contract:
 
+\vspace{-1em}
 \begin{smathpar}
 \begin{array}{l}
 \forall (a:\rcf{deposit}), (b:\rcf{withdraw}), (c: \rcf{deposit} \vee \rcf{withdraw}). \\
