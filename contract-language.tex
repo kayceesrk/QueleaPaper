@@ -98,7 +98,7 @@ say that $\cv_{op}$ is \emph{weaker than} $\cv_{st}$ (written $\cv_{op} \le
 \cv_{st}$). Formally,
 
 \begin{definition}
-An contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
+A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \le \cv_{st}$ ) if and only if $\Delta \vdash \cv_{st} \Rightarrow \cv_{op}$.
 \begin{center}
 \end{center}
@@ -134,7 +134,7 @@ the updates. This semantics can be formally captured as:
 
 \vspace{-1em}
 \begin{smathpar}
-\ecc = \forall a,b. \hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
+\ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
 \end{smathpar}
 
 \noindent where $\small \hboZ = ((\soZ \cap \sameobjZ) \cup \visZ)^+$.
