@@ -1,166 +1,34 @@
-\begin{figure*}[t!]
-\begin{minipage}{\columnwidth}
-\textbf{RDT Specification Language}\\
-\begin{smathpar}
-\stretcharraybig
-\begin{array}{lclcl}
-{\tau} & \in & \texttt{Replicated Datatype}& &\\
-{op} & \in & {\sf Operation}& & \\
-{v} & \in & \texttt{Value} & & \\
-{e} & \in & \texttt{Expression} & &\\
-\cv & \in & {\sf Contract} & &\\
-\Ops & \in & \texttt{Operation Def.} 	 & \coloneqq & op \mapsto e \\
-\Ctrts & \in & \texttt{Operation Contract} & \coloneqq & op \mapsto \cv \\
-\rdtspec & \in & \texttt{Specification} & \coloneqq & (\tau,\Ops,\Ctrts)\\
-\end{array}
-\end{smathpar}
-\textbf{Session Language}\\
-\begin{smathpar}
-\stretcharraybig
-\begin{array}{lclcl}
-{v_s} & \in & \texttt{Value}  	& \coloneqq & v\\
-{a_s} & \in & \texttt{Action} & \coloneqq & op(v_s) \\
-{\sigma} & \in & \texttt{Session} & \coloneqq & \cdot \ALT a_s; \sigma \\
-\end{array}
-\end{smathpar}
-\end{minipage}
-\begin{minipage}{\columnwidth}
-\textbf{Run-Time Artifacts}\\
+\begin{figure}
 \begin{smathpar}
 \stretcharraybig
 \begin{array}{lclcl}
 \multicolumn{5}{l}{
-{s} \in \SessID \qquad
-{i} \in \EffID \qquad
-{r} \in \ReplID } \\
-\eff & \in & \texttt{Effect} & \coloneqq &  (s,~i,~op,~v)\\
-\Theta  & \in & \texttt{Store}		  & \coloneqq & r \mapsto \set{\eff} \\
-\EffSoup & \in & \texttt{EffSoup}	  & \coloneqq & \set{\eff} \\
-\visZ		&	\in & \texttt{VisRel}			& \coloneqq & \set{\eff}\times\set{\eff} \\
-\soZ		&	\in	& \texttt{SessOrdRel} & \coloneqq & \set{\eff}\times\set{\eff} \\
-{\E} 		& \in & \texttt{ExecState}  & \coloneqq & (\EffSoup,\visZ,\soZ)\\
-\Sigma 	& \in & \texttt{Session\;Soup}   & \coloneqq & 
-  \langle s,i,{\sigma} \rangle \pll \Sigma \ALT \emptyset \\
-				&			&	\texttt{Config}		  & \coloneqq & \E;\Theta;\Sigma \\
+  {\eff} \in \mathtt{Effect} \qquad
+  {op} \in \mathtt{Operation} \qquad
+  {\cv} \in \mathtt{Contract}
+} \\
+%{op} & \in & {\sf Operation}& & \\
+%\cv & \in & {\sf Contract} & &\\
+\tau & \in & \mathtt{Consistency\; Class} & \coloneqq & {\sf SC}, 
+  {\sf CC}, {\sf EC}\\
+\cv(\tau) & \in & \mathtt{Contracts\; of \; \tau} & \coloneqq & \scc,
+  \ccc, \ecc\\
+{a_s} & \in & \mathtt{Action} & \coloneqq & (op,\tau) \\
+{\sigma} & \in & \mathtt{Session} & \coloneqq & \cdot \ALT a_s; \sigma \\
+%\eff & \in & \mathtt{Effect} & \coloneqq &  (s,~i,~op,~v)\\
+\EffSoup & \in & \mathtt{EffSoup}	  & \coloneqq & \set{\eff} \\
+\visZ, \soZ, &	\in & \mathtt{Relations} & \coloneqq & 
+  \set{\eff}\times\set{\eff} \\
+	\sameobjZ		&     &  & \\
+{\E} 		& \in & \mathtt{ExecState}  & \coloneqq & (\EffSoup,\visZ,\soZ)\\
+\Sigma 	& \in & \mathtt{Session\;Soup}   & \coloneqq & 
+  \langle s,{\sigma} \rangle \pll \Sigma \ALT \emptyset \\
+				&			&	\mathtt{Store}		  & \coloneqq & \E;\Sigma \\
 \end{array}
 \end{smathpar}
-\textbf{Auxiliary Definitions}\\
-\begin{smathpar}
-\stretcharraybig
-\begin{array}{lcl}
-\operZ(s,~i,~op,~v) & = & op \\
-\ctxtFn(s,~i,~op,~v) & = & (op,~v) \\
-\end{array}
-\end{smathpar}
-\end{minipage}
 
-\vspace{5mm}
-\textbf{Auxiliary Reductions} \; 
-  \fbox{\(\auxred{\Theta} {(\E,\langle s,i,op(v) \rangle)} {r} {(\E',\eff)}\)}\\
-
-\begin{minipage}{\textwidth}
-\rulelabel{Oper}
-\begin{smathpar}
-\stretcharraybig
-\begin{array}{l}
-\RuleTwo
-{
-r \in \dom(\Theta) \qquad
-ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad 
-\Ops(op)(v,ctxt) {\rdtredsto}^{*} v' \qquad
-\eff = (s,~i,~op,~v')\\
-\EffSoup' = \{\eff\} \cup \EffSoup \qquad 
-\visZ' = \Theta(r)\times\{\eff\} \cup \visZ \qquad
-\soZ' = \EffSoup_{({\sf SessID}=s,\,{\sf SeqNo}<i)}\times\{\eff\} \cup \soZ
-}
-{
-  \auxred {\Theta} {((\EffSoup,\visZ,\soZ), \langle s,i,op(v) \rangle} {r}
-    {((\EffSoup',\visZ',\soZ'),\eff)}
-}
-\end{array}
-\end{smathpar}
-\end{minipage}
-
-
-\vspace{5mm}
-\textbf{Operational Semantics} \; 
-  \fbox{\(\E;\Theta;\Sigma \;\rightarrow\; \E';\Theta';\Sigma'\)}\\
-
-\begin{minipage}{\columnwidth}
-\rulelabel{EffVis}
-\begin{smathpar}
-\stretcharraybig
-\begin{array}{l}
-\RuleTwo
-{
-  \eff \in \EffSoup \quad \eff \notin \Theta(r) \\ 
-  \E.\visZ^{-1}(\eff) \cup \E.\soZ^{-1}(\eff) \subseteq \Theta(r)
-  \qquad \Theta' = \Theta[r \mapsto \{\eff\} \cup \Theta(r)]
-}
-{
-  \E;\Theta;\Sigma \;\rightarrow\; \E;\Theta';\Sigma
-}
-\end{array}
-\end{smathpar}
-\end{minipage}
-\begin{minipage}{\columnwidth}
-\rulelabel{HA}
-\begin{smathpar}
-\stretcharraybig
-\begin{array}{l}
-\RuleTwo
-{ 
-  {\sf HighlyAvailable}(\Ctrts(op)) \\
-  \auxred{\Theta} {(\E,\langle s,i,op(v) \rangle)} {r} {(\E',\eff)}
-}
-{
-  \E;\Theta;\langle s,i,op(v)\; \sigma \rangle \pll \Sigma \;\rightarrow\; 
-  \E';\Theta; \langle s,i+1,\sigma \rangle\pll \Sigma
-}
-\end{array}
-\end{smathpar}
-\end{minipage}
-
-\vspace{5mm}
-\begin{minipage}{\columnwidth}
-\rulelabel{SA}
-\begin{smathpar}
-\stretcharraybig
-\begin{array}{l}
-\RuleTwo
-{
-  {\sf StickyAvailable}(\Ctrts(op)) \\
-  \auxred{\Theta} {(\E,\langle s,i,op(v) \rangle)} {r} {(\E',\eff)} \qquad
-  \E'.\soZ^{-1}(\eff) \subseteq \Theta(r)
-}
-{\E;\Theta;\langle s,i,op(v); \sigma \rangle \pll \Sigma \;\rightarrow\;
-\E';\Theta;\langle s,i+1,\sigma \rangle \pll \Sigma }
-\end{array}
-\end{smathpar}
-\end{minipage}
-\begin{minipage}{\columnwidth}
-\rulelabel{UA}
-\begin{smathpar}
-\stretcharraybig
-\begin{array}{l}
-\RuleTwo
-{ 
-  {\sf Unavailable}(\Ctrts(op)) \qquad
-  \auxred{\Theta} {(\E,\langle s,i,op(v) \rangle)} {r} {(\E',\eff)} \qquad
-  \E.A \subseteq \Theta(r) \\
-  \dom(\Theta') = \dom(\Theta) \qquad
-  \forall r'\in \dom(\Theta'). \Theta'(r') = \Theta(r') \cup \{\eff\}
-}
-{
-  \E;\Theta;\langle s,i,op(v); \sigma \rangle \pll \Sigma \;\rightarrow\; 
-  \E;\Theta';\langle s,i+1,\sigma \rangle \pll \Sigma}
-\end{array}
-\end{smathpar}
-\end{minipage}
-
-
-\caption{Syntax and operational semantics.}
+\caption{Abstract model of a data store}
 \label{sem:oper}
-\end{figure*}
+\end{figure}
 
 
