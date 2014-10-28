@@ -114,14 +114,16 @@ application-level contract into one of these following classes:
 \begin{itemize}
 \setlength{\itemsep}{2pt}
 
-\item \textbf{Eventually consistency}: Eventually consistent operations can be
-satisfied as long as the client can reach at least one replica. For example,
-\cf{deposit} is an eventually consistent operation. While eventually consistent data
-store typically offer \emph{basic} eventual consistency with all possible
-anomalies, we assume that our store provides stronger semantics that remain
-highly-available~\cite{BailisHAT,COPS}; the store always exposes a causal cut of
-the updates. This semantics can be formally captured in terms of the
-following contract definition:
+\item \textbf{Eventually consistency}: Eventually consistent operations can
+  be satisfied as long as the client can reach at least one replica. For
+  example, \cf{deposit} is an eventually consistent operation; its semantics
+  does not require its action to manifest on all replicas before other
+  operations in its session are allowed to proceed. While eventually
+  consistent data store typically offer \emph{basic} eventual consistency
+  with all possible anomalies, we assume that our store provides stronger
+  semantics that remain highly-available~\cite{BailisHAT,COPS}; the store
+  always exposes a causal cut of the updates. This semantics can be formally
+  captured in terms of the following contract definition:
 \vspace{-1em}
 \begin{smathpar}
 \ecc = \forall a,b. \hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
