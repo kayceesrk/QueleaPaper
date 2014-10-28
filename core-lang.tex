@@ -1,173 +1,69 @@
-\section{Operational Semantics}
+\section{Meta-theory}
 \label{sec:core-opsem}
 
-In this section, we describe the operational semantics of a store that safely
-discharges operations based on the classification given in the previous
-section. We also present the meta-theoretic result that certifies the soundness
-of our classification-based contract enforcement strategy.
+In this section, we present the meta-theoretic result that certifies
+the soundness of our classification-based contract enforcement
+strategy. 
+% We show that any data store can correctly enforce $\scc$,
+% $\ccc$, and $\ecc$ guarantees can satisfy application-level
+% consistency constraints of all \name contracts.
 
-We formalize a replicated data store as a triple $\E;\Theta;\Sigma$, where $\E$
-denotes the execution state, $\Theta$ maps replicas to their local state, and
-$\Sigma$, the session soup, is the set of concurrent client sessions
-interacting with the store.  Operational semantics given in
-Figure~\ref{sem:oper} succinctly capture the behaviour of the store that is
-relevant to demonstrate the operational significance of contract
-classification. For the sake of clarity, we only consider a single replicated
-object of well-defined type (for eg: a replicated object of type
-\cf{BankAccount}) in our formalization. Our semantics are parametric over the
-specification of this replicated data type.  Figure~\ref{sem:oper} formalizes
-replicated data type (RDT) specification as tuple $(\tau,\Ops,\Ctrts)$, where
-$\tau$ is the data type, $\Ops$ maps labels ($op$) of operations on $\tau$ to
-their definitions, while $\Ctrts$ maps them to their consistency contracts
-($\cv$). The definition of an operation is expected to be a lambda expression
-in the server-side language\footnote{Since a replicated object is maintained by
-a server, we call the language in which replicated data type operations are
-defined as \emph{server-side language}.}, although we do not enforce this in
-our formalization. We intentionally leave the server-side language
-underspecified to demonstrate that our ideas are independent of the choice of
-the programming language used to implement the replicated data type.
+Fig.~\ref{sem:oper} summarizes the artifacts needed to state our
+meta-theoretic result. We formalize an abstract model of a replicated
+data store as a tuple $\E;\Sigma$, where $\E$ denotes the execution
+state, and $\Sigma$, the session soup, is the set of concurrent client
+sessions interacting with the store. The execution state ($\E$) of a
+data store is modeled as a tuple $\Exec$ where $\EffSoup$ is a set of
+effects during the execution, and $\visZ,\soZ \subseteq \EffSoup
+\times \EffSoup$ are visibility and session order relations,
+respectively, witnessed over generated effects. A session is modeled
+simply as a sequence of replicated data type operations ($op$), tagged
+with the consistency class ($\tau$) of their contracts (as determined
+by the contract classification scheme). We abbreviate contract classes
+($\tau$) as uppercase {\sf SC}, {\sf CC}, and {\sf EC} for brevity.
+Their representative contracts ($\cv(\tau)$) are, as usual, written
+$\scc$, $\ccc$, and $\ecc$, respectively.  Our contract language and
+classification scheme is independent of store semantics. Accordingly,
+we abstain from making any specific assumptions about semantics of the
+store. However, we do assume the existence of a reduction relation of
+form:
+\begin{smathpar} 
+  \auxred{} {(\E,\Sigma)} {\eff} {(\E',\Sigma')}
+\end{smathpar}
+\noindent The relation captures store's progress in execution (from
+$\E$ to $\E'$) due to the application of an operation from one of the
+sessions in $\Sigma$ to a replica, generating a new effect ($\eff$).
+
+Note that an execution state ($\E$) provides interpretations for
+primitive relations (eg: $\visZ$) that occur free in contract
+formulas, and also fixes the domain of quantification to set of all
+effects ($\EffSoup$) observed during the execution. Therefore, $\E$ is
+a potential model for any contract formula ($\cv$). If $\E$ is indeed
+a model of $\cv$ (i.e., $\E \models \cv$), we say that the store
+enforced the contract $\cv$ in execution $\E$. 
 
 % Core Operational Semantics
 % --------------------------
 \input{core-opsem.tex}
 
-A session is modeled simply as a sequence of actions on the replicated object
-maintained by the store, where an action is defined as an application of
-replicated data type operation to a value. For technical reasons, we tag every
-session in the session soup ($\Sigma$) with a unique {\sf SessID} and the
-sequence number of next operation in that session. As with the server-side
-language, our development is also orthogonal to the choice of the client-side
-language, but we require both the languages to agree on the syntactic class of
-values that replicated data type operations ($op$) produce and consume.
+We now state the soundness of contract enforcement as following:
 
-An execution state $\E$ is a tuple $\Exec$ where $\EffSoup$ is a set of
-effects, and $\visZ,\soZ \subseteq \EffSoup \times \EffSoup$ are visibility and
-session order relations over effects, respectively. An effect ($\eff$), modeled
-as a tuple $(s,i,op,v)$, records the fact that $i^{th}$ action in session with
-{\sf SessID} $s$, which is an operation $op$ on the replicated object, has been
-successfully executed on some replica yielding a return value $v$. Note that
-the combination of $s$ and $i$ uniquely identifies the effect. Session order
-relation ($\soZ$) relates effects generated by the same session. An effect
-$\eff = (s,i,op,v)$ is said to precede another effect $\eff' = (s',i',op',v')$
-in session order if and only if $s'=s$ and $i'\ge i$. An effect generated at a
-replica becomes visible at rest of the replicas eventually. The local state of
-a replica $r$ (i.e., $\Theta(r)$) is a set of effects that are currently
-visible at $r$. An operation $op$ performed at replica $r$ can only witness the
-set of effects ($\Theta(r)$) visible at $r$.
-% Note that in presence of multiple replicated objects, $\visZ$ only
-% relates effects of operations performed on a single object. For
-% instance, a {\sf withdraw} operation can witness (via $\visZ$) a {\sf
-% deposit} operation on the same bank account, but not a {\sf deposit}
-% on a different account.
-Often, in our formalization, we use $\visZ$ and $\soZ$ binary relations to
-obtain a set of effects visible to a given effect $\eff$, or set of effects
-that precede a given effect $\eff$ in the session order. As a syntactic
-convenience, whenever $R$ is a binary relation, we write $R(\eff)$ to denote
-the set of all $\eff'$ such that $(\eff,\eff') \in R$.  Conversely, we write
-$R^{-1}(\eff)$ to denote the set of all $\eff'$ such that $(\eff',\eff) \in R$.
-
-Basic gurantee provided by the store is causal visibility, which is captured by
-the rule $\rulelabel{EffVis}$ as a condition for an effect to be visible at a
-replica. The rule makes an effect ($\eff$) visible at a replica $r$ only after
-all the effects that causally precede $\eff$ are made visible at $r$.
-% Observe that this condition is
-% applicable even for the effects that originate at replica $r$.
-% It is helpful to think of effects being
-% stored in a \emph{write buffer} until causal consistency condition is
-% met, at which point they can be merged with the local state
-% ($\Theta(r)$).
-It is important to note that that enforcing causal visibility does not require
-any inter-replica coordination. Any eventually consistent store can provide
-causal visibility while being highly available. Therefore, we do not lose any
-generality by assuming that the store provides causal visiblity.
-
-Rule $\rulelabel{Oper}$ is an auxiliary reduction of the
-form:\vspace{-1.7mm}
-\begin{smathpar}
-\auxred{\Theta} {(\E,\langle s,i,op(v) \rangle)} {r} {(\E',\eff)}
-\vspace{-1.7mm}
-\end{smathpar}
-\noindent Under the store configuration $\Theta$, the rule captures the
-progress in execution (from $\E$ to $\E'$) due to the application of operation
-$op$ to replica $r$ resulting in a new effect $\eff$. The rule first constructs
-a \emph{context} for the application from the local state ($\Theta(r)$) of the
-replica, by projecting\footnote{{\textsf{ctxt*}} is auxiliary function
-\textsf{ctxt} extended straightforwardly to set of effects} relevant
-information from effects in $\Theta(r)$. It then substitutes the definition
-($\Ops(op)$) of the operation for its label ($op$), and relies on the reduction
-relation ($\rdtredsto$) of the server-side language to reduce the application
-$\Ops(op)(v,~ctxt)$ to a value $v'$.  Subsequently, the the attributes of
-execution state, namely $\EffSoup$, $\visZ$ and $\soZ$, are extended to
-incorporate the new effect ($\eff$).
-
-If the operation $op$ is highly-available (rule $\rulelabel{HA}$), we simply
-apply the operation to any replica $r$. Since the store provides causal
-visibility, highly available operations are satisfiable under any replica. If
-the operation is sticky-available (rule $\rulelabel{SA}$), the operation can be
-applied to a replica $r$ only if it already contains the effects of all the
-previous operations from the same session. This guarantee can be satisfied by
-applying all operations from the same session to the same logical copy of the
-database. If such a logical copy is untenable, then the operation might block.
-Since the store is assumed to converge eventually, the blocked sticky-available
-operation guaranteed to unblock eventually.
-
-An unavailable operation expects strong (sequential) consistency. That is,
-universe of all effects ($\EffSoup$) in an execution ($\E$) must be
-partitionable into a set of effects that \emph{happened before} $\eff$ and
-another set that \emph{happened after} $\eff$, where $\eff$ is the effect
-generated by an unavailable operation. The rule $\rulelabel{UA}$ enforces this
-sequencing in two steps; firstly, it insists that the the unavailable operation
-($op$) witness effects of all operations executed so far by requiring the
-global set of effects $\EffSoup$ to be a subset of local state ($\Theta(r)$) of
-the replica ($r$) executing $op$. Secondly, the rule requires the effect
-($\eff$) generated by $op$ to be added to the local state of every other
-replica in the store, so that further operations on these replicas can witness
-the effect of $op$. Since both these steps require global coordination among
-replicas, the store is \emph{unavailable} during the time it is executing $op$.
-However, it must be noted that executing unavailable operation does not entail
-the convergence of local states of all replicas; it simply means that there is
-one replica ($r$) whose local state is the upper bound of local states of all
-replicas, and there exists a set containing atleast one effect ($\eff$), which
-is their lower bound.
-
-\subsection{Metatheory}
-
-To help us state our main meta-theoretic result, we first define a
-well-formedness condition over execution states:
-
-\begin{definition}[Well-formed execution]
-An execution state $\E = \Exec$ corresponding to an execution of
-operations over a replicated datatype with specification $\rdtspec =
-(\tau,\Ops,\Ctrts)$ is said to be well-formed if and only if $\forall
-\eff \in \EffSoup. ~\E \models \DDe{[\eff/\cureff]\cv}$, where $\cv =
-\Ctrts(\operZ(\eff))$.
-\end{definition}
-
-$\models$ denotes the standard \emph{models} relation of first-order logic.  A
-valid model for a first-order formula defines the universe of discourse, and
-provides interpretations for free symbols in the formula such that the formula
-is true under given interpretations.  An execution state ($\E$) provides
-interpretations for $\Rvis$ and $\Rso$ relations, while fixing the universe of
-discourse to be the set of all generated effects ($\EffSoup$). Intuitively, the
-well-formedness definition captures the idea that for every generated effect,
-the contract on the corresponding operation is satisfied under the given
-execution state.
-
-Our main meta-theoretic result guarantees the soundness of our operational
-semantics in enforcing all contractual obligations by ensuring that every
-reduction step preserves the well-formedness of execution state.
-
-\begin{theorem}[Well-formedness preservation]
+\begin{theorem}[Soundness of Contract Enforcement]
 \label{lem:core-preservation}
-If $\E$ is well-formed and $\E; \Theta; \Sigma \goesto \E'; \Theta';
-\Sigma'$, then $\E'$ is well-formed.
+Let $\cv$ be the contract of a replicated data type operation $op$,
+and let $\tau$ denote the consistency class of $\cv$ 
+as determined by the contract classification scheme. Forall execution
+states $\E$, $\E'$ such that 
+$\auxred{} {(\E,\langle (op,\tau);\,\sigma \rangle \pll \Sigma)} {\eff} 
+ {(\E',\langle \sigma \rangle \pll \Sigma)}$
+if $\E' \models [\eff/\cureff]\,\cv(\tau)$, then $\E' \models [\eff/\cureff]\,\cv$ 
 \end{theorem}
-% Lemmas
-%\input{core-lemmas.tex}
 
-The proof of the theorem, which we could not include here owing to space
-constraints, can be found in our tech report~\cite{techrep}.
-
-% It should be noted that Theorem ~\ref{lem:core-preservation} only
-% proves the safety of our system. Proving its liveness requires us to
-% axiomatize eventual consistency.
+The theorem states that if a data store correctly enforces $\scc$,
+$\ccc$, and $\ecc$ guarantees in all executions, then contract
+classification scheme can be used to satisfy any \name contract on
+that data store. The proof of the theorem has been included in our
+tech report~\cite{techrep}. Tech report also contains operational
+semantics of our implementation of the data store, which concretizes
+the reduction relation ($\xhookrightarrow{}$), along with the proof
+that it correctly enforces all \name contracts.
