@@ -1,12 +1,4 @@
-\section{Motivation}
-\label{sec:motivation}
-
-In this section, we motivate the need and benefit of declarative reasoning for
-eventually consistent systems.  We begin with a description of our system and
-programming model, and introduce the primitive relations that constitute the
-essential part of our contract language.
-
-\subsection{System Model}
+\section{System Model}
 \label{sec:sysmod}
 
 \begin{figure}
@@ -72,7 +64,8 @@ store. Subsequently, we will illustrate how our contract and specification
 language, armed with the primitive relations $\visZ$, $\soZ$, $\sameobjZ$ and
 $\operZ$, mitigates these challenges.
 
-\subsection{Example}
+\section{Motivation}
+\label{sec:motivation}
 
 Consider how we might implement a highly available bank account on top of an
 eventually consistent data store, with the \emph{integrity} constraint that the
