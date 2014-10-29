@@ -65,7 +65,7 @@ object happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 % \end{smathpar}
 
 % \noindent This ability to represent store semantics and application-level consistency in
-% the same language is vital to contract classification. 
+% the same language is vital to contract classification.
 
 % \subsection{Contract Comparison}
 
@@ -127,7 +127,8 @@ consistency level:
   semantics that remain highly-available~\cite{BailisHAT,COPS}; the store
   always exposes a causal cut of the updates. This semantics can be formally
   captured in terms of the following contract definition:
-  \vspace{-0.8em}
+
+  \vspace{-1em}
   \begin{smathpar}
   \ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{smathpar}
@@ -149,7 +150,8 @@ consistency level:
   to mitigate overheads when causality tracking is unnecessary. The
   corresponding store semantics is captured by the contract $\ccc$
   defined below:
-  \vspace{-0.8em}
+
+  \vspace{-1em}
   \begin{smathpar}
   \ccc = \forall a.~(\hboZ \cap \sameobjZ) (a,\cureff) \Rightarrow \vis{a}{\cureff}
   \end{smathpar}
@@ -158,7 +160,8 @@ consistency level:
   indefinitely under network partitions. An example is the total-order
   contract on \cf{withdraw} operation. The corresponding store semantics is
   captured by the $\scc$ contract definition:
-  \vspace{-0.8em}
+
+  \vspace{-1em}
   \begin{smathpar}
   \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
   \end{smathpar}
@@ -185,6 +188,7 @@ contract ($\cv_{op}$) of an operation ($op$) is weak enough to be
 satisfied under a store consistency level identified by the contract
 $\cv_{st}$. Towards this end, we define a binary \emph{weaker than}
 relation for our contract language as following:
+
 \begin{definition}
 A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \le \cv_{st}$ ) if and only if $\Delta \vdash \cv_{st} \Rightarrow \cv_{op}$.
@@ -192,10 +196,11 @@ A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \end{center}
 \end{definition}
 
-\vspace{-2em} \noindent The $\Delta$ referred in the above defintion captures
+\vspace{-1em}
+\noindent The $\Delta$ referred in the above defintion captures
 assumptions about the nature of primitive relations, such as $\Rvis$
 and $\Rso$ are irreflexive, and the happens-before relation $\hbZ$ is
-acyclic, preventing thin-air reads. 
+acyclic, preventing thin-air reads.
 
 If the contract ($\cv_{op}$) of an operation ($op$) is \emph{weaker
 than} a store contract ($\cv_{st}$), then constraints expressed by the
@@ -209,7 +214,7 @@ $\ecc$ is satisfiable under $\ccc$. However, we are interested in the
 \emph{weakest} guarantee (among $\ecc$, $\ccc$, and $\scc$) required
 to satisfy the contract. We define the corresponding consistency level
 as the \emph{consistency class of the contract}. The classification
-scheme is presented formally in Figure~\ref{sem:classify}.  
+scheme is presented formally in Figure~\ref{sem:classify}.
 
 Along with three straightforward rules that classify contracts into
 consistency classes, the classification scheme also presents a rule

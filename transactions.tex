@@ -71,4 +71,23 @@ While making both transactions serializable would ensure correctness,
 distributed stores rarely offer serializable transactions. Moreover,
 serializability is unavailable and hinders scalability. As we will see, these
 transactions can be satisfied with much weaker isolation guarantees. Despite
-the atomicity offered by the transaction, anomalies are still possible.
+the atomicity offered by the transaction, anomalies are still possible. For
+example, the two \cf{getBalance} operations in \cf{totalBalance} transactions
+might be served by different replicas with distinct set of committed \cf{save}
+transactions. If the first(second) \cf{getBalance} operation witness a
+\cf{save} transaction that is not witnessed by the second(first)
+\cf{getBalance} operation, then the balance returned will be less(greater) than
+the actual balance. It is not immediately apparent which weakest isolation
+guaratee will be sufficient to prevent the anomaly.
+
+Instead, \name requires the programmer to simply state the consistency
+requirement as a contract. Since we would like both the \cf{getBalance}
+operations to witness the same set of \cf{save} transactions, we define
+$\psi_2$ as:
+
+\begin{smathpar}
+\begin{array}{l}
+\cv_{2} = \forall a:\rcf{getBalance}, b:\rcf{getBalance}, (c:\rcf{withdraw} \vee \rcf{deposit}), d. \\
+\qquad \txn{a,b}{c,d} ~\wedge~ \vis{d}{b} ~\wedge~ \sameobj{a}{c} \Rightarrow \vis{c}{a}
+\end{array}
+\end{smathpar}
