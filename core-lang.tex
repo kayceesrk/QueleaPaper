@@ -1,36 +1,35 @@
-\section{Meta-theory}
+\section{Soundness}
 \label{sec:core-opsem}
 
-In this section, we present the meta-theoretic result that certifies
-the soundness of our classification-based contract enforcement
+In this section, we present a soundness result that certifies
+the correctness of our classification-based contract enforcement
 strategy.
 % We show that any data store can correctly enforce $\scc$,
 % $\ccc$, and $\ecc$ guarantees can satisfy application-level
 % consistency constraints of all \name contracts.
 
-Fig.~\ref{sem:oper} summarizes the artifacts needed to state our
-meta-theoretic result. We formalize an abstract model of a replicated
-data store as a tuple $\E;\Sigma$, where $\E$ denotes the execution
-state, and $\Sigma$, the session soup, is the set of concurrent client
-sessions interacting with the store. The execution state ($\E$) of a
-data store is modeled as a tuple $\Exec$ where $\EffSoup$, called the
-\emph{effect soup}, is a set of effects generated during the
+Fig.~\ref{sem:oper} summarizes the artifacts needed. We formalize an
+abstract model of a replicated data store as a tuple $\E;\Sigma$, where $\E$
+denotes the execution state, and $\Sigma$, the session soup, is the set of
+concurrent client sessions interacting with the store. The execution state
+($\E$) of a data store is modeled as a tuple $\Exec$ where $\EffSoup$,
+called the \emph{effect soup}, is a set of effects generated during the
 execution, and $\visZ,\soZ \subseteq \EffSoup \times \EffSoup$ are
 visibility and session order relations, respectively, witnessed over
-generated effects. A session is modeled simply as a sequence of
-replicated data type operations ($op$), tagged with the consistency
-class ($\tau$) of their contracts (as determined by the contract
-classification scheme). Our contract language and classification
-scheme is independent of store semantics. Accordingly, we abstain from
-making any specific assumptions about semantics of the store. However,
-we do assume the existence of a reduction relation of form:
+generated effects. A session is modeled simply as a sequence of replicated
+data type operations ($op$), tagged with the consistency class ($\tau$) of
+their contracts (as determined by the contract classification scheme). Our
+contract language and classification scheme is independent of store
+semantics. Accordingly, we avoid making any specific assumptions about the
+semantics of the store. However, we do assume the existence of a reduction
+relation of the form:
 
 \begin{smathpar}
   \auxred{} {\E;\langle (op,\tau);\sigma \rangle \pll \Sigma} {\eff} 
     {\E';\langle \sigma \rangle \pll \Sigma'}
 \end{smathpar}
 
-\noindent The relation captures store's progress in execution (from
+\noindent The relation captures the store's execution progress (from
 $\E$ to $\E'$) due to the application of an operation ($op$) from one
 of the sessions in $\Sigma$ to a replica, generating a new effect
 ($\eff$).
@@ -47,8 +46,6 @@ enforced the contract $\cv$ in execution $\E$.
 % --------------------------
 \input{core-opsem.tex}
 
-We now state the soundness of contract enforcement as following:
-
 \begin{theorem}[Soundness of Contract Enforcement]
 \label{lem:core-preservation}
 Let $\cv$ be the contract of a replicated data type operation $op$,
@@ -63,8 +60,8 @@ if $\E' \models [\eff/\cureff]\,\cv(\tau)$, then $\E' \models [\eff/\cureff]\,\c
 The theorem states that if a data store correctly enforces $\scc$,
 $\ccc$, and $\ecc$ guarantees in all executions, then contract
 classification scheme can be used to satisfy any \name contract on
-that data store. The proof of the theorem has been included in our
-tech report~\cite{techrep}. Tech report also contains operational
-semantics of our implementation of the data store, which concretizes
+that data store. The proof of the theorem is available in the supplementary
+material, which also contains an operational
+semantics of our implementation of the data store that concretizes
 the reduction relation ($\xrightarrow{}$), along with the proof
 that it correctly enforces all \name contracts.

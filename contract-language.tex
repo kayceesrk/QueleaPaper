@@ -135,7 +135,7 @@ consistency level:
   \noindent where $\small \hboZ = ((\soZ \cap \sameobjZ) \cup \visZ)^+$.
 
 \item \textbf{Causal consistency}: Causally consistent operations
-  require to see a causally consistent snapshot of the object state,
+  are required to see a causally consistent snapshot of the object state,
   including the actions performed on the same session.  The latter
   requirement entails that if two operations $o_1$ and $o_2$ from the
   same session are applied to two different replicas $r_1$ and $r_2$,
@@ -168,10 +168,11 @@ consistency level:
 
 \end{itemize}
 
-Observe that out contract language does not incorporate real (i.e.,
-wall-clock) time. Hence, the contract language cannot describe store
-semantics based on real time such as recency or bounded-staleness
-guarantees offered by certain stores~\cite{Pileus}.
+% SJ: not sure this is necessary, or appropriate here.
+%% \noindent Observe that out contract language does not incorporate real (i.e.,
+%% wall-clock) time. Hence, it cannot describe store
+%% semantics such as recency or bounded-staleness
+%% guarantees offered by certain stores~\cite{Pileus}.
 
 
 % Contract classification rules
@@ -180,9 +181,9 @@ guarantees offered by certain stores~\cite{Pileus}.
 
 \subsection{Contract Comparison and Classification}
 
-Our goal is to map application-level consistency constraints of
+Our goal is to map application-level consistency constraints on
 operations to appropriate store-level consistency guarantees capable
-of satisfying constraints.  The ability to express both of them as
+of satisfying these constraints.  The ability to express both of them as
 contracts in our contract language lets us compare and determine if
 contract ($\cv_{op}$) of an operation ($op$) is weak enough to be
 satisfied under a store consistency level identified by the contract
