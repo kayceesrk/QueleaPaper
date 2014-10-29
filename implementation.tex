@@ -1,14 +1,5 @@
 \section{Implementation}
 
 In this section, we describe the instantiation of \name on top of off-the-shelf
-eventually consistent distributed store Cassandra. We begin with a description
-of the programming interface.
-
-The programmer simply pairs up the operation implementation with the
-corresponding contract to complete the RDT implementation. The contracts are
-statically checked, and mapped to the corresponding store consistency level.
-The store is exposed as a collection key-indexed, object-valued tables, where
-each table holds objects of the same type. The transaction language operates
-over this view, and has primitives to invoke an operation on an object, and
-invoke a transaction on a sequence of operation invocations. The transaction
-contract is also statically checked and classified.
+eventually consistent distributed store Cassandra. In particular, we focus on
+the challenges in efficiently realizing \name programming model.

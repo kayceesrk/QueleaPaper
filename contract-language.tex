@@ -52,7 +52,7 @@ object happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
   \set{\eff} \in \mathtt{Effect\; Set}
 }\\
 \EffSoup & \in & \mathtt{EffSoup}	  & \coloneqq & \set{\eff} \\
-\visZ, \soZ, &	\in & \mathtt{Relations} & \coloneqq & 
+\visZ, \soZ, &	\in & \mathtt{Relations} & \coloneqq &
   \set{\eff}\times\set{\eff} \\
 \sameobjZ		&     &  & \\
 {\E} 		& \in & \mathtt{ExecState}  & \coloneqq & \Exec \\
@@ -71,9 +71,9 @@ executions.Fig.~\ref{sem:contracts} summarizes artifacts relevant to
 define an axiomatic execution. We formalize an axiomatic execution as
 a tuple $\Exec$, where $\EffSoup$, called the \emph{effect soup}, is
 the set of all effects generated during the program execution, and
-$\visZ,\soZ, \sameobjZ \subseteq \EffSoup \times \EffSoup$ are
+$\visZ,\soZ,\sameobjZ \subseteq \EffSoup \times \EffSoup$ are
 \emph{visibility}, \emph{session order}, and \emph{same object}
-relations, respectively, witnessed over generated effects at run-time. 
+relations, respectively, witnessed over generated effects at run-time.
 
 Note that the axiomatic definition an execution ($\E$) provides
 interpretations for primitive relations (eg: $\visZ$) that occur free
@@ -243,7 +243,7 @@ described informally in Sec.~\ref{sec:sysmod}:
 \cv(\tau) & \in & \mathtt{Store\; Contract\; of \; \tau} & \coloneqq & \scc,
   \ccc, \ecc\\
 {\sigma} & \in & \mathtt{Session} & \coloneqq & \cdot \ALT (op,\tau); \sigma \\
-\Sigma 	& \in & \mathtt{Session\;Soup}   & \coloneqq & 
+\Sigma 	& \in & \mathtt{Session\;Soup}   & \coloneqq &
   \langle s,{\sigma} \rangle \pll \Sigma \ALT \emptyset \\
 				&			&	\mathtt{Store}		  & \coloneqq & \E;\Sigma \\
 \end{array}
@@ -259,7 +259,7 @@ classification scheme). We assume rewrite relation of form:
 
 \vspace{-1.7em}
 \begin{smathpar}
-  \auxred{} {\E;\langle (op,\tau);\sigma \rangle \pll \Sigma} {\eff} 
+  \auxred{} {\E;\langle (op,\tau);\sigma \rangle \pll \Sigma} {\eff}
     {\E';\langle \sigma \rangle \pll \Sigma'}
 \end{smathpar}
 
