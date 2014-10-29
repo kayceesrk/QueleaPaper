@@ -6,20 +6,22 @@
   {\eff} \in \mathtt{Effect} \qquad
   {op} \in \mathtt{Operation} \qquad
   {\cv} \in \mathtt{Contract}
-} \\
+}\\
+\multicolumn{5}{l}{
+  \set{\eff} \in \mathtt{Set\; of\; Effects} \qquad 
+  \tau \in \mathtt{Consistency\; Class}
+}\\
 %{op} & \in & {\sf Operation}& & \\
 %\cv & \in & {\sf Contract} & &\\
-\tau & \in & \mathtt{Consistency\; Class} & \coloneqq & {\sf SC}, 
-  {\sf CC}, {\sf EC}\\
-\cv(\tau) & \in & \mathtt{Contracts\; of \; \tau} & \coloneqq & \scc,
+\cv(\tau) & \in & \mathtt{Store\; Contract\; of \; \tau} & \coloneqq & \scc,
   \ccc, \ecc\\
-{a_s} & \in & \mathtt{Action} & \coloneqq & (op,\tau) \\
-{\sigma} & \in & \mathtt{Session} & \coloneqq & \cdot \ALT a_s; \sigma \\
+%{a_s} & \in & \mathtt{Action} & \coloneqq &  \\
+{\sigma} & \in & \mathtt{Session} & \coloneqq & \cdot \ALT (op,\tau); \sigma \\
 %\eff & \in & \mathtt{Effect} & \coloneqq &  (s,~i,~op,~v)\\
 \EffSoup & \in & \mathtt{EffSoup}	  & \coloneqq & \set{\eff} \\
 \visZ, \soZ, &	\in & \mathtt{Relations} & \coloneqq & 
   \set{\eff}\times\set{\eff} \\
-	\sameobjZ		&     &  & \\
+%	\sameobjZ		&     &  & \\
 {\E} 		& \in & \mathtt{ExecState}  & \coloneqq & (\EffSoup,\visZ,\soZ)\\
 \Sigma 	& \in & \mathtt{Session\;Soup}   & \coloneqq & 
   \langle s,{\sigma} \rangle \pll \Sigma \ALT \emptyset \\
