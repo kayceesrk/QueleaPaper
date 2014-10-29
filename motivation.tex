@@ -9,26 +9,28 @@ to obtain the desired correctness guarantees.
 
 \subsection{RDT specification}
 
-A key novelty	in \name is that it allows the addition of new RDTs to the store,
-immensely improving the programmability of data stores. The programmer no
-longer has to coerce the application logic to utilize the store provided data
+A key novelty of \name is that it allows the addition of new RDTs to the
+store, greatly improving programmability.  Specifically, programmers no
+longer have to coerce application logic to conform to to store-provided data
 types. In addition, \name treats the convergence semantics of the data type
-separately from the consistency properties. The separation of concern allows
-the programmer to \emph{operationally} reason about conflict resolution, while
-permitting \emph{declarative} reasoning for consistency. As mentioned in the
-previous section, RDTs are described in terms of operations on a RDT object,
-where each operation is described as a reduction over the state of the object
-i.e., the list of effects. Let us assume that the bank account object provides
-three operations: \cf{deposit}, \cf{withdraw} and \cf{getBalance}, with the
-assumption that the withdraw fails if the account has insufficient balance.
-Every operation in \name is of the following type, written in Haskell syntax:
+separately from consistency properties. This separation of concerns allows
+the programmer to \emph{operationally} reason about conflict resolution,
+while permitting \emph{declarative} reasoning for consistency. As mentioned
+in the previous section, RDTs are described in terms of operations on a RDT
+object, where each operation is described as a reduction over the state of
+the object i.e., the list of effects.
+
+Assume that the bank account object provides three operations: \cf{deposit},
+\cf{withdraw} and \cf{getBalance}, with the assumption that the \cf{withdraw}
+fails if the account has insufficient balance.  Every operation in \name is
+of the following type, written in Haskell syntax:
 
 \begin{codehaskell}
 type Operation = (Effect e, Arg a, Res r)
                => [e] -> a -> (r, Maybe e)
 \end{codehaskell}
 
-\noindent It takes a list of effects (the \emph{context} for the operation), an
+\noindent An operation takes a list of effects (the \emph{context} for the operation), an
 argument and returns a result along with an optional effect. Read-only
 operations do not return any effect. If an effect is returned, it is added to
 the state of the object at the current replica, and asynchronously sent to
@@ -41,8 +43,8 @@ data Acc = Deposit_ Int | Withdraw_ Int
 
 getBalance :: [Acc] -> () -> (Int, Maybe Acc)
 getBalance ctxt _ =
-  let res = sum [x | Deposit_ x <- ctxt]
-						- sum [x | Withdraw_ x <- ctxt]
+  let res = sum [x | Deposit x <- ctxt]
+          - sum [x | Withdraw x <- ctxt]
 	in (res, Nothing)
 
 deposit :: [Acc] -> Int -> ((), Maybe Acc)
