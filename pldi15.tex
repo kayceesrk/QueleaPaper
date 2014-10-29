@@ -38,6 +38,75 @@
 \newcommand{\GK}[1]{{\textcolor{red}{{GK: #1}}}}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% General
+\font\nine=cmr9
+
+\font\ninerm=cmr9
+\font\ninebf=cmbx9
+\font\nineit=cmti9
+\font\ninesl=cmsl9
+\font\ninett=cmtt9
+\font\ninemi=cmmi9  \skewchar\ninemi='177
+\font\ninesy=cmsy9  \skewchar\ninesy='60
+\font\nineex=cmex10
+
+%%%%%%%%%%%%%%%%%%%%%%%
+%% Math Fonts
+
+\font\mathninerm=cmr9
+\font\mathninei=cmmi9
+\font\mathninesy=cmsy9
+
+
+\def\ninepoint{\def\rm{\fam0\ninerm}%
+\textfont0=\mathninerm\scriptfont0=\mathsevenrm\scriptscriptfont0=\mathfiverm%
+\textfont1=\mathninei\scriptfont1=\mathseveni\scriptscriptfont1=\mathfivei%
+\textfont2=\mathninesy\scriptfont2=\mathsevensy\scriptscriptfont2=\mathfivesy%
+\textfont3=\tenex
+\let\sc=\sevenrm
+ \def\it{\fam\itfam\nineit}%
+  \textfont\itfam=\nineit
+  \def\bf{\fam\bffam\ninebf}%
+  \textfont\bffam=\ninebf
+  \def\tt{\fam\ttfam\ninett}%
+  \textfont\ttfam=\ninett
+  \setbox\strutbox=\hbox{\vrule height9pt depth4pt width0pt}%
+  \baselineskip=11pt\rm}
+
+
+\newenvironment{boxit}{\vbox\bgroup\hrule\hbox\bgroup\vrule\kern3pt
+    \vbox\bgroup\kern3pt\advance\hsize by -6.8pt\relax}{\par\kern3pt\egroup\kern3pt\vrule\egroup\hrule\egroup}
+
+\font\matheightrm=cmr8
+\font\matheightbf=cmbx8
+\font\matheighti=cmmi8
+\font\matheightsy=cmsy8
+\font\eightit=cmti8
+\font\eighttt=cmtt8
+
+
+
+\def\eightpoint{%
+\textfont0=\matheightrm%
+\scriptfont0=\mathsixrm\scriptscriptfont0=\mathfiverm
+\textfont1=\matheighti\scriptfont1=\mathsixi\scriptscriptfont1=\mathfivei%
+\textfont2=\matheightsy\scriptfont2=\mathsixsy\scriptscriptfont2=\mathfivesy%
+\def\rm{\fam0\matheightrm}%
+\def\it{\fam\itfam\eightit}%
+\textfont\itfam=\eightit%
+  \def\bf{\fam\bffam\matheightbf}%
+  \textfont\bffam=\matheightbf%
+  \def\tt{\fam\ttfam\eighttt}%
+  \textfont\ttfam=\eighttt%
+  \setbox\strutbox=\hbox{\vrule height7pt depth2pt width0pt}%
+ \baselineskip=9pt\rm}
+
+\newfam\smallttfam
+\newfam\smallfam
+\textfont\smallttfam=\ninett
+\textfont\smallfam=\matheightrm
+
 \lstloadlanguages{sql}
 \newcommand{\lstsql}{\lstset{
       language=sql,
@@ -87,7 +156,7 @@
 \lstloadlanguages{haskell}
 \newcommand{\lsthaskell}{\lstset{
       language=haskell,
-      basicstyle=\ttfamily\footnotesize,
+      basicstyle=\ttfamily\ninett\footnotesize,
       flexiblecolumns=false,
 			tabsize=2,
       %basewidth={0.5em,0.45em},
