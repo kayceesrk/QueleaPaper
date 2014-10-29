@@ -98,8 +98,12 @@
       % ugh, it keywords map/sort/zipwith.  should do this for
       % consistency or figure out how to disable those other keywords:
       morekeywords={foldl,fold,username},
+			classoffset=1,
+			morekeywords={sameObj,vis,so},
+			keywordstyle=\color{RedViolet}\bfseries,
+			classoffset=0,
       literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 % {=}{{$=$}}1
-               {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
+               {>}{{$>$}}1 {<}{{$<$}}1
                {\\\\}{{\char`\\\char`\\}}1
                {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
                {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
@@ -107,6 +111,9 @@
                {>>}{{>>}}2 {>>=}{{>>=}}2 {=<<}{{=<<}}2
                {|}{{$\mid$}}1
 							 {(-}{{$\in$}}1
+							 {forall}{{$\forall$}}1
+							 {vee}{{$\vee$}}1
+							 {wedge}{{$\wedge$}}1
                {`member`}{{$\in$}}1
                {s.empty}{{\{\}}}1
                {leftbrace}{\{}1
