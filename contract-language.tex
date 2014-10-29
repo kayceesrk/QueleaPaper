@@ -40,59 +40,54 @@ primitive relations.  Commonly used derived relations are the \emph{same object
 session order} ($\small \sooZ = \soZ ~\cap~ \sameobjZ$), and the \emph{same
 object happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 
-% \subsection{Capturing Store Semantics}
-% \label{sec:store_sem}
+\subsection{Semantics}
 
-% An important aspect of our contract classification system is that the store
-% semantics is also captured using the same contract language used to describe
-% application-level consistency. In this regard, similar
-% to~\cite{Burckhardt2014}, we can rigorously define a wide variety of store
-% semantics including those that combine any subset of session and causality
-% guarantees, and multiple consistency levels. For example, a store that offers
-% strong consistency is captured by the contract:
+\begin{figure}
+\begin{smathpar}
+\stretcharraybig
+\begin{array}{lclcl}
+\multicolumn{5}{l}{
+  {\eff} \in \mathtt{Effect} \qquad
+  {\cv} \in \mathtt{Contract} \qquad
+  \set{\eff} \in \mathtt{Effect\; Set}
+}\\
+\EffSoup & \in & \mathtt{EffSoup}	  & \coloneqq & \set{\eff} \\
+\visZ, \soZ, &	\in & \mathtt{Relations} & \coloneqq & 
+  \set{\eff}\times\set{\eff} \\
+\sameobjZ		&     &  & \\
+{\E} 		& \in & \mathtt{ExecState}  & \coloneqq & \Exec \\
+\end{array}
+\end{smathpar}
 
-% \vspace{-1em}
-% \begin{smathpar}
-% \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
-% \end{smathpar}
+\caption{An Axiomatic Execution}
+\label{sem:contracts}
+\end{figure}
 
-% \noindent Similarly, a store that offers per-object causal consistency is captured by the
-% contract:
+In this section, we formally define what it means for an execution to
+satisfy a contract.
 
-% \vspace{-1em}
-% \begin{smathpar}
-% \ccc = \forall a.~(\hboZ \cap \sameobjZ) (a,\cureff) \Rightarrow \vis{a}{\cureff}
-% \end{smathpar}
+\name contracts are constraints over axiomatic definitions of program
+executions.Fig.~\ref{sem:contracts} summarizes artifacts relevant to
+define an axiomatic execution. We formalize an axiomatic execution as
+a tuple $\Exec$, where $\EffSoup$, called the \emph{effect soup}, is
+the set of all effects generated during the program execution, and
+$\visZ,\soZ, \sameobjZ \subseteq \EffSoup \times \EffSoup$ are
+\emph{visibility}, \emph{session order}, and \emph{same object}
+relations, respectively, witnessed over generated effects at run-time. 
 
-% \noindent This ability to represent store semantics and application-level consistency in
-% the same language is vital to contract classification.
-
-% \subsection{Contract Comparison}
-
-% Our goal is to classify contracts, and map the operation they describe to
-% the \emph{weakest} store-level consistency level that  nonetheless
-% satisfies the contract's constraints. To this end, we need a mechanism to
-% compare the ``strength'' of a contract. Let $\cv_{op}$ be a contract for a
-% particular operation $op$, and $\cv_{st}$ capture a particular store
-% consistency level. We would like to determine whether $op$ can be
-% \emph{safely discharged} at the store consistency level $\cv_{st}$ such that
-% the resulting execution does not violate $\cv_{op}$.
-
-% Since our contracts represent axiomatic definition of program executions, let
-% $\Mod{\cv}$ be the set of all executions under which contract $\cv$ is
-% satisfied. If every execution $\E \in \Mod{\cv_{st}}$ is also a member of
-% $\Mod{\cv_{op}}$, then $op$ can be safely discharged under the store
-% consistency level $\cv_{st}$. Formally, $\Mod{\cv_{st}} \subseteq
-% \Mod{\cv_{op}}$. This is the model-theoretic consequence relation, written as
-% $\cv_{st} \models_m \cv_{op}$.
-
-% Observe that our contract language (stripped of its syntactic sugar) is a
-% carefully chosen subset of first-order logic that is known to be
-% decidable~\cite{epr}.  Since first-order logic is sound and complete
-% ~\cite{completeness}, $\cv_{st} \models_m \cv_{op}$ if and only if $\cv_{st}
-% \Rightarrow \cv_{op}$.  Due to the decidability of our contract language, this
-% implication check is automatically discharged with the help of a theorem
-% prover.
+Note that the axiomatic definition an execution ($\E$) provides
+interpretations for primitive relations (eg: $\visZ$) that occur free
+in contract formulas, and also fixes the domain of quantification to
+set of all effects ($\EffSoup$) observed during the program execution.
+As such, $\E$ is a potential model for any first-order formula ($\cv$)
+expressible in our contract language. If $\E$ is indeed a valid model
+for $\cv$ (expressed using model-theoretic consequence relation as $\E
+\models \cv$), we say that the execution $\E$ satisfied the contract
+$\cv$:
+\begin{definition}
+An axiomatic execution $\E$ is said to satisfy a contract $\cv$ if and
+only if $E \models \cv$.
+\end{definition}
 
 \subsection{Capturing Store Semantics}
 
@@ -197,24 +192,32 @@ A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \end{definition}
 
 \vspace{-1em}
-\noindent The $\Delta$ referred in the above defintion captures
-assumptions about the nature of primitive relations, such as $\Rvis$
-and $\Rso$ are irreflexive, and the happens-before relation $\hbZ$ is
-acyclic, preventing thin-air reads.
+\noindent The $\Delta$ referred in the above defintion is a
+conjunction of assumptions about the nature of primitive relations,
+such as $\Rvis$ and $\Rso$ are irreflexive, and the happens-before
+relation $\hbZ$ is acyclic. A \emph{well-formed} axiomatic execution
+($\E$) is expected to satisfy these assumptions (i.e., $\E \models
+\Delta$).
 
 If the contract ($\cv_{op}$) of an operation ($op$) is \emph{weaker
 than} a store contract ($\cv_{st}$), then constraints expressed by the
-former are implied by guarantees provided by the later. Consequently,
-$\cv_{op}$ is satisfiable under $\cv_{st}$. Observe that the contracts
-$\scc$, $\ccc$ and $\ecc$ are themselves totally ordered with respect
-to the $\le$ relation: $\ecc \le \ccc \le \scc$.  This concurs with
-the intuition that any contract satisfiable under $\ecc$ or $\ccc$ is
-satisfiable under $\scc$, and any contract that is satisfiable under
-$\ecc$ is satisfiable under $\ccc$. However, we are interested in the
-\emph{weakest} guarantee (among $\ecc$, $\ccc$, and $\scc$) required
-to satisfy the contract. We define the corresponding consistency level
-as the \emph{consistency class of the contract}. The classification
-scheme is presented formally in Figure~\ref{sem:classify}.
+former are implied by guarantees provided by the later. Due to the
+completeness of first-order logic\cite{completeness}, this means that
+any well-formed execution ($\E$) that satisfies $\cv_{st}$ (i.e.,
+$\E\models \cv_{st}$) also satisfies $\cv_{op}$ (i.e., $\E \models
+\cv_{op}$). Consequently, it is safe to execute operation $op$ under
+store consistency level captured by $\cv_{st}$.
+
+Observe that the contracts $\scc$, $\ccc$ and $\ecc$ are themselves
+totally ordered with respect to the $\le$ relation: $\ecc \le \ccc \le
+\scc$.  This concurs with the intuition that any contract satisfiable
+under $\ecc$ or $\ccc$ is satisfiable under $\scc$, and any contract
+that is satisfiable under $\ecc$ is satisfiable under $\ccc$. However,
+we are interested in the \emph{weakest} guarantee (among $\ecc$,
+$\ccc$, and $\scc$) required to satisfy the contract. We define the
+corresponding consistency level as the \emph{consistency class of the
+contract}. The classification scheme is presented formally in
+Figure~\ref{sem:classify}.
 
 Along with three straightforward rules that classify contracts into
 consistency classes, the classification scheme also presents a rule
@@ -222,3 +225,73 @@ that judges well-formedness of a contract. A contract is well-formed
 if and only if it is satisfiable under $\scc$ - the strongest possible
 consistency guarantee any store can provide. Otherwise, it is
 considered ill-formed, and rejected statically.
+
+\subsection{Soundness of Contract Classification}
+
+In this section, we present a meta-theoretic result that certifies the
+soundness of classification-based contract enforcement. To help us
+state the result, we present an axiomatic model of the our system
+described informally in Sec.~\ref{sec:sysmod}:
+
+\begin{smathpar}
+\begin{array}{lclcl}
+\multicolumn{5}{l}{
+  {op} \in \mathtt{Operation} \qquad
+  \tau \in \mathtt{Consistency\; Class}
+}\\
+\cv(\tau) & \in & \mathtt{Store\; Contract\; of \; \tau} & \coloneqq & \scc,
+  \ccc, \ecc\\
+{\sigma} & \in & \mathtt{Session} & \coloneqq & \cdot \ALT (op,\tau); \sigma \\
+\Sigma 	& \in & \mathtt{Session\;Soup}   & \coloneqq & 
+  \langle s,{\sigma} \rangle \pll \Sigma \ALT \emptyset \\
+				&			&	\mathtt{Store}		  & \coloneqq & \E;\Sigma \\
+\end{array}
+\end{smathpar}
+
+We model the system as a tuple $\E;\Sigma$, where the execution $\E$
+captures the data store's current state of the execution, and
+$\Sigma$, the session soup, is the set of concurrent client sessions
+interacting with the store. A session is modeled simply as a sequence
+of replicated data type operations ($op$), tagged with the consistency
+class ($\tau$) of their contracts (as determined by the contract
+classification scheme). We assume rewrite relation of form:
+
+\vspace{-1.7em}
+\begin{smathpar}
+  \auxred{} {\E;\langle (op,\tau);\sigma \rangle \pll \Sigma} {\eff} 
+    {\E';\langle \sigma \rangle \pll \Sigma'}
+\end{smathpar}
+
+\noindent on the system state. The relation captures store's progress
+in execution (from $\E$ to $\E'$) due to the application of an
+operation ($op$) from one of the sessions in $\Sigma$ to a replica,
+generating a new effect ($\eff$). If the resultant execution ($\E'$)
+satisfies the store contract ($\cv(\tau)$) of $\tau$ (i.e., $\E
+\models \cv(\tau)$), the we say that the store has \emph{enforced} the
+contract $\cv(\tau)$ in the execution $\E'$.
+
+With help of the axiomatic model, we now state the soundness of
+contract enforcement as following:
+
+\begin{theorem}[Soundness of Contract Enforcement]
+\label{lem:core-preservation}
+Let $\cv$ be a well-formed contract of a replicated data type operation $op$,
+and let $\tau$ denote the consistency class of $\cv$ as determined by
+the contract classification scheme. Forall well-formed execution
+states $\E$, $\E'$ such that
+$\auxred{} {\E;\langle (op,\tau);\,\sigma \rangle \pll \Sigma} {\eff}
+ {\E';\langle \sigma \rangle \pll \Sigma}$
+if $\E' \models [\eff/\cureff]\,\cv(\tau)$, then $\E' \models [\eff/\cureff]\,\cv$
+\end{theorem}
+
+The theorem states that if a data store correctly enforces $\scc$,
+$\ccc$, and $\ecc$ contracts in all well-formed executions, then the
+same store, extended with classification scheme, can enforce all
+well-formed \name contracts. The proof of the theorem has been
+relegated to our tech report~\cite{techrep} owing to space
+constraints \footnote{Tech report also contains operational semantics of our
+implementation of the data store, which concretizes the rewrite
+relation ($\xrightarrow{}$), along with the proof that it correctly
+enforces all \name contracts.}.
+
+
