@@ -52,7 +52,7 @@ transactions is given below:
 \noindent \begin{minipage}[t]{0.5\columnwidth}
 \begin{codepython}
 def save(amt):
-  atomically psi1:
+  atomically psi1 :
     b = c.withdraw(amt)
     if (b): s.deposit(amt)
 \end{codepython}
@@ -60,7 +60,7 @@ def save(amt):
 \begin{minipage}[t]{0.5\columnwidth}
 \begin{codepython}
 def totalBalance():
-  atomically psi2:
+  atomically psi2 :
     b1 = c.getBalance()
     b2 = s.getBalance()
     return b1 + b2
