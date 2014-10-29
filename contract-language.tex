@@ -180,14 +180,14 @@ guarantees offered by certain stores~\cite{Pileus}.
 
 \subsection{Contract Comparison and Classification}
 
-Our goal is to map application-level consistency constraints of
-operations to appropriate store-level consistency guarantees capable
-of satisfying constraints.  The ability to express both of them as
-contracts in our contract language lets us compare and determine if
-contract ($\cv_{op}$) of an operation ($op$) is weak enough to be
-satisfied under a store consistency level identified by the contract
-$\cv_{st}$. Towards this end, we define a binary \emph{weaker than}
-relation for our contract language as following:
+Our goal is to map application-level consistency constraints of operations to
+appropriate store-level consistency guarantees capable of satisfying
+constraints.  The ability to express both of them as contracts in our contract
+language lets us compare and determine if contract ($\cv_{op}$) of an operation
+($op$) is weak enough to be satisfied under a store consistency level
+identified by the contract $\cv_{st}$. \KC{Add intuition} Towards this end, we
+define a binary \emph{weaker than} relation for our contract language as
+following:
 
 \begin{definition}
 A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
