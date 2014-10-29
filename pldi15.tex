@@ -87,8 +87,9 @@
 \lstloadlanguages{haskell}
 \newcommand{\lsthaskell}{\lstset{
       language=haskell,
-      basicstyle=\ttfamily\footnotesize\small,
+      basicstyle=\ttfamily\footnotesize,
       flexiblecolumns=false,
+			tabsize=2,
       %basewidth={0.5em,0.45em},
       %aboveskip={3pt},
       %belowskip={3pt},
@@ -101,7 +102,7 @@
                {>}{{$>$}}1 {<}{{$<$}}1 {\\}{{$\lambda$}}1
                {\\\\}{{\char`\\\char`\\}}1
                {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
-               {<=}{{$\leq$}}2 {=>}{{$\rightarrow$}}2
+               {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
                {\ .}{{$\circ$}}2 {\ .\ }{{$\circ$}}2
                {>>}{{>>}}2 {>>=}{{>>=}}2 {=<<}{{=<<}}2
                {|}{{$\mid$}}1
@@ -163,6 +164,8 @@ large web applications, illustrate the effectiveness of our approach.
 
 \input{intro}
 
+\input{model}
+
 \input{motivation}
 
 \input{contract-language}
@@ -170,5 +173,7 @@ large web applications, illustrate the effectiveness of our approach.
 \input{core-lang}
 
 \input{transactions}
+
+\input{implementation}
 
 \end{document}

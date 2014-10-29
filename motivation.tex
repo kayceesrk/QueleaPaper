@@ -1,79 +1,71 @@
-\section{System Model}
-\label{sec:sysmod}
-
-\begin{figure}
-\centering
-\includegraphics[width=0.75\columnwidth]{Figures/SystemModel}
-\caption{Quelea system model.}
-\label{fig:sysmod}
-\end{figure}
-
-Figure~\ref{fig:sysmod} provides a schematic diagram of our system model. The
-distributed store is composed of a collection of \emph{replicas}, each of which
-stores a set of \emph{objects} ($x,y,\ldots$). We assume that every object is
-replicated at every replica in the store. The state of an object at any replica
-is the set of all updates (\emph{effects}) performed on the object. For
-example, the state of $x$ at replica 1 is the set composed of effects $w^x_1$
-and $w^x_2$.
-
-Each object is associated with a set of \emph{operations}. The clients interact
-with the store by invoking operations on objects. The sequence of operations
-invoked by a particular client on the store is called a \emph{session}. The
-data store is typically accessed by a large number of clients (and hence
-sessions) concurrently. Importantly, the clients are oblivious to which replica
-an operation is applied to; the data store may choose to route the operation to
-the closest replica for minimizing latency, or route it to a different replica
-in order to balance the load in the system. For example, the operations
-\emph{foo} and \emph{bar} invoked by the same session on the same object, might
-end up being applied to different replicas because replica 1 (to which
-\emph{foo} was applied) might be unreachable when the client invokes
-\emph{bar}.
-
-When \emph{foo} is invoked on a object $x$ with arguments \emph{arg}$_1$ at
-replica 1, it simply \emph{reduces} over the current set of effects at that
-replica on that object ($w^x_1$ and $w^x_2$), produces a result $v1$ that is
-sent back to the client, and emits a \emph{single} new effect $w^x_4$ that is
-appended to the state of $x$ at replica 1. Thus, every operation is evaluated
-over a \emph{snapshot} of the state of the object on which it is invoked. In
-this case, we say that the effect $w^x_4$ \emph{witnesses} $w^x_1$ and $w^x_2$.
-Alternatively, $w^x_1$ and $w^x_2$ are \emph{visible} to $w^x_4$, written
-logically as $\vis{w^x_1}{w^x_4} \wedge \vis{w^x_2}{w^x_4}$, where $\visZ$ is
-the visibility relation between effects. Visibility is an irreflexive (an
-operation cannot see its own effect) and asymmetric relation, and only relates
-effects produced by operations on the same object. Executing a read-only
-operation is similar except that no new effects are produced.
-
-The effect added to a particular replica is asynchronously sent to other
-replicas. We assume that \emph{eventually} an effect applied at one replica
-will be merged into all other replicas. Two effects $w^x_4$ and $w^x_5$ that
-arise from the same session are said to be in \emph{session order} (written
-logically as $\so{w^x_4}{w^x_5}$). Session order is an irreflexive, transitive
-relation. The effects $w^x_4$ and $w^x_5$ arising from operations applied to
-the same object $x$ are said to be under the \emph{same object} relation,
-written $\sameobj{w^x_4}{w^x_5}$. Finally, we can associate every effect with
-the operation that generated the effect with the help of a relation $\operZ$.
-In the current example, $\oper{w^x_4}{foo}$ and $\oper{w^x_5}{bar}$ hold. For
-simplicity, we assume all operation names across all object types are distinct.
-
-This model admits all the inconsistencies associated with eventual consistency.
-The goal of this work is to identify the precise consistency level for each
-operation such that application-level constraints are not violated. In the next
-section, we will concretely describe the challenges associated with
-constructing a consistent bank account on top of an eventually consistent data
-store. Subsequently, we will illustrate how our contract and specification
-language, armed with the primitive relations $\visZ$, $\soZ$, $\sameobjZ$ and
-$\operZ$, mitigates these challenges.
-
 \section{Motivation}
 \label{sec:motivation}
 
 Consider how we might implement a highly available bank account on top of an
 eventually consistent data store, with the \emph{integrity} constraint that the
-balance should never drop below 0. Let us assume that the bank account object
-provides three operations: \cf{deposit}, \cf{withdraw} and \cf{getBalance},
-with the assumption that the withdraw fails if the account has insufficient
-balance. Our goal is to choose the correct consistency level for each of these
-operations such that (1) the balance never drops below zero and (2) the
+balance should never drop below 0. We will begin by implementing the bank
+account replicated data type (RDT) in \name, and then describe the mechanisms
+to obtain the desired correctness guarantees.
+
+\subsection{RDT specification}
+
+A key novelty	in \name is that it allows the addition of new RDTs to the store,
+immensely improving the programmability of data stores. The programmer no
+longer has to coerce the application logic to utilize the store provided data
+types. In addition, \name treats the convergence semantics of the data type
+separately from the consistency properties. The separation of concern allows
+the programmer to \emph{operationally} reason about conflict resolution, while
+permitting \emph{declarative} reasoning for consistency. As mentioned in the
+previous section, RDTs are described in terms of operations on a RDT object,
+where each operation is described as a reduction over the state of the object
+i.e., the list of effects. Let us assume that the bank account object provides
+three operations: \cf{deposit}, \cf{withdraw} and \cf{getBalance}, with the
+assumption that the withdraw fails if the account has insufficient balance.
+Every operation in \name is of the following type, written in Haskell syntax:
+
+\begin{codehaskell}
+type Operation = (Effect e, Arg a, Res r)
+               => [e] -> a -> (r, Maybe e)
+\end{codehaskell}
+
+\noindent It takes a list of effects (the \emph{context} for the operation), an
+argument and returns a result along with an optional effect. Read-only
+operations do not return any effect. If an effect is returned, it is added to
+the state of the object at the current replica, and asynchronously sent to
+other replicas. The implementation of the bank account operations is given
+below:
+
+\begin{codehaskell}
+data Acc = Deposit_ Int | Withdraw_ Int | GetBalance_
+
+getBalance :: [Acc] -> () -> (Int, Maybe Acc)
+getBalance ctxt _ =
+  let res = sum [x | Deposit_ x <- ctxt]
+						- sum [x | Withdraw_ x <- ctxt]
+	in (res, Nothing)
+
+deposit :: [Acc] -> Int -> ((), Maybe Acc)
+deposit _ amt = (amt, Just $ Deposit_ amt)
+
+withdraw :: [Acc] -> Int -> (Bool, Maybe Acc)
+withdraw ctxt v =
+	if sel1 $ getBalance ctxt () >= v
+  then (True, Just $ Withdraw_ v)
+	else (False, Nothing)
+\end{codehaskell}
+
+The datatype \cf{Acc} represents the effect type for the bank account. The
+context of the operations is a snapshot of the state of the object at some
+replica. In this sense, every operation on the RDT is atomic, and thus
+permitting sequential reasoning for implementing eventually consistent data
+types. We have implemented a large corpus of RDTs for realistic benchmarks
+including shopping carts, auction and micro-blogging sites in few tens of lines
+of code.
+
+\subsection{Anomalies under Eventual Consistency}
+
+Our goal is to choose the correct consistency level for each of the bank
+account operations such that (1) the balance never drops below zero and (2) the
 \cf{getBalance} operation never incorrectly returns a negative balance. To be
 able to do this, we need to consider the anomalies that could arise under
 eventual consistency.
