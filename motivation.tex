@@ -36,21 +36,21 @@ other replicas. The implementation of the bank account operations is given
 below:
 
 \begin{codehaskell}
-data Acc = Deposit_ Int | Withdraw_ Int | GetBalance_
+data Acc = Deposit Int | Withdraw Int | GetBalance
 
 getBalance :: [Acc] -> () -> (Int, Maybe Acc)
 getBalance ctxt _ =
-  let res = sum [x | Deposit_ x <- ctxt]
-						- sum [x | Withdraw_ x <- ctxt]
+  let res = sum [x | Deposit x <- ctxt]
+						- sum [x | Withdraw x <- ctxt]
 	in (res, Nothing)
 
 deposit :: [Acc] -> Int -> ((), Maybe Acc)
-deposit _ amt = (amt, Just $ Deposit_ amt)
+deposit _ amt = (amt, Just $ Deposit amt)
 
 withdraw :: [Acc] -> Int -> (Bool, Maybe Acc)
 withdraw ctxt v =
 	if sel1 $ getBalance ctxt () >= v
-  then (True, Just $ Withdraw_ v)
+  then (True, Just $ Withdraw v)
 	else (False, Nothing)
 \end{codehaskell}
 
