@@ -5,7 +5,7 @@
 % ------------------------
 \input{contract-syntax.tex}
 
-In this section, we formalize the contract language of \name, and describe our
+In this section, we formalize \name's contract language, and describe our
 contract classification scheme, which analyzes a contract and maps it to the
 weakest store consistency level sufficient to satisfy its consistency
 requirements.
@@ -62,9 +62,6 @@ object happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 \label{sem:contracts}
 \end{figure}
 
-In this section, we formally define what it means for an execution to
-satisfy a contract.
-
 \name contracts are constraints over axiomatic definitions of program
 executions.Fig.~\ref{sem:contracts} summarizes artifacts relevant to
 define an axiomatic execution. We formalize an axiomatic execution as
@@ -74,13 +71,13 @@ $\visZ,\soZ,\sameobjZ \subseteq \EffSoup \times \EffSoup$ are
 \emph{visibility}, \emph{session order}, and \emph{same object}
 relations, respectively, witnessed over generated effects at run-time.
 
-Note that the axiomatic definition an execution ($\E$) provides
+Note that the axiomatic definition of an execution ($\E$) provides
 interpretations for primitive relations (eg: $\visZ$) that occur free
 in contract formulas, and also fixes the domain of quantification to
 set of all effects ($\EffSoup$) observed during the program execution.
 As such, $\E$ is a potential model for any first-order formula ($\cv$)
 expressible in our contract language. If $\E$ is indeed a valid model
-for $\cv$ (expressed using model-theoretic consequence relation as $\E
+for $\cv$ (expressed using the model-theoretic consequence relation as $\E
 \models \cv$), we say that the execution $\E$ satisfied the contract
 $\cv$:
 \begin{definition}
@@ -116,7 +113,7 @@ consistency level:
   example, \cf{deposit} is an eventually consistent operation; its semantics
   does not require its action to manifest on all replicas before other
   operations in its session are allowed to proceed. While eventually
-  consistent data store typically offer \emph{basic} eventual consistency
+  consistent data stores typically offer \emph{basic} eventual consistency
   with all possible anomalies, we assume that our store provides stronger
   semantics that remain highly-available~\cite{BailisHAT,COPS}; the store
   always exposes a causal cut of the updates. This semantics can be formally
@@ -128,22 +125,21 @@ consistency level:
   \end{smathpar}
   \noindent where $\small \hboZ = ((\soZ \cap \sameobjZ) \cup \visZ)^+$.
 
-\item \textbf{Causal consistency}: Causally consistent operations
-  are required to see a causally consistent snapshot of the object state,
+\item \textbf{Causal consistency}: Causally consistent operations are
+  required to see a causally consistent snapshot of the object state,
   including the actions performed on the same session.  The latter
-  requirement entails that if two operations $o_1$ and $o_2$ from the
-  same session are applied to two different replicas $r_1$ and $r_2$,
-  the second operation cannot be discharged until the effect of $o_1$ is
-  merged with $o_2$ in both $r_1$ and $r_2$. The \cf{getBalance}
-  operation requires causal consistency, as it requires the operations
-  from the same session to be visible, which cannot be guaranteed under
-  eventual consistency. We assume that causality is only tracked through
-  operations on the same object; two operations in the same session but
-  on different objects are considered causally unrelated under this
-  definition. Stores typically avoid tracking causality across objects
-  to mitigate overheads when causality tracking is unnecessary. The
-  corresponding store semantics is captured by the contract $\ccc$
-  defined below:
+  requirement entails that if two operations $o_1$ and $o_2$ from the same
+  session are applied to two different replicas $r_1$ and $r_2$, the second
+  operation cannot be discharged until the effect of $o_1$ is merged with
+  $o_2$ in both $r_1$ and $r_2$. The \cf{getBalance} operation requires
+  causal consistency, as it requires the operations from the same session to
+  be visible, which cannot be guaranteed under just eventual consistency. We
+  assume that causality is only tracked through operations on the same
+  object; two operations in the same session but on different objects are
+  considered causally unrelated under this definition. Stores typically
+  avoid tracking causality across objects to mitigate overheads when
+  causality tracking is unnecessary. The corresponding store semantics is
+  captured by the contract $\ccc$ defined below:
 
   \vspace{-1em}
   \begin{smathpar}
@@ -254,7 +250,7 @@ $\Sigma$, the session soup, is the set of concurrent client sessions
 interacting with the store. A session is modeled simply as a sequence
 of replicated data type operations ($op$), tagged with the consistency
 class ($\tau$) of their contracts (as determined by the contract
-classification scheme). We assume rewrite relation of form:
+classification scheme). We assume a rewrite relation of form:
 
 \vspace{-1.7em}
 \begin{smathpar}
@@ -262,16 +258,16 @@ classification scheme). We assume rewrite relation of form:
     {\E';\langle \sigma \rangle \pll \Sigma'}
 \end{smathpar}
 
-\noindent on the system state. The relation captures store's progress
-in execution (from $\E$ to $\E'$) due to the application of an
+\noindent on the system state. The relation captures the progress of
+the execution (from $\E$ to $\E'$)  due to the application of an
 operation ($op$) from one of the sessions in $\Sigma$ to a replica,
 generating a new effect ($\eff$). If the resultant execution ($\E'$)
 satisfies the store contract ($\cv(\tau)$) of $\tau$ (i.e., $\E
-\models \cv(\tau)$), the we say that the store has \emph{enforced} the
+\models \cv(\tau)$), then we say that the store has \emph{enforced} the
 contract $\cv(\tau)$ in the execution $\E'$.
 
 With help of the axiomatic model, we now state the soundness of
-contract enforcement as following:
+contract enforcement as follows:
 
 \begin{theorem}[Soundness of Contract Enforcement]
 \label{lem:core-preservation}
@@ -284,14 +280,14 @@ $\auxred{} {\E;\langle (op,\tau);\,\sigma \rangle \pll \Sigma} {\eff}
 if $\E' \models [\eff/\cureff]\,\cv(\tau)$, then $\E' \models [\eff/\cureff]\,\cv$
 \end{theorem}
 
-The theorem states that if a data store correctly enforces $\scc$,
-$\ccc$, and $\ecc$ contracts in all well-formed executions, then the
-same store, extended with classification scheme, can enforce all
-well-formed \name contracts. The proof of the theorem has been
-relegated to our tech report~\cite{techrep} owing to space
-constraints \footnote{Tech report also contains operational semantics of our
-implementation of the data store, which concretizes the rewrite
-relation ($\xrightarrow{}$), along with the proof that it correctly
-enforces all \name contracts.}.
+The theorem states that if a data store correctly enforces $\scc$, $\ccc$,
+and $\ecc$ contracts in all well-formed executions, then the same store,
+extended with classification scheme, can enforce all well-formed \name
+contracts. The proof of the theorem has been relegated to our tech report
+and is provided as part of the supplementary
+material~\cite{techrep}\footnote{The supplementary material and tech report
+  also defines an operational semantics that concretizes the rewrite
+  relation ($\xrightarrow{}$), along with the proof that it correctly
+  enforces all \name contracts.}.
 
 

@@ -1,19 +1,19 @@
 \section{Transaction Contracts}
 
 While contracts on individual operations offer the programmer object-level
-declarative reasoning, real-world scenarios often involve operations that span
-multiple objects. In order to address this problem, several recent
+declarative reasoning, real-world scenarios often involve operations that
+span multiple objects. In order to address this problem, several recent
 systems~\cite{COPS,BurckhardtESOP,BailisHAT} have proposed a variety of
 transactions, with varying semantics, in order to compose operations on
 multiple objects. However, given that classical transaction models such as
 serializability~\cite{} and snapshot isolation~\cite{} require inter-replica
-coordination, these systems espouse \emph{coordination-free transactions} that
-remain available under network partitions, but only provide weaker isolation
-guarantees. Coordination-free transactions have intricate consistency semantics
-and widely varying runtime overheads. As with operation-level consistency, the
-onus is on the programmer to pick the correct transaction kind, the choice of
-which is complicated by the consistency requirement of the operations it
-composes.
+coordination, these systems espouse \emph{coordination-free transactions}
+that remain available under network partitions, but only provide weaker
+isolation guarantees. Coordination-free transactions have intricate
+consistency semantics and widely varying runtime overheads. As with
+operation-level consistency, the onus is on the programmer to pick the
+correct transaction kind; this selection is complicated by operation
+consistency requirements.
 
 \subsection{Syntax and Semantics Extension}
 \label{sec:syn_sem_ext}
@@ -22,15 +22,15 @@ composes.
 transaction isolation level. Similar to contracts on individual operations, the
 programmer associates contracts with transactions, declaratively expressing its
 consistency specification. We extend the contract language with a new term
-under quantifier-free propositions ${\small \txnZ}~S_1~S_2$, where $S_1$ and
+under quantifier-free propositions - ${\small \txnZ}~S_1~S_2$, where $S_1$ and
 $S_2$ are sets of effects, and introduce a new primitive equivalence relation
 $\small \sametxnZ$ that holds for effects from the same transaction. $\small
 \txn{a,b}{c,d}$ is just syntactic sugar for $\small \sametxn{a}{b} ~\wedge~
 \sametxn{c}{d} ~\wedge~ \neg\sametxn{a}{c}$, where $a$ and $b$ considered to
 belong to the \emph{current} transaction.
 
-We assume that operations not part of any transaction to belong to their own
-unique transaction. While the transactions may have varying isolation
+We assume that operations not part of any transaction belong to their own
+unique transaction. While transactions may have varying isolation
 guarantees, we make the standard assumption that all transactions provide
 atomicity. Hence, we include the following axiom in $\Delta$: $\small \forall
 a,b,c.~\txn{a}{b,c} ~\wedge~ \sameobj{b}{c} ~\wedge~ \vis{b}{a} \Rightarrow
@@ -40,11 +40,11 @@ Figure~\ref{fig:txn_atomicity}.
 \subsection{Transactional Bank Account}
 
 In order to illustrate the utility of declarative reasoning for transactions,
-let us extend our running bank account example with use two accounts (objects)
+let us extend our running bank account example to use two accounts (objects)
 -- current ($c$) and savings ($s$). Each account provides operations
 \cf{withdraw}, \cf{deposit} and \cf{getBalance}, with the same contracts as
 defined previously. We consider two transactions -- \cf{save(amt)}, which
-transfers \cf{amt} from current to savings, and \cf{totalBalance} returns the
+transfers \cf{amt} from current to savings, and \cf{totalBalance}, which returns the
 sum of the balances of individual accounts. The \name code for the transactions
 is given below:
 \vspace{-1em}

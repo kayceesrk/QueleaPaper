@@ -3,22 +3,22 @@
 
 Consider how we might implement a highly available bank account on top of an
 eventually consistent data store, with the \emph{integrity} constraint that the
-balance should never drop below 0. We will begin by implementing the bank
+balance should never drop below 0. We begin by implementing a bank
 account replicated data type (RDT) in \name, and then describe the mechanisms
 to obtain the desired correctness guarantees.
 
 \subsection{RDT specification}
 
-A key novelty	in \name is that it allows the addition of new RDTs to the store,
-immensely improving the programmability of data stores. The programmer no
+A key novelty in \name is that it allows the addition of new RDTs to the store,
+greatly improving the programmability of data stores. The programmer no
 longer has to coerce the application logic to utilize the store provided data
 types. In addition, \name treats the convergence semantics of the data type
-separately from the consistency properties. The separation of concern allows
+separately from the consistency properties. This separation of concerns allows
 the programmer to \emph{operationally} reason about conflict resolution, while
 permitting \emph{declarative} reasoning for consistency. As mentioned in the
 previous section, RDTs are described in terms of operations on a RDT object,
 where each operation is described as a reduction over the state of the object
-i.e., the list of effects. Let us assume that the bank account object provides
+in terms of a list of effects. Let us assume that the bank account object provides
 three operations: \cf{deposit}, \cf{withdraw} and \cf{getBalance}, with the
 assumption that the withdraw fails if the account has insufficient balance.
 Every operation in \name is of the following type, written in Haskell syntax:
@@ -28,13 +28,14 @@ type Operation = (Effect e, Arg a, Res r)
                => [e] -> a -> (r, Maybe e)
 \end{codehaskell}
 
-\noindent It takes a list of effects (the \emph{context} for the operation), an
-argument and returns a result along with an optional effect. Read-only
+\noindent It takes a list of effects (the \emph{context} for the operation),
+and an input argument, and returns a result along with an optional effect. Read-only
 operations do not return any effect. If an effect is returned, it is added to
 the state of the object at the current replica, and asynchronously sent to
 other replicas. The implementation of the bank account operations in \name is
-given below:
+given in Figure~\ref{fig:ex}:
 
+\begin{figure}
 \begin{codehaskell}
 data Acc = Deposit_ Int | Withdraw_ Int | GetBalance_
 
@@ -53,6 +54,9 @@ withdraw ctxt v =
   then (True, Just $ Withdraw_ v)
 	else (False, Nothing)
 \end{codehaskell}
+\label{Definition of a bank account expressed in Quelea.}
+\label{fig:ex}
+\end{figure}
 
 The datatype \cf{Acc} represents the effect type for the bank account. The
 context of the operations is a snapshot of the state of the object at some
@@ -141,7 +145,7 @@ of weak consistency alternatives.
 levels by letting the programmer declare application-level consistency
 constraints as \emph{contracts} (Fig~\ref{fig:contract-lang}) that axiomatically
 specify the set of allowed executions involving this operation. In the case of
-the bank account example, any execution that does not exhibit the anomalies
+the bank account, any execution that does not exhibit the anomalies
 described in the previous section is a \emph{well-formed} execution on the bank
 account object.  By specifying the set of legal executions for each data type in
 terms of a trace of operation invocations on that type, \name\ ensures that all
@@ -162,7 +166,7 @@ requirement as a contract or specification over \cf{withdraw}:
 \end{smathpar}
 
 \noindent Here, $\cureff$ stands for the effect emitted by the \cf{withdraw} operation.
-The syntax $a:\rcf{withdraw}$ states that $a$ is an effect which was emitted
+The syntax $a:\rcf{withdraw}$ states that $a$ is an effect  emitted
 by a \cf{withdraw} operation i.e., $\oper{a}{\rcf{withdraw}}$ holds.  The
 contract specifies that if the current operation emits an effect $\cureff$,
 then for any operation $a$ which was emitted by a \cf{withdraw} operation, it
@@ -188,17 +192,15 @@ If a \cf{withdraw} $b$ is visible to \cf{getBalance}, then all \cf{deposit}
 operations $a$ visible to the \cf{withdraw} should also be visible to
 \cf{getBalance}. This prevents negative balance anomalies.
 
-Our specification language  provides operators to compose relations.
-Thus, the syntax $(R_1 \cap R_2)(a,b)$ is equivalent to $R_1(a,b)
-\wedge R_2(a,b)$. The last line of the above contract says that if a
-\cf{deposit} or a \cf{withdraw} operation precedes a \cf{getBalance}
-operation in session order, and is applied on the same object as the
-\cf{getBalance} operation, then it must be the case that the
-\cf{getBalance} operation witnesses the effects of the preceding
-operations.
-
-Since there are no restrictions on when and how a \cf{deposit}
-operation can execute, its contract is simply $\small \true$.
+Our specification language provides operators to compose relations.  Thus,
+the syntax $(R_1 \cap R_2)(a,b)$ is equivalent to $R_1(a,b) \wedge
+R_2(a,b)$. The last line of the above contract says that if a \cf{deposit}
+or a \cf{withdraw} operation precedes a \cf{getBalance} operation in session
+order, and is applied on the same object as the \cf{getBalance} operation,
+then it must be the case that the \cf{getBalance} operation witnesses the
+effects of the preceding operations. Since there are no restrictions on when
+or how a \cf{deposit} operation can execute, its contract is simply $\small
+\true$.
 
 \subsection{From Contracts to Implementation}
 
@@ -209,16 +211,17 @@ to reason about the semantics of the application under the \name system model.
 The mapping of application-level consistency requirements to appropriate
 store-level guarantees is done automatically behind-the-scene.
 
-How might one go about ensuring that any execution adheres to the contract? The
-challenge is that a contract provides a declarative (axiomatic) specification
-of an execution, while what is required is is an operational procedure for
-\emph{enforcing} its implicit constraints. One strategy would be to execute
-operations speculatively.  Here, operations are tentatively applied as they are
-received from the client or other replicas. We can maintain a runtime
-manifestation of executions, and check well-formedness conditions at runtime,
-rolling back executions if they are ill-formed. However, the overhead of state
-maintenance and the complexity of user-defined contracts make this technique
-infeasible in practice.
+How might one go about ensuring that an execution adheres to a contract? The
+challenge is that a contract provides a declarative (axiomatic)
+specification of an execution, while what is required is is an operational
+procedure for \emph{enforcing} its implicit constraints. One strategy would
+be to execute operations speculatively.  Here, operations are tentatively
+applied as they are received from the client or other replicas. We can
+maintain a runtime manifestation of executions, and check well-formedness
+conditions at runtime, rolling back executions if they are
+ill-formed. However, the overhead of state maintenance and the complexity of
+user-defined contracts is likely to make this technique infeasible in
+practice.
 
 We devise a static approach instead. Contracts are analyzed with the help of a
 theorem prover, and statically mapped to a particular store-level consistency
