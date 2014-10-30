@@ -938,7 +938,7 @@ update}</string>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{345.74998760223389, 176.86915969848633}, {142, 57}}</string>
+			<string>{{345.74998760223389, 168.93750381469727}, {142, 76}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FitText</key>
@@ -988,7 +988,8 @@ update}</string>
 
 \f0\fs28 \cf0 \dn4 \'95  Soft-state (in-memory)\
 \'95  Datatype operations\
-\'95  Garbage collection}</string>
+\'95  Garbage collection\
+\'95  Stronger consistency}</string>
 				<key>VerticalPad</key>
 				<integer>0</integer>
 			</dict>
@@ -1436,7 +1437,7 @@ update}</string>
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2014-10-30 14:06:24 +0000</string>
+	<string>2014-10-30 18:37:58 +0000</string>
 	<key>Modifier</key>
 	<string>chandras</string>
 	<key>NotesVisible</key>
