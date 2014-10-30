@@ -232,7 +232,8 @@ operations $b$ visible to the \cf{withdraw} should also be visible to
 \cf{getBalance}. This prevents negative balance anomalies.
 
 There are no restrictions on when and how a \cf{deposit} operation can execute.
-Hence, the deposit contract imposes no consistency restrictions. The deposit contract is:
+Hence, the deposit contract imposes no consistency restrictions. The deposit
+contract is:
 
 \begin{codehaskell}
 depositCtrt x = lift true

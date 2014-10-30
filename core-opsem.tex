@@ -1,6 +1,5 @@
 \begin{figure}
 \begin{smathpar}
-\stretcharraybig
 \begin{array}{lclcl}
 \multicolumn{5}{l}{
   {\eff} \in \mathtt{Effect} \qquad
@@ -8,7 +7,7 @@
   {\cv} \in \mathtt{Contract}
 }\\
 \multicolumn{5}{l}{
-  \set{\eff} \in \mathtt{Set\; of\; Effects} \qquad 
+  \set{\eff} \in \mathtt{Set\; of\; Effects} \qquad
   \tau \in \mathtt{Consistency\; Class}
 }\\
 %{op} & \in & {\sf Operation}& & \\
@@ -19,11 +18,11 @@
 {\sigma} & \in & \mathtt{Session} & \coloneqq & \cdot \ALT (op,\tau); \sigma \\
 %\eff & \in & \mathtt{Effect} & \coloneqq &  (s,~i,~op,~v)\\
 \EffSoup & \in & \mathtt{EffSoup}	  & \coloneqq & \set{\eff} \\
-\visZ, \soZ, &	\in & \mathtt{Relations} & \coloneqq & 
+\visZ, \soZ, &	\in & \mathtt{Relations} & \coloneqq &
   \set{\eff}\times\set{\eff} \\
 %	\sameobjZ		&     &  & \\
 {\E} 		& \in & \mathtt{ExecState}  & \coloneqq & (\EffSoup,\visZ,\soZ)\\
-\Sigma 	& \in & \mathtt{Session\;Soup}   & \coloneqq & 
+\Sigma 	& \in & \mathtt{Session\;Soup}   & \coloneqq &
   \langle s,{\sigma} \rangle \pll \Sigma \ALT \emptyset \\
 				&			&	\mathtt{Store}		  & \coloneqq & \E;\Sigma \\
 \end{array}
