@@ -46,7 +46,7 @@
 	<key>Creator</key>
 	<string>chandras</string>
 	<key>DisplayScale</key>
-	<string>1 0/72 in = 1 0/72 in</string>
+	<string>1 0/72 in = 1.0000 in</string>
 	<key>GraphDocumentVersion</key>
 	<integer>8</integer>
 	<key>GraphicsList</key>
@@ -408,14 +408,6 @@ Order}</string>
 					<integer>157</integer>
 					<key>Shape</key>
 					<string>Rectangle</string>
-					<key>Style</key>
-					<dict>
-						<key>shadow</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
@@ -428,11 +420,6 @@ Order}</string>
 					<string>Rectangle</string>
 					<key>Style</key>
 					<dict>
-						<key>shadow</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
 						<key>stroke</key>
 						<dict>
 							<key>Pattern</key>
@@ -483,14 +470,6 @@ Order}</string>
 			<integer>149</integer>
 			<key>Shape</key>
 			<string>Rectangle</string>
-			<key>Style</key>
-			<dict>
-				<key>shadow</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
 		</dict>
 		<dict>
 			<key>Class</key>
@@ -511,6 +490,11 @@ Order}</string>
 			</array>
 			<key>Style</key>
 			<dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>YES</string>
+				</dict>
 				<key>stroke</key>
 				<dict>
 					<key>HeadArrow</key>
@@ -550,6 +534,11 @@ Order}</string>
 			</array>
 			<key>Style</key>
 			<dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>YES</string>
+				</dict>
 				<key>stroke</key>
 				<dict>
 					<key>HeadArrow</key>
@@ -633,11 +622,6 @@ Order}</string>
 			<string>Rectangle</string>
 			<key>Style</key>
 			<dict>
-				<key>shadow</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
 				<key>stroke</key>
 				<dict>
 					<key>Pattern</key>
@@ -771,7 +755,7 @@ Order}</string>
 			<key>Head</key>
 			<dict>
 				<key>ID</key>
-				<integer>125</integer>
+				<integer>173</integer>
 			</dict>
 			<key>ID</key>
 			<integer>135</integer>
@@ -783,6 +767,11 @@ Order}</string>
 			</array>
 			<key>Style</key>
 			<dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>YES</string>
+				</dict>
 				<key>stroke</key>
 				<dict>
 					<key>HeadArrow</key>
@@ -823,6 +812,11 @@ Order}</string>
 			</array>
 			<key>Style</key>
 			<dict>
+				<key>shadow</key>
+				<dict>
+					<key>Draws</key>
+					<string>YES</string>
+				</dict>
 				<key>stroke</key>
 				<dict>
 					<key>HeadArrow</key>
@@ -842,7 +836,7 @@ Order}</string>
 			<key>Tail</key>
 			<dict>
 				<key>ID</key>
-				<integer>125</integer>
+				<integer>173</integer>
 			</dict>
 		</dict>
 		<dict>
@@ -1111,22 +1105,11 @@ Order}</string>
 						<real>12</real>
 					</dict>
 					<key>ID</key>
-					<integer>124</integer>
+					<integer>174</integer>
 					<key>Shape</key>
 					<string>SingleLine</string>
 					<key>Style</key>
-					<dict>
-						<key>fill</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-						<key>shadow</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-					</dict>
+					<dict/>
 					<key>TextPlacement</key>
 					<integer>0</integer>
 				</dict>
@@ -1143,28 +1126,17 @@ Order}</string>
 						<real>12</real>
 					</dict>
 					<key>ID</key>
-					<integer>125</integer>
+					<integer>173</integer>
 					<key>Shape</key>
 					<string>DocumentShape</string>
 					<key>Style</key>
-					<dict>
-						<key>fill</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-						<key>shadow</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-					</dict>
+					<dict/>
 					<key>TextPlacement</key>
 					<integer>0</integer>
 				</dict>
 			</array>
 			<key>ID</key>
-			<integer>123</integer>
+			<integer>172</integer>
 		</dict>
 		<dict>
 			<key>Bounds</key>
@@ -1215,26 +1187,64 @@ Order}</string>
 			<key>Shape</key>
 			<string>DocumentShape</string>
 			<key>Style</key>
-			<dict>
-				<key>fill</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-				<key>shadow</key>
-				<dict>
-					<key>Draws</key>
-					<string>NO</string>
-				</dict>
-			</dict>
+			<dict/>
 			<key>TextPlacement</key>
 			<integer>0</integer>
-			<key>TextRelativeArea</key>
-			<string>{{0, 0}, {1, 0.90000000000000002}}</string>
+		</dict>
+		<dict>
+			<key>Class</key>
+			<string>Group</string>
+			<key>Graphics</key>
+			<array>
+				<dict>
+					<key>Bounds</key>
+					<string>{{295.99996948242188, 68.250002974170684}, {56.999997695007181, 82.754234313964844}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Font</key>
+						<string>STIXGeneral-Regular</string>
+						<key>Size</key>
+						<real>12</real>
+					</dict>
+					<key>ID</key>
+					<integer>127</integer>
+					<key>Shape</key>
+					<string>SingleLine</string>
+					<key>Style</key>
+					<dict/>
+					<key>TextPlacement</key>
+					<integer>0</integer>
+				</dict>
+				<dict>
+					<key>Bounds</key>
+					<string>{{295.99997178741467, 91.495762711864472}, {56.999997695007181, 82.75423728813557}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>FontInfo</key>
+					<dict>
+						<key>Font</key>
+						<string>STIXGeneral-Regular</string>
+						<key>Size</key>
+						<real>12</real>
+					</dict>
+					<key>ID</key>
+					<integer>128</integer>
+					<key>Shape</key>
+					<string>DocumentShape</string>
+					<key>Style</key>
+					<dict/>
+					<key>TextPlacement</key>
+					<integer>0</integer>
+				</dict>
+			</array>
+			<key>ID</key>
+			<integer>126</integer>
 		</dict>
 		<dict>
 			<key>Bounds</key>
-			<string>{{89.500002861022949, 59}, {272, 124.5}}</string>
+			<string>{{89.500002861022949, 68.25}, {272, 115.25}}</string>
 			<key>Class</key>
 			<string>ShapedGraphic</string>
 			<key>FontInfo</key>
@@ -1278,79 +1288,6 @@ Order}</string>
 			</dict>
 			<key>TextPlacement</key>
 			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>Class</key>
-			<string>Group</string>
-			<key>Graphics</key>
-			<array>
-				<dict>
-					<key>Bounds</key>
-					<string>{{295.99996948242188, 68.250002974170684}, {56.999997695007181, 82.754234313964844}}</string>
-					<key>Class</key>
-					<string>ShapedGraphic</string>
-					<key>FontInfo</key>
-					<dict>
-						<key>Font</key>
-						<string>STIXGeneral-Regular</string>
-						<key>Size</key>
-						<real>12</real>
-					</dict>
-					<key>ID</key>
-					<integer>127</integer>
-					<key>Shape</key>
-					<string>SingleLine</string>
-					<key>Style</key>
-					<dict>
-						<key>fill</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-						<key>shadow</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-					</dict>
-					<key>TextPlacement</key>
-					<integer>0</integer>
-				</dict>
-				<dict>
-					<key>Bounds</key>
-					<string>{{295.99997178741467, 91.495762711864472}, {56.999997695007181, 82.75423728813557}}</string>
-					<key>Class</key>
-					<string>ShapedGraphic</string>
-					<key>FontInfo</key>
-					<dict>
-						<key>Font</key>
-						<string>STIXGeneral-Regular</string>
-						<key>Size</key>
-						<real>12</real>
-					</dict>
-					<key>ID</key>
-					<integer>128</integer>
-					<key>Shape</key>
-					<string>DocumentShape</string>
-					<key>Style</key>
-					<dict>
-						<key>fill</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-						<key>shadow</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-					</dict>
-					<key>TextPlacement</key>
-					<integer>0</integer>
-				</dict>
-			</array>
-			<key>ID</key>
-			<integer>126</integer>
 		</dict>
 	</array>
 	<key>GridInfo</key>
@@ -24126,7 +24063,7 @@ Order}</string>
 	<key>MasterSheets</key>
 	<array/>
 	<key>ModificationDate</key>
-	<string>2014-10-27 00:25:40 +0000</string>
+	<string>2014-10-30 09:36:19 +0000</string>
 	<key>Modifier</key>
 	<string>chandras</string>
 	<key>NotesVisible</key>
@@ -24207,7 +24144,7 @@ Order}</string>
 			</dict>
 		</array>
 		<key>Frame</key>
-		<string>{{-5, 0}, {1286, 778}}</string>
+		<string>{{0, 0}, {1286, 778}}</string>
 		<key>ListView</key>
 		<true/>
 		<key>OutlineWidth</key>

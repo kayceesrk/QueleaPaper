@@ -44,30 +44,42 @@ let us extend our running bank account example with use two accounts (objects)
 -- current ($c$) and savings ($s$). Each account provides operations
 \cf{withdraw}, \cf{deposit} and \cf{getBalance}, with the same contracts as
 defined previously. We consider two transactions -- \cf{save(amt)}, which
-transfers \cf{amt} from current to savings, and \cf{totalBalance} returns
-the sum of the balances of individual accounts. The pseudo code for the
-transactions is given below:
+transfers \cf{amt} from current to savings, and \cf{totalBalance} returns the
+sum of the balances of individual accounts. The \name code for the transactions
+is given below:
 \vspace{-1em}
 
 \noindent \begin{minipage}[t]{0.5\columnwidth}
-\begin{codepython}
-def save(amt):
-  atomically psi1 :
-    b = c.withdraw(amt)
-    if (b): s.deposit(amt)
-\end{codepython}
+\begin{codehaskell}
+save :: Quelea ()
+save amt =
+  x <- $(chkTxn psi1)
+  atomically x $ do
+    b <- withdraw c amt
+    when b $ deposit s amt
+\end{codehaskell}
 \end{minipage}
 \begin{minipage}[t]{0.5\columnwidth}
-\begin{codepython}
-def totalBalance():
-  atomically psi2 :
-    b1 = c.getBalance()
-    b2 = s.getBalance()
+\begin{codehaskell}
+totalBalance :: Quelea Int
+totalBalance =
+  x <- $(chkTxn psi2)
+  atomically x $ do
+    b1 <- getBalance s
+    b2 <- getBalance s
     return b1 + b2
-\end{codepython}
+\end{codehaskell}
 \end{minipage}
 
-\noindent where $\cv_1$ and $\cv_2$ are the contracts on the corresponding
+\noindent In the above code example, the operations on bank account are simply
+wrappers around the store interface. For example,
+
+\begin{codehaskell}
+withdraw :: Key -> Int -> Quelea Bool
+withdraw k amt = invoke k Withdraw amt
+\end{codehaskell}
+
+\noindent $\cv_1$ and $\cv_2$ are the contracts on the corresponding
 transactions. Our goal is to ensure that \cf{totalBalance} returns the result
 obtained from a consistent snapshot of the object states.
 
