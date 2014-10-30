@@ -51,9 +51,8 @@ is given below:
 
 \noindent \begin{minipage}[t]{0.5\columnwidth}
 \begin{codehaskell}
-save :: Quelea ()
 save amt =
-  x <- $(chkTxn psi1)
+  x <- $(classify psi1)
   atomically x $ do
     b <- withdraw c amt
     when b $ deposit s amt
@@ -61,23 +60,14 @@ save amt =
 \end{minipage}
 \begin{minipage}[t]{0.5\columnwidth}
 \begin{codehaskell}
-totalBalance :: Quelea Int
 totalBalance =
-  x <- $(chkTxn psi2)
+  x <- $(classify psi2)
   atomically x $ do
     b1 <- getBalance s
     b2 <- getBalance s
     return b1 + b2
 \end{codehaskell}
 \end{minipage}
-
-\noindent In the above code example, the operations on bank account are simply
-wrappers around the store interface. For example,
-
-\begin{codehaskell}
-withdraw :: Key -> Int -> Quelea Bool
-withdraw k amt = invoke (t::Table) k Withdraw amt
-\end{codehaskell}
 
 \noindent $\cv_1$ and $\cv_2$ are the contracts on the corresponding
 transactions. Our goal is to ensure that \cf{totalBalance} returns the result
