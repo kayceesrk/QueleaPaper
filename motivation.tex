@@ -188,16 +188,17 @@ If a \cf{withdraw} $b$ is visible to \cf{getBalance}, then all \cf{deposit}
 operations $a$ visible to the \cf{withdraw} should also be visible to
 \cf{getBalance}. This prevents negative balance anomalies.
 
-Our specification language provides operators to compose
-relations. Thus, the syntax $(R_1 \cap R_2)(a,b)$ is equivalent to $R_1(a,b)
-\wedge R_2(a,b)$. The last line of the above contract says that if a
-\cf{deposit} or a \cf{withdraw} operation precedes a \cf{getBalance} operation in
-session order, and is applied on the same object as the \cf{getBalance}
-operation, then it must be the case that the \cf{getBalance} operation
-witnesses the effects of the preceding operations.
+Our specification language (Fig~\ref{fig:contract-lang}) provides
+operators to compose relations. Thus, the syntax $(R_1 \cap R_2)(a,b)$
+is equivalent to $R_1(a,b) \wedge R_2(a,b)$. The last line of the
+above contract says that if a \cf{deposit} or a \cf{withdraw}
+operation precedes a \cf{getBalance} operation in session order, and
+is applied on the same object as the \cf{getBalance} operation, then
+it must be the case that the \cf{getBalance} operation witnesses the
+effects of the preceding operations.
 
-Since there are no restrictions on when and how a \cf{deposit} operation can
-execute, its contract is simply $\small \true$.
+Since there are no restrictions on when and how a \cf{deposit}
+operation can execute, its contract is simply $\small \true$.
 
 \subsection{From Contracts to Implementation}
 
