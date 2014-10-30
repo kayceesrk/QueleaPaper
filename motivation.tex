@@ -164,18 +164,19 @@ of operation invocations on that type, \name\ ensures that all executions over
 that type are well-formed.
 
 \begin{figure}
+%Careful while adjsting spaces in the following code; screws "::" alignment.
 \begin{codehaskell}
 data Effect, Rel, Prop, Fol
 type Contract = Effect -> Fol
 
 Vis,So,SameObj :: Rel
-(cup),(cap)      :: Rel -> Rel -> Rel
-transClosure :: Rel -> Rel
-((-)          :: (Effect, Effect) -> Rel -> Prop
-true         :: Prop
+(cup),(cap)        :: Rel -> Rel -> Rel
+transClosure   :: Rel -> Rel
+((-)            :: (Effect, Effect) -> Rel -> Prop
+true           :: Prop
 (==),vis,so,sameObj :: Effect -> Effect -> Prop
-(wedge),(vee),(=>) :: Prop -> Prop -> Prop
-lift         :: Prop -> Fol
+(wedge),(vee),(=>)   :: Prop -> Prop -> Prop
+lift           :: Prop -> Fol
 (forall) :: [OperName] -> (Effect -> Fol) -> Fol
 \end{codehaskell}
 \caption{Quelea contract language.}
@@ -237,6 +238,30 @@ contract is:
 
 \begin{codehaskell}
 depositCtrt x = lift true
+\end{codehaskell}
+
+\subsection{Putting it together}
+
+The combines the RDT implementation along with the contracts to instantiate a
+new RDT as follows:
+
+\begin{codehaskell}
+mkRDT [(Deposit, deposit, $(chk depositCtrt)),
+  (Withdraw, withdraw, $(chk withdrawCtrt)),
+	(GetBalance, getBalance, $(chk getBalanceCtrt))]
+\end{codehaskell}
+
+\noindent The function \cf{chk} analyzes the contract and maps it to one of the
+available store consistency levels. From the perspective of the client of \name
+store, the store is organized as a collection of key-indexed, object-valued
+tables, where each object in a table has the same type. Clients invoke
+operations using the following primitive:
+
+\begin{codehaskell}
+data Quelea a
+instance Monad Quelea
+invoke :: (Arg a, Res r)
+			 => Key -> OperName -> a -> Quelea r
 \end{codehaskell}
 
 \subsection{From Contracts to Implementation}
