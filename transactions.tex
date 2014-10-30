@@ -76,7 +76,7 @@ wrappers around the store interface. For example,
 
 \begin{codehaskell}
 withdraw :: Key -> Int -> Quelea Bool
-withdraw k amt = invoke k Withdraw amt
+withdraw k amt = invoke (t::Table) k Withdraw amt
 \end{codehaskell}
 
 \noindent $\cv_1$ and $\cv_2$ are the contracts on the corresponding

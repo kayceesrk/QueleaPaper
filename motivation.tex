@@ -260,8 +260,8 @@ operations using the following primitive:
 \begin{codehaskell}
 data Quelea a
 instance Monad Quelea
-invoke :: (Arg a, Res r)
-			 => Key -> OperName -> a -> Quelea r
+invoke :: (Table t, Key k, Arg a, Res r)
+			 => t -> k -> OperName -> a -> Quelea r
 \end{codehaskell}
 
 \subsection{From Contracts to Implementation}
