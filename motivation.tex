@@ -34,9 +34,10 @@ type Operation = (Effect e, Arg a, Res r)
 argument and returns a result along with an optional effect. Read-only
 operations do not return any effect. If an effect is returned, it is added to
 the state of the object at the current replica, and asynchronously sent to
-other replicas. The implementation of the bank account operations in \name is
-given below:
+other replicas. The implementation of these operations is
+given in Figure~\ref{fig:ex}.
 
+\begin{figure}[htb]
 \begin{codehaskell}
 data Acc = Deposit_ Int | Withdraw_ Int
 				 | GetBalance_
@@ -58,16 +59,19 @@ withdraw ctxt v =
 
 mkOperName ''Acc
 \end{codehaskell}
+\caption{Definition of a replicated datatype in Quelea written in Haskell syntax.}
+\label{fig:ex}
+\end{figure}
 
 The datatype \cf{Acc} represents the effect type for the bank account. The
 context of the operations is a snapshot of the state of the object at some
 replica. In this sense, every operation on the RDT is atomic, and thus
-permitting sequential reasoning for implementing eventually consistent data
+permits sequential reasoning for implementing eventually consistent data
 types. We have implemented a large corpus of RDTs for realistic benchmarks
-including shopping carts, auction and micro-blogging sites in few tens of lines
-of code.
+including shopping carts, auction and micro-blogging sites, all in few tens
+of lines of code.
 
-The last line in the above code snippet uses Template Haskell~\cite{} to
+The last line in the code snippet uses Template Haskell~\cite{} to
 generate the following datatype declaration:
 
 \begin{codehaskell}
@@ -154,7 +158,7 @@ of weak consistency alternatives.
 \subsection{Specifications and Contracts}
 
 \name helps facilitate the mapping of operations to appropriate consistency
-levels by letting the programmer declare application-level consistency
+levels by letting the programmer additionally declare application-level consistency
 constraints as \emph{contracts} that axiomatically specify the set of allowed
 executions involving this operation.  In the case of the bank account example,
 any execution that does not exhibit the anomalies described in the previous
@@ -183,7 +187,7 @@ lift           :: Prop -> Fol
 \label{code:ctrt_lang}
 \end{figure}
 
-\name contract language is presented in Figure~\ref{code:ctrt_lang}. The
+\name The contract language is presented in Figure~\ref{code:ctrt_lang}. The
 language includes primitive relations \cf{Vis},\cf{So} and \cf{SameObj},
 operators to compose relations ($\cup,\cap$ and \cf{transClosure}), and check
 inclusion ($\in$). The language also includes standard propositional logic
@@ -191,11 +195,11 @@ operators, and a prenex quantified $\forall$ operator. The functions \cf{vis},
 \cf{so} and \cf{sameObj} are derived entities. For example, \cf{vis a b = (a,b)
 $\in$ Vis}.
 
-In our running example, it is clear that in order to preserve the integrity
-constraint, the \cf{withdraw} operation must be strongly consistent. That is,
-given two \cf{withdraw} operations $a$ and $b$, either $a$ is visible to $b$ or
-vice versa. We express this application-level consistency as the following
-contract:
+In our running example, it is clear that in order to preserve the critical
+integrity constraint, the \cf{withdraw} operation must be strongly
+consistent. That is, given two \cf{withdraw} operations $a$ and $b$, either
+$a$ is visible to $b$ or vice versa. We express this application-level
+consistency as the following contract:
 
 \begin{codehaskell}
 withdrawCtrt x = (forall) [Withdraw] $ \a -> lift $
@@ -214,14 +218,12 @@ a bank account object that preserves the above contract for a \cf{withdraw}
 operation is said to be derived from a correct implementation of \cf{withdraw}.
 
 \noindent For \cf{getBalance}, we construct the following contract:
-
 \begin{codehaskell}
 getBalanceCtrt x = (forall) [Deposit, Withdraw] $ \a ->
 	(forall) [Deposit] $ \b -> (forall) [Withdraw] $ \c ->
 		lift $ ((a,x) (- (So cap SameObj) => vis a x) wedge
   				 (vis b c wedge vis c x => vis b x)
 \end{codehaskell}
-
 \noindent Here, \cf{a} is an effect emitted by either a \cf{deposit} or a
 \cf{withdraw} operation. The fourth line in the above snippet says that if a
 \cf{deposit} or a \cf{withdraw} operation precedes a \cf{getBalance} operation
