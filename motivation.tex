@@ -139,13 +139,13 @@ of weak consistency alternatives.
 
 \name helps facilitate the mapping of operations to appropriate consistency
 levels by letting the programmer declare application-level consistency
-constraints as \emph{contracts} that axiomatically specify the set of allowed
-executions involving this operation.  In the case of the bank account example,
-any execution that does not exhibit the anomalies described in the previous
-section is a \emph{well-formed} execution on the bank account object.  By
-specifying the set of legal executions for each data type in terms of a trace
-of operation invocations on that type, \name\ ensures that all executions over
-that type are well-formed.
+constraints as \emph{contracts} (Fig~\ref{fig:contract-lang}) that axiomatically
+specify the set of allowed executions involving this operation. In the case of
+the bank account example, any execution that does not exhibit the anomalies
+described in the previous section is a \emph{well-formed} execution on the bank
+account object.  By specifying the set of legal executions for each data type in
+terms of a trace of operation invocations on that type, \name\ ensures that all
+executions over that type are well-formed.
 
 In our running example, it is clear that in order to preserve the integrity
 constraint, the \cf{withdraw} operation must be strongly consistent.  That is,
@@ -188,14 +188,14 @@ If a \cf{withdraw} $b$ is visible to \cf{getBalance}, then all \cf{deposit}
 operations $a$ visible to the \cf{withdraw} should also be visible to
 \cf{getBalance}. This prevents negative balance anomalies.
 
-Our specification language (Fig~\ref{fig:contract-lang}) provides
-operators to compose relations. Thus, the syntax $(R_1 \cap R_2)(a,b)$
-is equivalent to $R_1(a,b) \wedge R_2(a,b)$. The last line of the
-above contract says that if a \cf{deposit} or a \cf{withdraw}
-operation precedes a \cf{getBalance} operation in session order, and
-is applied on the same object as the \cf{getBalance} operation, then
-it must be the case that the \cf{getBalance} operation witnesses the
-effects of the preceding operations.
+Our specification language  provides operators to compose relations.
+Thus, the syntax $(R_1 \cap R_2)(a,b)$ is equivalent to $R_1(a,b)
+\wedge R_2(a,b)$. The last line of the above contract says that if a
+\cf{deposit} or a \cf{withdraw} operation precedes a \cf{getBalance}
+operation in session order, and is applied on the same object as the
+\cf{getBalance} operation, then it must be the case that the
+\cf{getBalance} operation witnesses the effects of the preceding
+operations.
 
 Since there are no restrictions on when and how a \cf{deposit}
 operation can execute, its contract is simply $\small \true$.
