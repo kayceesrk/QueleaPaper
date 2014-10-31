@@ -13,7 +13,7 @@ challenges in realizing an efficient implementation of our model.
 \end{figure}
 
 \name is implemented as a shallow extension of Haskell on the Glasgow Haskell
-Compiler (GHC). We utilize Template Haskell functionality to implemement static
+Compiler (GHC). We utilize Template Haskell functionality to implement static
 contract classification. Our proof obligations are discharged automatically
 with the help of Z3~\cite{} SMT solver. Figure~\ref{fig:impl_mod} describes the
 overall system architecture. The main idea in our implementation of \name is to
@@ -65,7 +65,7 @@ columns.
 
 \subsection{Transactions}
 
-While cassandra offers all-or-nothing failure semantics for multiple writes
+While Cassandra offers all-or-nothing failure semantics for multiple writes
 through batching, readers may witness the initial write while the batch is in
 progress. \name implements atomic visibility by exploiting shim layer causality
 guarantee -- an effect is included only if all the effects if depends on are
