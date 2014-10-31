@@ -212,8 +212,17 @@ that is satisfiable under $\ecc$ is satisfiable under $\ccc$. However,
 we are interested in the \emph{weakest} guarantee (among $\ecc$,
 $\ccc$, and $\scc$) required to satisfy the contract. We define the
 corresponding consistency level as the \emph{consistency class of the
-contract}. The classification scheme is presented formally in
-Figure~\ref{sem:classify}.
+contract}. The classification scheme, presented formally in
+Figure~\ref{sem:classify}, defines rules to judge consistency class of
+a contact. For example, the scheme classifies \cf{getBalance} contract
+($\cv_{gb}$) from Sec.~\ref{sec:motivation} as a {\sf
+CausallyConsistent} contract, because the sequent $\Delta \vdash \ccc
+\Rightarrow \cv_{gb}$ is valid in first-order logic (therefore,
+$\cv_{gb} \le \ccc$), whereas the sequent $\Delta \vdash \ecc
+\Rightarrow \cv_{gb}$ is invalid (therefore, $\cv_{gb} \not\le \ecc$).
+Due to the confinement of our contract language to a decidable subset
+of the logic, validity of such sequents can be decided mechanically
+allowing us to automate the classification scheme in \name.
 
 Along with three straightforward rules that classify contracts into
 consistency classes, the classification scheme also presents a rule

@@ -157,7 +157,7 @@ constraint, the \cf{withdraw} operation must be strongly consistent.  That is,
 given two \cf{withdraw} operations $a$ and $b$, either $a$ is visible to $b$ or
 vice versa. Utilizing the primitive relations described in
 Section~\ref{sec:sysmod}, we express this application-level consistency
-requirement as a contract or specification over \cf{withdraw}:
+requirement as a contract or specification ($\cv_w$) over \cf{withdraw}:
 
 \vspace{-1em}
 \begin{smathpar}
@@ -176,7 +176,7 @@ Any execution on a bank account object that preserves the above contract for a
 \cf{withdraw} operation is said to be derived from a correct implementation of
 \cf{withdraw}.
 
-\noindent For \cf{getBalance}, we construct the following contract:
+\noindent For \cf{getBalance}, we construct the following contract ($\cv_{gb}$):
 
 \vspace{-1em}
 \begin{smathpar}
