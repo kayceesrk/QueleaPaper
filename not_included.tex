@@ -1,0 +1,68 @@
+%% ----------------------------------------------------------------------------
+%% Summarization details
+%% ----------------------------------------------------------------------------
+
+Suppose we have a set $O$ of effects on a object, which when summarized yields
+a new set of effects $N$. We first instantiate a summarization marker $s$, and
+similar to transaction marker, we do not insert it into the store immediately.
+We insert the new effects in $N$ with strong consistency, including $s$ as a
+dependence. Since $s$ is not yet in the store, effects from $N$ are not made
+visible to the clients. Then we insert $s$ with strong consistency, including
+$O$ as dependence, and finally delete the rows corresponding to $O$. When the
+shim layer node witnesses the summarization marker $s$ on the object, it
+removes the effects from $O$ from its cache. But due to strong consistency of
+insertion of $N$ and $s$, the new effects $N$ are also observed. Thus, the
+clients witness the observably equivalent new set of effects $N$, and not the
+old effects $O$. This ensures atomicity of summarization in the backing store.
+
+%% ----------------------------------------------------------------------------
+%% Example for MAV
+%% ----------------------------------------------------------------------------
+
+\if{0}
+RC transactions typically perform writes on multiple objects, and want to
+ensure that the write is atomic. For example, consider the process of adding a
+new user in the micrblog example. The user information is maintained in the
+\cf{User} table, with \cf{userID} as the primary key and \cf{userName} and
+\cf{password} as values (written \cf{User :: UserID -> (UserName,Password)}. In
+order to lookup user id from user name, we need to maintain a secondary index
+(\cf{UserIdx :: UserName -> UserID}). Adding a new user involves insertions
+into both the tables, and we would like the insertions to be atomic:
+
+\begin{codehaskell}
+addUser userID userName password = do
+	x <- dollar(classify $true$)
+	atomically x dollar do
+	  User.addUser userName userID
+		UserIdx.addUserIdx userID (userName, password)
+\end{codehaskell}
+
+MAV transactions are typically used to preserve foreign key constraints, and
+integrity of secondary indexes. For example, consider the code for getting
+password for a user name:
+
+\begin{codehaskell}
+getPassword userName = do
+  x <- dollar(classify $\psi$)
+	atomically x dollar do
+	  mUid <- UserIdx.getUserID userName
+		case mUid of
+		  Nothing -> error "User name does not exist"
+			Just uid -> User.getPassword uid
+\end{codehaskell}
+
+If \cf{getUserID} successfully returns a user id, indicating that the user name
+exists in \cf{UserIdx} table, we expect to see the user in the \cf{User} table
+as well. For this purpose, we write the contract $\psi$ as:
+
+\begin{smathpar}
+\begin{array}{l}
+\forall (a:{\sf GetUserID}), (b:{\sf GetPassword}), (c:{\sf AddUser}), \\
+~~(d:{\sf AddUserIdx}). ~\txn{a,b}{c,d} ~\wedge~ \vis{d}{a} ~\wedge~ \sameobj{b}{c} \\
+\qquad \qquad \qquad \qquad \wedge~ \so{a}{b} \Rightarrow \vis{c}{b}
+\end{array}
+\end{smathpar}
+
+\noindent which assigns MAV transaction isolation level to \cf{getPassword}
+transaction.
+\fi

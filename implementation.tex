@@ -138,19 +138,7 @@ cannot run as an atomic operation. Summarization in the backing store involves
 deleting previously inserted rows and inserting new rows, where each row
 corresponds to an effect. It is essential that concurrent client operations are
 permitted, but are not allowed to witness the intermediate state of the
-summarization process.
-
-To this end, we adopt a novel summarization strategy that builds on the
-causality property of the store. Suppose we have a set $O$ of effects on a
-object, which when summarized yields a new set of effects $N$. We first
-instantiate a summarization marker $s$, and similar to transaction marker, we
-do not insert it into the store immediately. We insert the new effects in $N$
-with strong consistency, including $s$ as a dependence. Since $s$ is not yet in
-the store, effects from $N$ are not made visible to the clients. Then we insert
-$s$ with strong consistency, including $O$ as dependence, and finally delete
-the rows corresponding to $O$. When the shim layer node witnesses the
-summarization marker $s$ on the object, it removes the effects from $O$ from
-its cache. But due to strong consistency of insertion of $N$ and $s$, the new
-effects $N$ are also observed. Thus, the clients witness the observably
-equivalent new set of effects $N$, and not the old effects $O$. This ensures
-atomicity of summarization in the backing store.
+summarization process. To this end, we adopt a summarization strategy that
+builds on the causality property of the store. The details of the summarization
+are beyond the scope of the paper, and is presented in detail in the tech
+report~\cite{}.

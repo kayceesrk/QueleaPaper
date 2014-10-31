@@ -47,12 +47,12 @@ getBalance ctxt _ =
 	in (res, Nothing)
 
 deposit :: [Acc] -> Int -> ((), Maybe Acc)
-deposit _ amt = (amt, Just $ Deposit amt)
+deposit _ amt = (amt, Just dollar Deposit amt)
 
 withdraw :: [Acc] -> Int -> (Bool, Maybe Acc)
 withdraw ctxt v =
-	if sel1 $ getBalance ctxt () >= v
-  then (True, Just $ Withdraw v)
+	if sel1 dollar getBalance ctxt () >= v
+  then (True, Just dollar Withdraw v)
 	else (False, Nothing)
 \end{codehaskell}
 \label{Definition of a bank account expressed in Quelea.}

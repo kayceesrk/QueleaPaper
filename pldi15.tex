@@ -172,8 +172,10 @@
 			morekeywords={sameObj,vis,so,SameObj,So,true,Vis},
 			keywordstyle=\color{Fuchsia}\bfseries,
 			classoffset=0,
+			mathescape=true,
       literate={+}{{$+$}}1 {/}{{$/$}}1 {*}{{$*$}}1 % {=}{{$=$}}1
                {>}{{$>$}}1 {<}{{$<$}}1
+							 {dollar}{{\$}}1
                {\\\\}{{\char`\\\char`\\}}1
                {->}{{$\rightarrow$}}2 {>=}{{$\geq$}}2 {<-}{{$\leftarrow$}}2
                {<=}{{$\leq$}}2 {=>}{{$\Rightarrow$}}2
@@ -253,5 +255,7 @@ large web applications, illustrate the effectiveness of our approach.
 \input{transactions}
 
 \input{implementation}
+
+\input{evaluation}
 
 \end{document}

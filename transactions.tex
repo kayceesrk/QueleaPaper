@@ -52,17 +52,17 @@ transactions is given below:
 \noindent \begin{minipage}[t]{0.5\columnwidth}
 \begin{codehaskell}
 save amt =
-  x <- $(classify psi1)
-  atomically x $ do
+  x <- dollar(classify $\psi_1$)
+  atomically x dollar do
     b <- withdraw c amt
-    when b $ deposit s amt
+    when b dollar deposit s amt
 \end{codehaskell}
 \end{minipage}
 \begin{minipage}[t]{0.5\columnwidth}
 \begin{codehaskell}
 totalBalance =
-  x <- $(classify psi2)
-  atomically x $ do
+  x <- dollar(classify $\psi_2$)
+  atomically x dollar do
     b1 <- getBalance s
     b2 <- getBalance s
     return b1 + b2
