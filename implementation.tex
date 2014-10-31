@@ -39,6 +39,8 @@ fault tolerance, each shim layer node simply acts as a soft-state cache, and
 can safely be terminated at any instant. Similarly, more shim layer nodes can
 be spawned on demand.
 
+\subsection{Operation Consistency}
+
 Every effect generated as a result of an effectful operation on an object
 inserts a new row $(o,e,vis,txn,val)$ into the backing store, where $o$ and $e$
 are object and (unique) effect identifiers, $vis$ is the set of identifiers of
@@ -52,3 +54,95 @@ are not available in the cache. Strongly consistent operations are performed
 after obtaining exclusive leases on objects. The lease mechanism is implemented
 with the help of Cassandra's support for conditional updates and expiring
 columns.
+
+\subsection{Transactions}
+
+While cassandra offers all-or-nothing failure semantics for multiple writes
+through batching, readers may witness the initial write while the batch is in
+progress. \name implements atomic visibility by exploiting shim layer causality
+guarantee -- an effect is included only if all the effects if depends on are
+also included.
+
+For every transaction, we instantiate a special transaction marker effect $m$,
+but importantly, do not insert into the backing store. $m$ is included as a
+dependence to every effect (let $e$ be one such effect) generated in the
+transaction. Since $m$ has not yet been written to the store, no operation will
+witness $e$ while the transaction in progress. Let $S$ be the set of effects
+generated in the transaction. At the end of the transaction, we insert $m$ into
+the backing store with $S$ as its dependence. Now any replica which includes
+$e$, must include $m$, and transitively must include every effect from the
+transaction. This ensures atomicity and satisfies RC requirement.
+
+The above scheme prevents a transaction from witnessing its own effects. This
+might conflict with the causality requirement on the operations. Hence,
+transactions piggy-back the previous effects from the same transaction for each
+request. MAV semantics is implemented by keeping track of the set of
+transaction markers $M$ witnessed by the transaction, and before performing an
+operation at some replica, ensuring that $M$ is a subset of the transaction
+markers included at that replica. If not, the missing effects are synchronously
+fetched. RR semantics is realized by capturing a optimized snapshot of the
+state of some replica; each operation from an RR transaction is applied to this
+snapshot state. Any generated effects are added to this snapshot.
+
+\subsection{Summarization}
+
+The main challenge in realizing an efficient implementation of operation-based
+replicated data types is that the state of the object i.e., the set of effects
+grows with every effectful operation on the object. If left unchecked, the
+operations slow down over time, until the shim layer memory or backing store
+disk runs out of memory. Luckily, the state of the operation-based replicated
+data type can often be summarized to an \emph{observably equivalent} smaller
+state. For example,
+
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\item A last-writer-wins register with multiple updates where $v$ is the value
+of the last write is observably equivalent to a register with a single write
+$v$.
+
+\item A bank account with a series of deposits and withdraws with current
+balance $b$ is equivalent to a bank account with a single deposit of $b$.
+
+\item A set with collection of add and remove operations is equivalent to a set
+with a series of add operations of live elements from the original set.
+\end{itemize}
+
+Since the semantics of summarization depends on the semantics of the data type,
+we expect the programmer to provide a summarization function for each RDT with
+the following type:
+
+\begin{codehaskell}
+summarize :: Effect e => [e] -> [e]
+\end{codehaskell}
+
+\noindent with the intention that the length of the result is smaller that the
+length of the argument. We utilize the \cf{summarize} function to summarize the
+object state both in the shim layer node and the backing store, typically when
+the number of effects on an object crosses a tunable threshold. Shim layer
+summarization is straight-forward; a summarization thread takes the local lock
+on the object, and replaces its state with the summarized state. The shim layer
+node remains unavailable for that particular object during summarization
+(usually a few milliseconds).
+
+Compared to the shim layer, summarization in the backing store is more
+complicated. The main challenge is that unlike the shim layer, summarization
+cannot run as an atomic operation. Summarization in the backing store involves
+deleting previously inserted rows and inserting new rows, where each row
+corresponds to an effect. It is essential that concurrent client operations are
+permitted, but are not allowed to witness the intermediate state of the
+summarization process.
+
+To this end, we adopt a novel summarization strategy that builds on the
+causality property of the store. Suppose we have a set $O$ of effects on a
+object, which when summarized yields a new set of effects $N$. We first
+instantiate a summarization marker $s$, and similar to transaction marker, we
+do not insert it into the store immediately. We insert the new effects in $N$
+with strong consistency, including $s$ as a dependence. Since $s$ is not yet in
+the store, effects from $N$ are not made visible to the clients. Then we insert
+$s$ with strong consistency, including $O$ as dependence, and finally delete
+the rows corresponding to $O$. When the shim layer node witnesses the
+summarization marker $s$ on the object, it removes the effects from $O$ from
+its cache. But due to strong consistency of insertion of $N$ and $s$, the new
+effects $N$ are also observed. Thus, the clients witness the observably
+equivalent new set of effects $N$, and not the old effects $O$. This ensures
+atomicity of summarization in the backing store.
