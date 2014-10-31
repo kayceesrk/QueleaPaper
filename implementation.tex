@@ -12,18 +12,26 @@ challenges in realizing an efficient implementation of our model.
 \label{fig:impl_mod}
 \end{figure}
 
-Figure~\ref{fig:impl_mod} describes the overall system architecture. The main
-idea in our implementation of \name is to offload the majority of concerns
-related to data management such as replication, fault tolerance, availability
-and convergence to Cassandra, an off-the-shelf eventually consistent store
-(called \emph{backing store} in the sequel). Replicated data type
-implementation and the stronger consistency semantics are enforced in the
-\emph{shim layer}. Our implementation supports eventual, causal and strong
-consistency for operations, and RC, MAV and RR transaction semantics. All of
-this functionality is implemented on top of the standard interface exposed by
-Cassandra, and illustrates the portability of \name programming model. Complex
-business logic is implemented with the help of transactions on the server side,
-with clients interacting with the web-service over REST interface.
+\name is implemented as a shallow extension of Haskell on the Glasgow Haskell
+Compiler (GHC). We utilize Template Haskell functionality to implemement static
+contract classification. Our proof obligations are discharged automatically
+with the help of Z3~\cite{} SMT solver. Figure~\ref{fig:impl_mod} describes the
+overall system architecture. The main idea in our implementation of \name is to
+offload the majority of concerns related to data management such as
+replication, fault tolerance, availability and convergence to Cassandra, an
+off-the-shelf eventually consistent store (called \emph{backing store} in the
+sequel).
+
+Replicated data type implementation and the stronger consistency semantics are
+enforced in the \emph{shim layer}. Our implementation supports eventual, causal
+and strong consistency for operations, and RC, MAV and RR transaction
+semantics. All of this functionality is implemented on top of the standard
+interface exposed by Cassandra, and illustrates the portability of \name
+programming model. Complex business logic is implemented with the help of
+transactions on the server side, with clients interacting with the web-service
+over REST interface. From an engineering perspective, resorting to an
+off-the-shelf backing store meant that our entire implementation comprised of
+only around 2500 lines of Haskell code, which is packaged as a Haskell library.
 
 \subsection{Shim Layer}
 
