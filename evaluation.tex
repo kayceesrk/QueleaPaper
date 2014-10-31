@@ -1,1 +1,23 @@
 \section{Evaluation}
+
+In this section, we evaluate \name programs and report the contract profile as
+well as illustrating the performance benefits of fine-grained consistency
+classification on operations and transactions. We also report on the impact of
+the summarization. We implemented the following applications, which includes
+RDTs as well as larger applications composed of severals RDTs:
+
+\begin{itemize}
+\item \textbf{LWW register}: A last-write-wins register.
+\item \textbf{DynamoDB register}: A integer register that allows eventual and
+strong puts and gets, conditional puts, increment and decrement operations.
+\item \textbf{Bank account}: Our running example, with savings and current
+accounts.
+\item \textbf{Shopping list}: Collaborative shopping list which allows adding
+and deleting items.
+\item \textbf{Online store}: Models an online store with shopping cart and
+dynamically changing item prices. Checkout process verifies that the custormer
+only pays the accepted price.
+\item \textbf{RuBis}: An ebay-like auction site~\cite{}.
+\item \textbf{Microblog}: A twitter-like microblogging site, modelled after
+Twissandra~\cite{}.
+\end{itemize}
