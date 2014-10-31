@@ -32,15 +32,15 @@ belong to the \emph{current} transaction.
 We assume that operations not part of any transaction belong to their own
 unique transaction. While transactions may have varying isolation
 guarantees, we make the standard assumption that all transactions provide
-atomicity. Hence, we include the following axiom in $\Delta$: $\small \forall
+atomicity. Hence, we include the following axiom in $\Delta$: \[\small \forall
 a,b,c.~\txn{a}{b,c} ~\wedge~ \sameobj{b}{c} ~\wedge~ \vis{b}{a} \Rightarrow
-\vis{c}{a}$. The semantics of this contract is illustrated represented in
+\vis{c}{a}\] \noindent The semantics of this contract is illustrated in
 Figure~\ref{fig:txn_atomicity}.
 
 \subsection{Transactional Bank Account}
 
 In order to illustrate the utility of declarative reasoning for transactions,
-let us extend our running bank account example to use two accounts (objects) --
+consider an extension of our running example to use two accounts (objects) --
 current ($c$) and savings ($s$). Each account provides operations
 \cf{withdraw}, \cf{deposit} and \cf{getBalance}, with the same contracts as
 defined previously. We consider two transactions -- \cf{save(amt)}, which

@@ -175,7 +175,7 @@ Our goal is to map application-level consistency constraints on
 operations to appropriate store-level consistency guarantees capable
 of satisfying these constraints.  The ability to express both of them as
 contracts in our contract language lets us compare and determine if
-contract ($\cv_{op}$) of an operation ($op$) is weak enough to be
+contract ($\cv_{op}$) of an operation ($\mathit{op}$) is weak enough to be
 satisfied under a store consistency level identified by the contract
 $\cv_{st}$. Towards this end, we define a binary \emph{weaker than}
 relation for our contract language as following:
@@ -195,13 +195,13 @@ relation $\hbZ$ is acyclic. A \emph{well-formed} axiomatic execution
 ($\E$) is expected to satisfy these assumptions (i.e., $\E \models
 \Delta$).
 
-If the contract ($\cv_{op}$) of an operation ($op$) is \emph{weaker
+If the contract ($\cv_{op}$) of an operation ($\mathit{op}$) is \emph{weaker
 than} a store contract ($\cv_{st}$), then constraints expressed by the
 former are implied by guarantees provided by the later. Due to the
 completeness of first-order logic\cite{completeness}, this means that
 any well-formed execution ($\E$) that satisfies $\cv_{st}$ (i.e.,
 $\E\models \cv_{st}$) also satisfies $\cv_{op}$ (i.e., $\E \models
-\cv_{op}$). Consequently, it is safe to execute operation $op$ under
+\cv_{op}$). Consequently, it is safe to execute operation $\mathit{op}$ under
 store consistency level captured by $\cv_{st}$.
 
 Observe that the contracts $\scc$, $\ccc$ and $\ecc$ are themselves
@@ -248,7 +248,7 @@ We model the system as a tuple $\E;\Sigma$, where the execution $\E$
 captures the data store's current state of the execution, and
 $\Sigma$, the session soup, is the set of concurrent client sessions
 interacting with the store. A session is modeled simply as a sequence
-of replicated data type operations ($op$), tagged with the consistency
+of replicated data type operations ($\mathit{op}$), tagged with the consistency
 class ($\tau$) of their contracts (as determined by the contract
 classification scheme). We assume a rewrite relation of form:
 
@@ -259,8 +259,8 @@ classification scheme). We assume a rewrite relation of form:
 \end{smathpar}
 
 \noindent on the system state. The relation captures the progress of
-the execution (from $\E$ to $\E'$)  due to the application of an
-operation ($op$) from one of the sessions in $\Sigma$ to a replica,
+the execution (from $\E$ to $\E'$)  due to the successful completion
+of a client operation ($\mathit{op}$) from one of the sessions in $\Sigma$,
 generating a new effect ($\eff$). If the resultant execution ($\E'$)
 satisfies the store contract ($\cv(\tau)$) of $\tau$ (i.e., $\E
 \models \cv(\tau)$), then we say that the store has \emph{enforced} the
@@ -271,7 +271,7 @@ contract enforcement as follows:
 
 \begin{theorem}[Soundness of Contract Enforcement]
 \label{lem:core-preservation}
-Let $\cv$ be a well-formed contract of a replicated data type operation $op$,
+Let $\cv$ be a well-formed contract of a replicated data type operation $\mathit{op}$,
 and let $\tau$ denote the consistency class of $\cv$ as determined by
 the contract classification scheme. Forall well-formed execution
 states $\E$, $\E'$ such that
