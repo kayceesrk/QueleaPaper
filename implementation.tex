@@ -90,8 +90,8 @@ on the object, and replaces its state with the summarized state. The shim layer
 node remains unavailable for that particular object during summarization
 (usually a few milliseconds).
 
-Performing summarization in the backing store is more complicated; the whole
-process needs to be atomic from a clients perspective, but Cassandra does not
+Performing summarization in the backing store is more complicated since the whole
+process needs to be atomic from a client's perspective, but Cassandra does not
 provide multi-row transactions. We have implemented a highly available
 implementation of summarization that permits concurrent client operations, but
 nonetheless prohibits these operations from witnessing intermediate states of
