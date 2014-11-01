@@ -17,7 +17,7 @@ solver. Figure~\ref{fig:impl_mod} describes the overall system architecture.
 \end{figure}
 
 Replicated data types and the stronger consistency semantics are
-implemmented and enforced in the \emph{shim layer}. Our implementation
+implemented and enforced in the \emph{shim layer}. Our implementation
 supports eventual, causal, and strong consistency for data type operations,
 and RC, MAV, and RR semantics for transactions.  This functionality is
 implemented entirely on top of the standard interface exposed by Cassandra.
