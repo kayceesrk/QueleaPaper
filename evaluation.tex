@@ -22,26 +22,30 @@ only pays the accepted price.
 Twissandra~\cite{}.
 \end{itemize}
 
+\subsection{Contract Characteristics}
+
 \begin{table}
 \setlength{\tabcolsep}{4pt}
 {\sffamily \small
 \begin{center}
-\begin{tabular} {|l|r|r|r|r|r|r|r|}
+\begin{tabular} {|l|r|r|r|r|r|r|r|r|}
 \hline
-{\bf Benchmark} & {\bf \#T} & {\bf EC} & {\bf CC} & {\bf SC} & {\bf RC} & {\bf MAV} & {\bf RR} \\
+{\bf Benchmark} & {\bf LOC} & {\bf \#T} & {\bf EC} & {\bf CC} & {\bf SC} & {\bf RC} & {\bf MAV} & {\bf RR} \\
 \hline
-{LWW Reg} & 1 & 2 & 2 & 2 & 0 & 0 & 0 \\
-{DynamoDB} & 1 & 3 & 1 & 2 & 0 & 0 & 0 \\
-{Bank Account} & 1 & 1 & 1 & 1 & 1 & 0 & 1 \\
-{Shopping List} & 1 & 2 & 1 & 1 & 0 & 0 & 0 \\
-{Online store} & 4 & 9 & 1 & 0 & 2 & 0 & 1 \\
-{Rubis} & 6 & 14 & 2 & 1 & 4 & 2 & 0 \\
-{Microblog} & 5 & 13 & 6 & 1 & 6 & 3 & 1 \\
+{LWW Reg} & 108 & 1 & 2 & 2 & 2 & 0 & 0 & 0 \\
+{DynamoDB} & 126 & 1 & 3 & 1 & 2 & 0 & 0 & 0 \\
+{Bank Account} & 155 & 1 & 1 & 1 & 1 & 1 & 0 & 1 \\
+{Shopping List} & 140 & 1 & 2 & 1 & 1 & 0 & 0 & 0 \\
+{Online store} & 340 & 4 & 9 & 1 & 0 & 2 & 0 & 1 \\
+{Rubis} & 640 & 6 & 14 & 2 & 1 & 4 & 2 & 0 \\
+{Microblog} & 659 & 5 & 13 & 6 & 1 & 6 & 3 & 1 \\
 \hline
 \end{tabular}
 \end{center}
 }
-\caption{The distribution of classfied contracts. \#T refers to the number of tables in the application.}
+\caption{The distribution of classfied contracts. \#T refers to the number of
+tables in the application. The columns 4-6 (7-9) represent operations
+(transactions) assigned to this consistency (isolation) level.}
 \label{tab:ctrts}
 \end{table}
 
@@ -64,3 +68,9 @@ none. RR transaction isolation level is used to ensure correctness when
 concurrently $A$ blocks $B$, and $B$ follows $A$. By operating on a snapshot of
 consistent state, the block user transaction will not be interfered by the
 concurrent follow user transaction.
+
+The proof obligations associated with contract classfication is discarged
+through the Z3 SMT Solver. In particular, the contract classification process
+is completely performed compile time and has no overheads at runtime. Across
+our benchmarks, classifying a contract took 11.5 milliseconds on average.
+
