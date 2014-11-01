@@ -99,7 +99,7 @@ commonly offered by many distributed stores with tunable consistency,
 with increasing overhead in terms of latency and availability. For
 each of the these three consistency levels, we capture the semantics
 as a formula in our contract language, and informally describe the kind
-of application-level consistency requirements that can met under the
+of application-level consistency requirements that can be met under the
 consistency level:
 
 % Indeed, the techniques presented here can be
@@ -128,7 +128,7 @@ consistency level:
 
 \item \textbf{Causal consistency}: Causally consistent operations are required
 	to see a causally consistent snapshot of the object state, including the
-	actions performed on the same session.  The latter requirement entails that
+	actions performed on the same session.  The latter requirement implies that
 	if two operations $o_1$ and $o_2$ from the same session are applied to two
 	different replicas $r_1$ and $r_2$, the second operation cannot be discharged
 	until the effect of $o_1$ is merged with $o_2$ in both $r_1$ and $r_2$. The
@@ -173,38 +173,36 @@ consistency level:
 
 \subsection{Contract Comparison and Classification}
 
-Our goal is to map application-level consistency constraints on
-operations to appropriate store-level consistency guarantees capable
-of satisfying these constraints.  The ability to express both of them as
-contracts in our contract language lets us compare and determine if
+Our goal is to map application-level consistency constraints on operations
+to appropriate store-level consistency guarantees capable of satisfying
+these constraints.  The ability to express both these kinds of constraints
+as contracts in our contract language lets us compare and determine if
 contract ($\cv_{op}$) of an operation ($\mathit{op}$) is weak enough to be
 satisfied under a store consistency level identified by the contract
-$\cv_{st}$. Towards this end, we define a binary \emph{weaker than}
-relation for our contract language as following:
-
+$\cv_{st}$. Towards this end, we define a binary \emph{weaker than} relation
+for our contract language as following:
 \begin{definition}
 A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \le \cv_{st}$ ) if and only if $\Delta \vdash \cv_{st} \Rightarrow \cv_{op}$.
 \begin{center}
 \end{center}
 \end{definition}
-
-\vspace{-1em}
+\vspace{-2em}
 \noindent The $\Delta$ referred in the above defintion is a
 conjunction of assumptions about the nature of primitive relations,
-such as $\Rvis$ and $\Rso$ are irreflexive, and the happens-before
+e.g., $\Rvis$ and $\Rso$ are irreflexive, and the happens-before
 relation $\hbZ$ is acyclic. A \emph{well-formed} axiomatic execution
 ($\E$) is expected to satisfy these assumptions (i.e., $\E \models
 \Delta$).
 
 If the contract ($\cv_{op}$) of an operation ($\mathit{op}$) is \emph{weaker
 than} a store contract ($\cv_{st}$), then constraints expressed by the
-former are implied by guarantees provided by the later. Due to the
-completeness of first-order logic\cite{completeness}, this means that
-any well-formed execution ($\E$) that satisfies $\cv_{st}$ (i.e.,
+former are implied by guarantees provided by the latter.  The
+completeness of first-order logic\cite{completeness} allows us to assert
+that any well-formed execution ($\E$) that satisfies $\cv_{st}$ (i.e.,
 $\E\models \cv_{st}$) also satisfies $\cv_{op}$ (i.e., $\E \models
 \cv_{op}$). Consequently, it is safe to execute operation $\mathit{op}$ under
-store consistency level captured by $\cv_{st}$.
+a store consistency level captured by $\cv_{st}$.
 
 Observe that the contracts $\scc$, $\ccc$ and $\ecc$ are themselves
 totally ordered with respect to the $\le$ relation: $\ecc \le \ccc \le
@@ -215,9 +213,9 @@ we are interested in the \emph{weakest} guarantee (among $\ecc$,
 $\ccc$, and $\scc$) required to satisfy the contract. We define the
 corresponding consistency level as the \emph{consistency class of the
 contract}. The classification scheme, presented formally in
-Figure~\ref{sem:classify}, defines rules to judge consistency class of
-a contact. For example, the scheme classifies \cf{getBalance} contract
-($\cv_{gb}$) from Sec.~\ref{sec:motivation} as a {\sf
+Figure~\ref{sem:classify}, defines rules to judge the consistency class of
+a contact. For example, the scheme classifies the \cf{getBalance} contract
+($\cv_{gb}$) from Section~\ref{sec:motivation} as a {\sf
 CausallyConsistent} contract, because the sequent $\Delta \vdash \ccc
 \Rightarrow \cv_{gb}$ is valid in first-order logic (therefore,
 $\cv_{gb} \le \ccc$), whereas the sequent $\Delta \vdash \ecc
@@ -235,10 +233,10 @@ considered ill-formed, and rejected statically.
 
 \subsection{Soundness of Contract Classification}
 
-In this section, we present a meta-theoretic result that certifies the
-soundness of classification-based contract enforcement. To help us
-state the result, we present an axiomatic model of the our system
-described informally in Sec.~\ref{sec:sysmod}:
+We now present a meta-theoretic result that certifies the soundness of
+classification-based contract enforcement. To help us state the result, we
+define an axiomatic model of the our system described informally in
+Section~\ref{sec:sysmod}:
 
 \begin{smathpar}
 \begin{array}{lclcl}
@@ -284,21 +282,21 @@ contract enforcement as follows:
 \label{lem:core-preservation}
 Let $\cv$ be a well-formed contract of a replicated data type operation $\mathit{op}$,
 and let $\tau$ denote the consistency class of $\cv$ as determined by
-the contract classification scheme. Forall well-formed execution
+the contract classification scheme. For all well-formed execution
 states $\E$, $\E'$ such that
 $\auxred{} {\E;\langle (op,\tau);\,\sigma \rangle \pll \Sigma} {\eff}
- {\E';\langle \sigma \rangle \pll \Sigma}$
+ {\E';\langle \sigma \rangle \pll \Sigma}$,
 if $\E' \models [\eff/\cureff]\,\cv(\tau)$, then $\E' \models [\eff/\cureff]\,\cv$
 \end{theorem}
 
-The theorem states that if a data store correctly enforces $\scc$, $\ccc$,
-and $\ecc$ contracts in all well-formed executions, then the same store,
-extended with classification scheme, can enforce all well-formed \name
-contracts. The proof of the theorem has been relegated to our tech report
-and is provided as part of the supplementary
-material~\cite{techrep}\footnote{The supplementary material and tech report
-  also defines an operational semantics that concretizes the rewrite
-  relation ($\xrightarrow{}$), along with the proof that it correctly
-  enforces all \name contracts.}.
+\noindent The theorem states that if a data store correctly enforces $\scc$,
+$\ccc$, and $\ecc$ contracts in all well-formed executions, then the same
+store, extended with the classification scheme shown in
+Figure~\ref{sem:classify}, can enforce all well-formed \name contracts. The
+proof of the theorem is given in a tech report and is provided
+as part of the supplementary material~\cite{techrep}\footnote{The
+  supplementary material and tech report also defines an operational
+  semantics that concretizes the rewrite relation ($\xrightarrow{}$), along
+  with the proof that it correctly enforces all \name contracts.}.
 
 
