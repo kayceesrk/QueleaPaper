@@ -37,11 +37,11 @@ between effects due to visibility, session and same transaction relations.
 Dependence tracking is similar to the techniques presented in~\cite{BoltOn}
 and~\cite{Eiger}. Because Cassandra provides durability, convergence and fault
 tolerance, each shim layer node simply acts as a soft-state cache, do not
-commicate directly with each other, and can safely be terminated at any point.
+communicate directly with each other, and can safely be terminated at any point.
 Similarly, new shim layer nodes can be spawned on demand.
 
 The shim layer nodes periodically fetch updates from the store for eventually
-consistent operations, and on-demand for causally consistent and stronly
+consistent operations, and on-demand for causally consistent and strongly
 consistent operations. Strongly consistent operations are performed after
 obtaining exclusive leases on objects. The lease mechanism is implemented with
 the help of Cassandra's support for conditional updates and expiring columns.
@@ -91,8 +91,8 @@ node remains unavailable for that particular object during summarization
 (usually a few milliseconds).
 
 Performing summarization in the backing store is more complicated; the whole
-process needs to be atomic from a clients perspective, but Cassadra does not
-provide multirow transactions. We have implemented a highly available
+process needs to be atomic from a clients perspective, but Cassandra does not
+provide multi-row transactions. We have implemented a highly available
 implementation of summarization that permits concurrent client operations, but
 nonetheless prohibits these operations from witnessing intermediate states of
 the summarization process.
