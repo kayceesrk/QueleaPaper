@@ -6,16 +6,15 @@ classification on operations and transactions. We also report on the impact of
 the summarization. We implemented the following applications, which includes
 RDTs as well as larger applications composed of severals RDTs:
 
-\begin{itemize}
-\item \textbf{LWW register}: A last-write-wins register.
-\item \textbf{DynamoDB register}: A integer register that allows eventual and
-strong puts and gets, conditional puts, increment and decrement operations.
-\item \textbf{Bank account}: Our running example, with savings and current
-accounts. \item \textbf{Shopping list}: Collaborative shopping list which
-allows adding and deleting items. \item \textbf{Online store}: Models an online
-store with shopping cart and dynamically changing item prices. Checkout process
-verifies that the custormer only pays the accepted price. \item \textbf{RuBis}:
-An ebay-like auction site~\cite{}. \item \textbf{Microblog}: A twitter-like
+\begin{itemize} \item \textbf{LWW register}: A last-write-wins register. \item
+\textbf{DynamoDB register}: A integer register that allows eventual and strong
+puts and gets, conditional puts, increment and decrement operations. \item
+\textbf{Bank account}: Our running example, with savings and current accounts.
+\item \textbf{Shopping list}: Collaborative shopping list which allows adding
+and deleting items. \item \textbf{Online store}: Models an online store with
+shopping cart and dynamically changing item prices. Checkout process verifies
+that the custormer only pays the accepted price. \item \textbf{RuBis}: An
+ebay-like auction site~\cite{}. \item \textbf{Microblog}: A twitter-like
 microblogging site, modelled after Twissandra~\cite{}. \end{itemize}
 
 \subsection{Contract Characteristics}
@@ -69,4 +68,45 @@ We deploy \name applications in \emph{clusters} where each cluster is composed
 of 5 fully replicated Cassandra replicas within the same datacenter. We
 instantiate one shim layer node for every cassandra replica, an place it on the
 same VM as the cassandra replica. The clients are instantiated on the same data
-center as the store.
+center as the store, and run the transactions. We deploy the each node in the
+cluster cluster on \cf{c3.4xlarge} Amazon EC2 instances with 16 virtual CPUs,
+30GB memory, and 320GB of SSD storage. Our shim layer nodes are multi-threaded,
+and we allocate 8 CPUs for each shim layer node. The clients also run on
+\cf{c2.4xlarge} instances. We call this deployment \cf{1DC}. For our WAN
+experiments, we instantiate 2 clusters (each with 5 nodes), one in US-east (N.
+Virginia) and another in US-west (Oregon). The average latency between the
+regions was 85 ms. We call this deployment \cf{2DC}.
+
+\subsection{LWW Register}
+
+\begin{figure*}
+  \centering
+  \subfigure[Perf. Oper. 1DC]{\label{grf:LWW-perf-1DC}\includegraphics[width=0.24\textwidth]{graphs/LWW-tp-vs-lat-1DC.pdf}}
+  \subfigure[Perf. Oper. 2DC]{\label{grf:LWW-perf-2DC}\includegraphics[width=0.24\textwidth]{graphs/LWW-tp-vs-lat-2DC.pdf}}
+  \subfigure[Perf. Txn. 1DC]{\label{grf:LWW-txn-1DC}\includegraphics[width=0.24\textwidth]{graphs/LWW-tp-vs-lat-1DC-txn.pdf}}
+  \subfigure[Mutation Prof. 1DC]{\label{grf:LWW-txn-wp}\includegraphics[width=0.24\textwidth]{graphs/LWW-txn-wp-vs-tp.pdf}}
+	\caption{Performance of LWW Register RDT.}
+  \label{grf:LWW_perf}
+\end{figure*}
+
+We analyze the performance of different consistency classifications in \name
+using the LWW register. Our client workload was generated using YCSB
+benchmark~\cite{}, with the default workload of 50\% reads and 50\% writes,
+with keys uniformly chosen from a set of 1000 keys. We varied the number of
+clients from 128 to 1024, with each workload running for 180 seconds.
+Last-writer-wins is the conflict resolution policy used by Cassandra. Hence, we
+are able to directly compare the performance of \name implementation against
+Cassandra.
+
+Figure~\ref{grf:LWW-perf-1DC} shows the throughput vs. latency graph for the
+different consistency levels. We also include Cassandra, which provides basic
+eventual consistency. Recall that \name's eventual consistency is stronger than
+the guarantees provided by Cassandra (Section~\ref{sec:store_sem}). With 512
+clients, the average latency of operations on Cassandra was 32.24 milliseconds.
+EC and CC under \name was 30\% and 57\% slower whereas strong consistency was
+241\% slower. EC(SC) was able to achieve 80\%(40\%) of throughput of vanilla
+Cassandra. The results show that while \name provides an expressive programming
+model with stronger consistency guarantees, its performance is comparable to
+vanilla Cassandra. However, SC has a huge performance hit due to coordination
+between all the replicas for obtaining object leases as well as reading and
+writing to all replicas.
