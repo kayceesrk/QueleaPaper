@@ -46,7 +46,7 @@ Every generated effect on an object inserts a new row
 $(o,e,\mathit{vis},\mathit{txn},\mathit{val})$ into the backing store, where
 $o$ and $e$ are object and (unique) effect identifiers, \emph{vis} is the
 set of effect identifiers visible to this operation, \emph{txn} is an
-optional transaction identifier, and \mathi{val is the value associated with the
+optional transaction identifier, and \emph{val} is the value associated with the
 effect. (eg: \cf{Withdraw 50}).  Since causally consistent operations require an
 up-to-date view of the current session, the shim layer node synchronously
 fetches operations if the causally preceding operations in the current
