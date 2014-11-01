@@ -25,15 +25,16 @@ sequel).
 Replicated data type implementation and the stronger consistency semantics are
 enforced in the \emph{shim layer}. Our implementation supports eventual, causal
 and strong consistency for operations, and RC, MAV and RR transaction
-semantics. All of this functionality is implemented on top of the standard
-interface exposed by Cassandra, and illustrates the portability of \name
-programming model. Complex business logic is implemented with the help of
-transactions on the web-server side, with clients interacting with the
-web-service over REST interface. From an engineering perspective, resorting to
-an off-the-shelf backing store meant that our entire implementation comprised of
-only around 2500 lines of Haskell code, which is packaged as a Haskell
-library\footnote{url to the hackage}.
+semantics. Complex business logic is implemented with the help of transactions
+on the server side, with clients interacting with the web-service over REST
+interface. From an engineering perspective, resorting to an off-the-shelf
+backing store meant that our entire implementation comprised of only around
+2500 lines of Haskell code, which is packaged as a Haskell library\footnote{url
+to the hackage}.
 
+% All of this functionality is implemented on top of the standard interface
+% exposed by Cassandra, and illustrates the portability of \name programming
+% model.
 \subsection{Shim Layer}
 
 The shim layer maintains a causally consistent in-memory snapshot of a subset
@@ -48,6 +49,8 @@ fault tolerance, each shim layer node simply acts as a soft-state cache, and
 can safely be terminated at any instant. Similarly, more shim layer nodes can
 be spawned on demand.
 
+\KC{Perhaps the following two subsections can be elided/shortened?}
+
 \subsection{Operation Consistency}
 
 Every effect generated as a result of an effectful operation on an object
@@ -55,14 +58,14 @@ inserts a new row $(o,e,vis,txn,val)$ into the backing store, where $o$ and $e$
 are object and (unique) effect identifiers, $vis$ is the set of identifiers of
 effects visible to this operation, $txn$ is an optional transaction identifier,
 and $val$ is the value associated with the effect (eg: \cf{Withdraw 50}). The
-shim layer periodically fetches updates from the backing store for those objects
-which were accessed since updates were last fetched. Since causally consistent
-operations require an up-to-date view of the current session, the shim layer
-node synchronously fetches operations if the causally preceding operations in
-the current session are not available in the cache.  Strongly consistent
-operations are performed after obtaining exclusive leases on objects. The lease
-mechanism is implemented with the help of Cassandra's support for conditional
-updates and expiring columns.
+shim layer periodically fetches updates from the backing store for those
+objects which were accessed since updates were last fetched. Since causally
+consistent operations require an up-to-date view of the current session, the
+shim layer node synchronously fetches operations if the causally preceding
+operations in the current session are not available in the cache.  Strongly
+consistent operations are performed after obtaining exclusive leases on
+objects. The lease mechanism is implemented with the help of Cassandra's
+support for conditional updates and expiring columns.
 
 \subsection{Transactions}
 

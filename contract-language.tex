@@ -125,26 +125,27 @@ consistency level:
   \end{smathpar}
   \noindent where $\small \hboZ = ((\soZ \cap \sameobjZ) \cup \visZ)^+$.
 
-\item \textbf{Causal consistency}: Causally consistent operations are
-  required to see a causally consistent snapshot of the object state,
-  including the actions performed on the same session.  The latter
-  requirement entails that if two operations $o_1$ and $o_2$ from the same
-  session are applied to two different replicas $r_1$ and $r_2$, the second
-  operation cannot be discharged until the effect of $o_1$ is merged with
-  $o_2$ in both $r_1$ and $r_2$. The \cf{getBalance} operation requires
-  causal consistency, as it requires the operations from the same session to
-  be visible, which cannot be guaranteed under just eventual consistency. We
-  assume that causality is only tracked through operations on the same
-  object; two operations in the same session but on different objects are
-  considered causally unrelated under this definition. Stores typically
-  avoid tracking causality across objects to mitigate overheads when
-  causality tracking is unnecessary. The corresponding store semantics is
-  captured by the contract $\ccc$ defined below:
+\item \textbf{Causal consistency}: Causally consistent operations are required
+	to see a causally consistent snapshot of the object state, including the
+	actions performed on the same session.  The latter requirement entails that
+	if two operations $o_1$ and $o_2$ from the same session are applied to two
+	different replicas $r_1$ and $r_2$, the second operation cannot be discharged
+	until the effect of $o_1$ is merged with $o_2$ in both $r_1$ and $r_2$. The
+	\cf{getBalance} operation requires causal consistency, as it requires the
+	operations from the same session to be visible, which cannot be guaranteed
+	under just eventual consistency. We assume that causality is only tracked
+	through operations on the same object. The corresponding store semantics is
+	captured by the contract $\ccc$ defined below:
 
   \vspace{-1em}
   \begin{smathpar}
   \ccc = \forall a.~(\hboZ \cap \sameobjZ) (a,\cureff) \Rightarrow \vis{a}{\cureff}
   \end{smathpar}
+
+  %%; two operations in the same session but on different objects are
+  %% considered causally unrelated under this definition. Stores typically
+  %%avoid tracking causality across objects to mitigate overheads when
+  %% causality tracking is unnecessary.
 
 \item \textbf{Strong Consistency}: Strongly consistent operations may block
   indefinitely under network partitions. An example is the total-order
