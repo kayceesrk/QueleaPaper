@@ -1,0 +1,72 @@
+import subprocess
+import shlex
+import re
+from optparse import OptionParser
+import numpy
+import matplotlib
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from matplotlib.ticker import FormatStrFormatter, MultipleLocator
+import sys
+import os
+import fnmatch
+import locale
+
+nodeKind = ['o-', 's--', 'D-.', '^:', 'X-', 'V--', '>-.', '<:']
+
+matplotlib.rcParams['ps.fonttype'] = 42
+matplotlib.rcParams['pdf.fonttype'] = 42
+
+def main ():
+	files = ["BA-lat.dat","BA-tp.dat"]
+	for f in files:
+		Cassandra = []
+		EC = []
+		CC = []
+		SC = []
+
+		infile = open (f, "r")
+		for line in infile.readlines ():
+			if line == "\n" or line.startswith ("#"):
+				continue
+
+			d = line.split ()
+			Cassandra.append ((float(d[0]),float (d[1])))
+			EC.append ((float(d[0]),float (d[2])))
+			CC.append ((float(d[0]),float (d[3])))
+			SC.append ((float(d[0]),float (d[4])))
+
+		(cx,cy) = zip(*Cassandra)
+		(ecx,ecy) = zip(*EC)
+		(ccx,ccy) = zip(*CC)
+		(scx,scy) = zip(*SC)
+
+
+		plt.xlabel ("Clients")
+		xmajorLocator = MultipleLocator(128)
+		plt.axes().xaxis.set_major_locator (xmajorLocator)
+		if (f=="BA-lat.dat"):
+			plt.ylabel ("Latency (ms)")
+			ymajorLocator = MultipleLocator(40)
+			plt.axes().yaxis.set_major_locator (ymajorLocator)
+			plt.axes().set_aspect(2.5)
+		else:
+			plt.ylabel ("Throughput (X1000 ops/s)")
+			plt.axes().set_aspect(50)
+		plt.grid (True)
+		font = {'family' : 'normal', 'weight' : 'normal', 'size' : 20}
+		matplotlib.rc('font', **font)
+
+		plt.subplots_adjust (bottom=0.12)
+		plt.plot (cx, cy, nodeKind [0], label="Quelea", linewidth=2.0, ms=15)
+		plt.plot (ecx, ecy, nodeKind [1], label="EC", linewidth=2.0, ms=15)
+		plt.plot (ccx, ccy, nodeKind [2], label="CC", linewidth=2.0, ms=15)
+		plt.plot (scx, scy, nodeKind [3], label="SC", linewidth=2.0, ms=15)
+
+		plt.xlim(xmin = 0)
+		#plt.legend(bbox_to_anchor=(-0.1, 1.02, 1.2, .102), loc=3, ncol=4, mode="expand", borderaxespad=0.)
+		print ("saving fig " + f.replace("dat","pdf"))
+		plt.savefig (f.replace("dat","pdf"))
+		plt.close ()
+
+main ()

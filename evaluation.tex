@@ -62,7 +62,7 @@ our benchmarks, classifying a contract took 11.5 milliseconds on average.
 In this section, we study the performance benefit of fine-grained contract
 classification, and the impact of summarization optimization.
 
-\subsection{Configuration}
+\subsubsection{Configuration}
 
 We deploy \name applications in \emph{clusters} where each cluster is composed
 of 5 fully replicated Cassandra replicas within the same datacenter. We
@@ -77,7 +77,7 @@ experiments, we instantiate 2 clusters (each with 5 nodes), one in US-east (N.
 Virginia) and another in US-west (Oregon). The average latency between the
 regions was 85 ms. We call this deployment \cf{2DC}.
 
-\subsection{LWW Register}
+\subsubsection{LWW Register}
 
 \begin{figure*}
   \centering
@@ -134,3 +134,28 @@ increases as shown in Figure~\ref{grf:LWW-txn-wp}. The numbers were obtained
 with 128 clients. Compared to an RC transaction whose throughput decreasess
 45\% as the write proportion increases from 0\% to 50\%, RR transaction's
 throughput drops 78\% in the same interval.
+
+\subsection{Bank Account}
+
+\begin{figure}
+  \centering
+	\includegraphics[width=0.5\columnwidth]{Figures/BA-legend.pdf}
+  \subfigure[Latency 1DC]{\label{grf:BA-lat}\includegraphics[width=0.24\textwidth]{graphs/BA-lat.pdf}}
+  \subfigure[Throughput 1DC]{\label{grf:BA-tp}\includegraphics[width=0.23\textwidth]{graphs/BA-tp.pdf}}
+	\caption{Performance of Bank Account RDT.}
+  \label{grf:BA_perf}
+\end{figure}
+
+Figure~\ref{grf:BA-lat} and~\ref{grf:BA-tp} analyzes the latency and throughput
+of operations in bank account example as we increase the number of clients. The
+benchmark uniformly chose from 100,000 keys, where the operation spread was
+25\% withdraw, 25\% deposit and 50\% getBalance. Here, the lines marked EC and
+CC correspond to all operations being assigned EC and CC consistency levels.
+These levels compromise correctness as withdraw has to be and SC operation. The
+line SC corresponds to a configuration where all operations are strongly
+consistent; this ensures application correctness. \name corresponds to our
+implementation, which classifies operations based on their contracts. At 512
+clients, \name implementation was within 30\% of latency and 12\% of throughput
+of EC, while providing correctness, whereas SC operations had 162\% higher
+latency and 52\% lower throughput than EC operations. This illustrates the
+benefit of fine-grained contract classification in \name.
