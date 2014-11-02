@@ -147,15 +147,15 @@ throughput drops 78\% in the same interval.
 \end{figure}
 
 Figure~\ref{grf:BA-lat} and~\ref{grf:BA-tp} analyzes the latency and throughput
-of operations in bank account example as we increase the number of clients. The
-benchmark uniformly chose from 100,000 keys, where the operation spread was
-25\% withdraw, 25\% deposit and 50\% getBalance. Here, the lines marked EC and
-CC correspond to all operations being assigned EC and CC consistency levels.
-These levels compromise correctness as withdraw has to be and SC operation. The
-line SC corresponds to a configuration where all operations are strongly
-consistent; this ensures application correctness. \name corresponds to our
-implementation, which classifies operations based on their contracts. At 512
-clients, \name implementation was within 30\% of latency and 12\% of throughput
-of EC, while providing correctness, whereas SC operations had 162\% higher
-latency and 52\% lower throughput than EC operations. This illustrates the
-benefit of fine-grained contract classification in \name.
+of operations in bank account example as we increase the number of clients in
+\cf{1DC} configuration. The benchmark uniformly chose from 100,000 keys, where
+the operation spread was 25\% withdraw, 25\% deposit and 50\% getBalance. Here,
+the lines marked EC and CC correspond to all operations being assigned EC and
+CC consistency levels. These levels compromise correctness as withdraw has to
+be and SC operation. The line SC corresponds to a configuration where all
+operations are strongly consistent; this ensures application correctness. \name
+corresponds to our implementation, which classifies operations based on their
+contracts. At 512 clients, \name implementation was within 30\% of latency and
+12\% of throughput of EC, while providing correctness, whereas SC operations
+had 162\% higher latency and 52\% lower throughput than EC operations. This
+illustrates the benefit of fine-grained contract classification in \name.
