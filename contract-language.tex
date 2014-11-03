@@ -134,13 +134,12 @@ consistency level:
 	until the effect of $o_1$ is merged with $o_2$ in both $r_1$ and $r_2$. The
 	\cf{getBalance} operation requires causal consistency, as it requires the
 	operations from the same session to be visible, which cannot be guaranteed
-	under just eventual consistency. We assume that causality is only tracked
-	through operations on the same object. The corresponding store semantics is
+	under just eventual consistency. The corresponding store semantics is
 	captured by the contract $\ccc$ defined below:
 
   \vspace{-1em}
   \begin{smathpar}
-  \ccc = \forall a.~(\hboZ \cap \sameobjZ) (a,\cureff) \Rightarrow \vis{a}{\cureff}
+  \ccc = \forall a.~\hbo{a}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{smathpar}
 
   %%; two operations in the same session but on different objects are

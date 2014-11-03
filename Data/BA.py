@@ -49,10 +49,8 @@ def main ():
 			plt.ylabel ("Latency (ms)")
 			ymajorLocator = MultipleLocator(40)
 			plt.axes().yaxis.set_major_locator (ymajorLocator)
-			plt.axes().set_aspect(2.5)
 		else:
 			plt.ylabel ("Throughput (X1000 ops/s)")
-			plt.axes().set_aspect(50)
 		plt.grid (True)
 		font = {'family' : 'normal', 'weight' : 'normal', 'size' : 20}
 		matplotlib.rc('font', **font)
@@ -64,7 +62,10 @@ def main ():
 		plt.plot (scx, scy, nodeKind [3], label="SC", linewidth=2.0, ms=15)
 
 		plt.xlim(xmin = 0)
-		#plt.legend(bbox_to_anchor=(-0.1, 1.02, 1.2, .102), loc=3, ncol=4, mode="expand", borderaxespad=0.)
+		if (f=="BA-lat.dat"):
+			plt.legend(loc=2,ncol=2)
+		else:
+			plt.legend(loc=2, framealpha=0.5)
 		print ("saving fig " + f.replace("dat","pdf"))
 		plt.savefig (f.replace("dat","pdf"))
 		plt.close ()
