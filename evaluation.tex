@@ -7,7 +7,7 @@ the summarization. We implemented the following applications, which includes
 RDTs as well as larger applications composed of severals RDTs:
 
 \begin{itemize}
-
+\setlength{\itemsep}{2pt}
 \item \textbf{LWW register}: A last-write-wins register that provides read and
 write operations. Each write is associated with a timestamp, which is used to
 resolve conflicting concurrent writes -- newer write wins.
@@ -25,7 +25,7 @@ and deleting items.
 dynamically changing item prices. Checkout process verifies that the custormer
 only pays the accepted price.
 
-\item \textbf{RuBis}: An ebay-like auction site~\cite{}. The application allows
+\item \textbf{RUBiS}: An ebay-like auction site~\cite{}. The application allows
 users to browse items, bid for items on sale, and pay for items from a wallet
 modelled after a bank account.
 
@@ -33,7 +33,6 @@ modelled after a bank account.
 Twissandra~\cite{}. The application allows adding a new user, adding and
 replying to tweets, following, unfollowing and blocking users, and fetching a
 user's timeline, userline, followers and following.
-
 \end{itemize}
 
 \begin{table}
@@ -49,7 +48,7 @@ user's timeline, userline, followers and following.
 {Bank Account} & 155 & 1 & 1 & 1 & 1 & 1 & 0 & 1 \\
 {Shopping List} & 140 & 1 & 2 & 1 & 1 & 0 & 0 & 0 \\
 {Online store} & 340 & 4 & 9 & 1 & 0 & 2 & 0 & 1 \\
-{Rubis} & 640 & 6 & 14 & 2 & 1 & 4 & 2 & 0 \\
+{RUBiS} & 640 & 6 & 14 & 2 & 1 & 4 & 2 & 0 \\
 {Microblog} & 659 & 5 & 13 & 6 & 1 & 6 & 3 & 1 \\
 \hline
 \end{tabular}
@@ -91,36 +90,40 @@ average inter-region latency was 85ms.
 
 \begin{figure*}
   \centering
-  \subfigure[Bank account latency]{\label{grf:BA-lat}\includegraphics[width=0.252\textwidth]{graphs/BA-lat.pdf}}
-  \subfigure[Bank account throughput]{\label{grf:BA-tp}\includegraphics[width=0.24\textwidth]{graphs/BA-tp.pdf}}
+  \subfigure[Bank account]{\label{grf:BA-tp-vs-lat}\includegraphics[width=0.24\textwidth]{graphs/BA-tp-vs-lat.pdf}}
   \subfigure[LWW transactions]{\label{grf:LWW-txn}\includegraphics[width=0.24\textwidth]{graphs/LWW-txn.pdf}}
+  \subfigure[RUBiS bidding mix]{\label{grf:rubis}\includegraphics[width=0.24\textwidth]{graphs/Rubis.pdf}}
   \subfigure[Impact of summarization]{\label{grf:summarization}\includegraphics[width=0.235\textwidth]{graphs/summarization.pdf}}
 	\caption{Quelea Performance.}
   \label{grf:LWW_perf}
 \end{figure*}
 
-Figure~\ref{grf:BA-lat} and~\ref{grf:BA-tp} analyzes the latency and throughput
-of operations in bank account example as we increase the number of clients in
-\cf{1DC} configuration. Our client workload was generated using YCSB
-benchmark~\cite{}. The benchmark uniformly chose from 100,000 keys, where the
-operation spread was 25\% withdraw, 25\% deposit and 50\% getBalance, which
-corresponds to the default 50:50 read:write mix in YCSB. Here, the lines marked
-EC and CC correspond to all operations being assigned EC and CC consistency
-levels. These levels compromise correctness as withdraw has to be and SC
-operation. The line SC corresponds to a configuration where all operations are
-strongly consistent; this ensures application correctness. \name corresponds to
-our implementation, which classifies operations based on their contracts.
+Figure~\ref{grf:BA-tp-vs-lat} shows the throughtput vs. latency of operations
+in bank account example as we increase the number of clients in \cf{1DC}
+configuration. Our client workload was generated using YCSB benchmark~\cite{}.
+The benchmark uniformly chose from 100,000 keys, where the operation spread was
+25\% withdraw, 25\% deposit and 50\% getBalance, which corresponds to the
+default 50:50 read:write mix in YCSB. We increased the number of clients from
+128 to 1024, and each experiment ran for 180 seconds.
 
-Both \name and SC ensure correctness. However, with 512 clients, \name
-implementation was within 41\% of latency and 18\% of throughput of EC, whereas
-SC operations had 162\% higher latency and 52\% lower throughput than EC
-operations. In \cf{2DC} configuration (not-shown), the average latency of SC
-operations with 512 clients increased by 9.4$\times$ due to the cost of
-geo-distributed coordination, whereas \name operations were only 2.2$\times$
-slower, mainly due to the increased cost of \cf{withdraw} operations.
-Importantly, the latency of \cf{getBalance} and \cf{deposit} remained almost
-the same. This illustrates the benefit of fine-grained contract classification
-in \name.
+The lines marked EC and CC correspond to all operations being assigned EC and
+CC consistency levels. These levels compromise correctness as withdraw has to
+be and SC operation. The line SC corresponds to a configuration where all
+operations are strongly consistent; this ensures application correctness. \name
+corresponds to our implementation, which classifies operations based on their
+contracts. Both \name and SC ensure correctness. However, with 512 clients,
+\name implementation was within 41\% of latency and 18\% of throughput of EC,
+whereas SC operations had 162\% higher latency and 52\% lower throughput than
+EC operations. Observe that there is a point in each case after which the
+latency increases while the throughput decreases. This indicates a point after
+which the store becomes saturated with client requests.
+
+In \cf{2DC} configuration (not-shown), the average latency of SC operations
+with 512 clients increased by 9.4$\times$ due to the cost of geo-distributed
+coordination, whereas \name operations were only 2.2$\times$ slower, mainly due
+to the increased cost of \cf{withdraw} operations. Importantly, the latency of
+\cf{getBalance} and \cf{deposit} remained almost the same. This illustrates the
+benefit of fine-grained contract classification in \name.
 
 We compare the performance of different transaction isolation level choices in
 Figure~\ref{grf:LWW-txn} using the LWW register. The numbers were obtained
@@ -134,12 +137,22 @@ transaction information in the object state. For RR transaction, the cost of
 capturing and maintaining the snapshot in an RR transaction is the biggest
 source of overhead.
 
-We also compared the performance of EC LWW operations directly against
-Cassandra (our backing store), which uses last-writer-wins as the only
+We also compared (not shown) the performance of EC LWW operations directly
+against Cassandra (our backing store), which uses last-writer-wins as the only
 convergence semantics. While Cassandra provides no stronger-than-eventual
 consistency properties, \name was within 30\%(20\%) of latency(throughput) of
 Cassandra with 512 clients, illustrating that the programmers only have to pay
 a minimal overhead for the expressive and stronger \name programming model.
+
+Figure~\ref{grf:rubis} compares the \name implementation of RUBiS in \cf{1DC}
+configuration against a single replica (NoRep) and strongly replicated
+(StrongRep) \cf{1DC} deployment. The benchmark was RUBiS bidding mix, which has
+15\% read-write interactions, which is representative of the auction workload.
+Without replication, NoRep trivially provides strong consistency. However, this
+deployment does not scale beyond 1750 operations per second. Strong replication
+offers better throughput at the cost of greater latency due to inter-replica
+coordination. \name deployment offers the benefit of replication, while only
+paying the cost of coordination when necessary.
 
 Finally, we study the impact of summarization in
 Figure~\ref{grf:summarization}. We utilize 128 clients and a single \name
