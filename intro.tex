@@ -12,7 +12,7 @@ serializability~\cite{Serializability} in order to build correct
 applications.  While strong consistency is an easily stated property, it
 masks the reality underlying large-scale distributed systems with respect to
 non-uniform latency (i.e., availability) and network
-partitions~\cite{Brewer2000,Gilbert}. Indeed, modern web services, which aim
+partitions~\cite{Brewer2000,Gilbert2002}. Indeed, modern web services, which aim
 to provide an "always on" experience, overwhelmingly favour availability and
 partition tolerance over strong consistency. To this end, several \emph{weak
   consistency} models such as eventual consistency, causal consistency,
@@ -20,28 +20,18 @@ session guarantees, and timeline consistency have been proposed.
 
 Under weak consistency, the developer needs to be aware of concurrent
 conflicting updates, and has to pay careful attention to avoid unwanted
-inconsistencies (e.g., negative balances in a bank account, or having an
-item appear in a shopping cart after it has been
-removed~\cite{Dynamo}). Oftentimes, the inconsistency leaks from the
-application and is witnessed by the user.  Ultimately, the developer must
-decide the consistency level appropriate for a particular operation; this is
-understandably an error-prone process requiring intricate knowledge of both
-the application as well as the semantics and implementation of the
-underlying data store, which typically have only informal
-descriptions~\cite{}.  Nonetheless, picking the correct consistency level is
-critical not only for correctness but also for scalability of the
-application. While choosing a weaker consistency level than required may
-introduce program errors and anomalies, choosing a stronger one than
-necessary can negatively impact program scalability.
-
-%--KC--
-% The choice of correct consistency level is critical to the correctness and
-% scalability of the application. Choosing a weaker consistency level than
-% required introduces anomalies, while choosing a stronger than necessary level
-% affects program scalability.
-%\KC{Do we include the LWW-Register number here to add emphasis to the fact that
-%choosing the correct consistency level is essential for program scalability}.
-
+inconsistencies (e.g., negative balances in a bank account, or having an item
+appear in a shopping cart after it has been removed~\cite{Dynamo}). Oftentimes,
+the inconsistency leaks from the application and is witnessed by the user.
+Ultimately, the developer must decide the consistency level appropriate for a
+particular operation; this is understandably an error-prone process requiring
+intricate knowledge of both the application as well as the semantics and
+implementation of the underlying data store, which typically have only informal
+descriptions. Nonetheless, picking the correct consistency level is critical
+not only for correctness but also for scalability of the application. While
+choosing a weaker consistency level than required may introduce program errors
+and anomalies, choosing a stronger one than necessary can negatively impact
+program scalability.
 
 Weak consistency also hinders compositional reasoning about programs.  While
 an application might be naturally expressed in terms of well-understood and
@@ -89,15 +79,14 @@ mapping.  The paper makes the following contributions:
 	auction site illustrates the practicality of our approach.
 \end{itemize}
 
-The rest of the paper is organized as follows. The next section describes
-the system model. Section~\ref{sec:motivation} describes the challenges in
-programming with eventually consistent data stores, and introduces
-\name\ contracts as a proposed solution to overcome these issues.
-Section~\ref{sec:lang} provides more details the contract language.
-Section~\ref{sec:opsem} presents an operational semantics.
-Section~\ref{sec:txns} introduces transaction contracts and classification.
-Section~\ref{sec:impl} describes the implementation and provides details
-about the optimizations needed to make the system practical.
-Section~\ref{sec:results} discusses experimental evaluation.
-Section~\ref{sec:related} and~\ref{sec:concl} present related work and
-conclusions.
+The rest of the paper is organized as follows. The next section describes the
+system model.  We describe the challenges in programming with eventually
+consistent data stores, and introduces \name\ contracts as a proposed solution
+to overcome these issues in \S~\ref{sec:motivation}. \S~\ref{sec:lang} provides
+more details the contract language, and its mapping to the store consistency
+levels, along with metatheory for certifying the correctness of the mapping.
+\S~\ref{sec:txns} introduces transaction contracts and classification.
+\S~\ref{sec:impl} describes the implementation and provides details about the
+optimizations needed to make the system practical. \S~\ref{sec:results}
+discusses experimental evaluation. \S~\ref{sec:related} and~\ref{sec:concl}
+present related work and conclusions.

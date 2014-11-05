@@ -1,4 +1,5 @@
 \section{Evaluation}
+\label{sec:results}
 
 In this section, we evaluate \name programs and report their contract profile
 as well as illustrating the performance benefits of fine-grained consistency
@@ -25,14 +26,14 @@ and deleting items.
 dynamically changing item prices. Checkout process verifies that the custormer
 only pays the accepted price.
 
-\item \textbf{RUBiS}: An ebay-like auction site~\cite{}. The application allows
-users to browse items, bid for items on sale, and pay for items from a wallet
-modelled after a bank account.
+\item \textbf{RUBiS}: An ebay-like auction site~\cite{RUBiS}. The application
+allows users to browse items, bid for items on sale, and pay for items from a
+wallet modelled after a bank account.
 
 \item \textbf{Microblog}: A twitter-like microblogging site, modelled after
-Twissandra~\cite{}. The application allows adding a new user, adding and
-replying to tweets, following, unfollowing and blocking users, and fetching a
-user's timeline, userline, followers and following.
+Twissandra~\cite{Twissandra}. The application allows adding a new user, adding
+and replying to tweets, following, unfollowing and blocking users, and fetching
+a user's timeline, userline, followers and following.
 \end{itemize}
 
 \begin{table}
@@ -100,11 +101,11 @@ average inter-region latency was 85ms.
 
 Figure~\ref{grf:BA-tp-vs-lat} shows the throughtput vs. latency of operations
 in bank account example as we increase the number of clients in \cf{1DC}
-configuration. Our client workload was generated using YCSB benchmark~\cite{}.
-The benchmark uniformly chose from 100,000 keys, where the operation spread was
-25\% withdraw, 25\% deposit and 50\% getBalance, which corresponds to the
-default 50:50 read:write mix in YCSB. We increased the number of clients from
-128 to 1024, and each experiment ran for 180 seconds.
+configuration. Our client workload was generated using YCSB
+benchmark~\cite{YCSB}. The benchmark uniformly chose from 100,000 keys, where
+the operation spread was 25\% withdraw, 25\% deposit and 50\% getBalance, which
+corresponds to the default 50:50 read:write mix in YCSB. We increased the
+number of clients from 128 to 1024, and each experiment ran for 180 seconds.
 
 The lines marked EC and CC correspond to all operations being assigned EC and
 CC consistency levels. These levels compromise correctness as withdraw has to
@@ -157,11 +158,11 @@ paying the cost of coordination when necessary.
 Finally, we study the impact of summarization in
 Figure~\ref{grf:summarization}. We utilize 128 clients and a single \name
 replica, with all the clients operating on the \emph{same} LWW register to
-stress test the summarization mechanism. We utilize 50:50 read:write mix, and
-33:33:33 EC:CC:SC mix. The shim layer cache (mem) of operations is summarized
-every 64 updates, while the updates in the backing store (disk) are summarized
-every 4096 updates. Each point in the graph represents the average latency of
-the previous 1000 operations. Each experiment is run for 60s.
+stress test the summarization mechanism. The shim layer cache (mem) of
+operations is summarized every 64 updates, while the updates in the backing
+store (disk) are summarized every 4096 updates. Each point in the graph
+represents the average latency of the previous 1000 operations. Each experiment
+is run for 60s.
 
 The results show that without summarization, the average latency of operations
 increase exponentially to almost 1 second, and only 13K operations were

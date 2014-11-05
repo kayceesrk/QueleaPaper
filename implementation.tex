@@ -1,12 +1,13 @@
 \section{Implementation}
+\label{sec:impl}
 
-\name is implemented as a shallow extension of GHC Haskell and runs on top
-of Cassandra, an off-the-shelf eventually consistent distributed data (or
-backing) store responsible for all data management issues (i.e.,
-replication, fault tolerance, availability, and convergence).  Template
-Haskell is used implement static contract classification, and proof
-obligations are discharged with the help of the Z3~\cite{} SMT
-solver. Figure~\ref{fig:impl_mod} describes the overall system architecture.
+\name is implemented as a shallow extension of GHC Haskell and runs on top of
+Cassandra, an off-the-shelf eventually consistent distributed data (or backing)
+store responsible for all data management issues (i.e., replication, fault
+tolerance, availability, and convergence).  Template Haskell is used implement
+static contract classification, and proof obligations are discharged with the
+help of the Z3~\cite{Z3} SMT solver. Figure~\ref{fig:impl_mod} illustrates the
+overall system architecture.
 
 \begin{figure}
 \begin{center}

@@ -1,19 +1,19 @@
 \section{Transaction Contracts}
+\label{sec:txns}
 
 While contracts on individual operations offer the programmer object-level
-declarative reasoning, real-world scenarios often involve operations that
-span multiple objects. In order to address this problem, several recent
-systems~\cite{COPS,BurckhardtESOP,BailisHAT} have proposed a variety of
+declarative reasoning, real-world scenarios often involve operations that span
+multiple objects. In order to address this problem, several recent
+systems~\cite{Walter,Burckhardt2012,BailisHAT} have proposed a variety of
 transactions, with varying semantics, in order to compose operations on
 multiple objects. However, given that classical transaction models such as
-serializability~\cite{} and snapshot isolation~\cite{} require inter-replica
-coordination, these systems espouse \emph{coordination-free transactions}
-that remain available under network partitions, but only provide weaker
-isolation guarantees. Coordination-free transactions have intricate
-consistency semantics and widely varying runtime overheads. As with
-operation-level consistency, the onus is on the programmer to pick the
-correct transaction kind; this selection is complicated by operation
-consistency requirements.
+serializability and snapshot isolation require inter-replica coordination,
+these systems espouse \emph{coordination-free transactions} that remain
+available under network partitions, but only provide weaker isolation
+guarantees. Coordination-free transactions have intricate consistency semantics
+and widely varying runtime overheads. As with operation-level consistency, the
+onus is on the programmer to pick the correct transaction kind; this selection
+is complicated by operation consistency requirements.
 
 \subsection{Syntax and Semantics Extension}
 \label{sec:syn_sem_ext}
@@ -49,7 +49,7 @@ returns the sum of the balances of individual accounts. The \name code for the
 transactions is given below:
 \vspace{-1em}
 
-\noindent \begin{minipage}[t]{0.5\columnwidth}
+\noindent \begin{minipage}[t]{0.53\columnwidth}
 \begin{codehaskell}
 save amt =
   x <- dollar(classify $\psi_1$)
@@ -58,7 +58,7 @@ save amt =
     when b dollar deposit s amt
 \end{codehaskell}
 \end{minipage}
-\begin{minipage}[t]{0.5\columnwidth}
+\begin{minipage}[t]{0.47\columnwidth}
 \begin{codehaskell}
 totalBalance =
   x <- dollar(classify $\psi_2$)
@@ -129,9 +129,10 @@ The dotted line represents the visibility requested by the contracts.}
 
 In order to illustrate the utility of transaction contract classification, we
 identify three well-understood coordination-free transaction semantics -- Read
-Committed (RC)~\cite{}, Monotonic Atomic View (MAV)~\cite{} and Repeatable Read
-(RR)~\cite{}, and illustrate the classification strategy. Our technique can
-indeed be applied to a different isolation level lattice.
+Committed (RC)~\cite{Berenson95}, Monotonic Atomic View (MAV)~\cite{BailisHAT}
+and Repeatable Read (RR)~\cite{Berenson95}, and illustrate the classification
+strategy. Our technique can indeed be applied to a different isolation level
+lattice.
 
 A transaction with ANSI RC semantics only witnesses committed operations. Let
 us assume that the store buffers updates until all the updates from the

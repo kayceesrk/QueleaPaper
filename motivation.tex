@@ -135,10 +135,10 @@ aforementioned negative balance and missing update anomalies, finding the
 appropriate fixes is not readily apparent. Making \cf{getBalance} a strongly
 consistent operation is definitely sufficient to avert anomalies, but is it
 really necessary? Given the cost of enforcing strong
-consistency~\cite{DynamoDB, Pileus}, it is preferable to avoid it unless
-there are no viable alternatives.  Exploring the space of these alternatives
-requires understanding the subtle differences in semantics of various kinds
-of weak consistency alternatives.
+consistency~\cite{DynamoDB, Pileus}, it is preferable to avoid it unless there
+are no viable alternatives.  Exploring the space of these alternatives requires
+understanding the subtle differences in semantics of various kinds of weak
+consistency alternatives.
 
 \subsection{Specifications and Contracts}
 
