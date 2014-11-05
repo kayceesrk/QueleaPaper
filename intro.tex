@@ -1,22 +1,21 @@
 \section{Introduction}
 
-Many real-world web services --- such as those built and maintained by
-Amazon, Facebook, Google, Twitter, etc. --- replicate application state and
-logic across multiple \emph{replicas} within and across data
-centers. Replication is intended not only to improve application throughput
-and reduce user-perceived latency, but also to tolerate partial failures
-without compromising overall service availability. Traditionally programmers
-have relied on \emph{strong consistency} guarantees such as
-linerarizability~\cite{Herlihy1990} or
-serializability~\cite{Serializability} in order to build correct
-applications.  While strong consistency is an easily stated property, it
-masks the reality underlying large-scale distributed systems with respect to
-non-uniform latency (i.e., availability) and network
-partitions~\cite{Brewer2000,Gilbert2002}. Indeed, modern web services, which aim
-to provide an "always on" experience, overwhelmingly favour availability and
-partition tolerance over strong consistency. To this end, several \emph{weak
-  consistency} models such as eventual consistency, causal consistency,
-session guarantees, and timeline consistency have been proposed.
+Many real-world web services --- such as those built and maintained by Amazon,
+Facebook, Google, Twitter, etc. --- replicate application state and logic
+across multiple \emph{replicas} within and across data centers. Replication is
+intended not only to improve application throughput and reduce user-perceived
+latency, but also to tolerate partial failures without compromising overall
+service availability. Traditionally programmers have relied on \emph{strong
+consistency} guarantees such as linerarizability~\cite{Herlihy1990} or
+serializability~\cite{Serializability} in order to build correct applications.
+While strong consistency is an easily stated property, it masks the reality
+underlying large-scale distributed systems with respect to non-uniform latency,
+availability and network partitions~\cite{Brewer2000,Gilbert2002}. Indeed,
+modern web services, which aim to provide an "always on" experience,
+overwhelmingly favour availability and partition tolerance over strong
+consistency. To this end, several \emph{weak consistency} models such as
+eventual consistency, causal consistency, session guarantees, and timeline
+consistency have been proposed.
 
 Under weak consistency, the developer needs to be aware of concurrent
 conflicting updates, and has to pay careful attention to avoid unwanted
@@ -59,24 +58,23 @@ mapping.  The paper makes the following contributions:
 
 \begin{itemize}
 \setlength{\itemsep}{2pt}
-\item We introduce \name, a shallow extension of Haskell that supports the description
-  and validation of replicated data types found in programs intended to
-  execute on eventually consistent stores. Contracts are used to specify
-  fine-grained application-level consistency properties, and are analyzed to
-  assign the most efficient and sound store consistency level to the
-  corresponding operation.
+\item We introduce \name, a shallow extension of Haskell that supports the
+	description and validation of replicated data types found on eventually
+	consistent stores. Contracts are used to specify fine-grained
+	application-level consistency properties, and are analyzed to assign the most
+	efficient and sound store consistency level to the corresponding operation.
 \item \name supports coordination-free transactions over arbitrary datatypes.
 	We extend our contract language to express fine-grained transaction isolation
 	guarantees, and utilize the contract enforcement system to automatically
-	assign the correct and most efficient isolation level for a transaction.
+	assign the correct isolation level for a transaction.
 \item We provide metatheory that certifies the soundness of our contract
 	enforcement system, and ensures that an operation is only executed if the
 	required conditions on consistency are met.
 \item An implementation of \name as a transparent shim layer over
-	Cassandra~\cite{Cassandra}, a well-known general-purpose data store.  An
-	extensive experimental evaluation over a collection of real-world
-	applications, including a Twitter-like micro-blogging site and an eBay-like
-	auction site illustrates the practicality of our approach.
+	Cassandra~\cite{Cassandra}, a well-known general-purpose data store.
+	Experimental evaluation over a set of real-world applications, including a
+	Twitter-like micro-blogging site and an eBay-like auction site illustrates
+	the practicality of our approach.
 \end{itemize}
 
 The rest of the paper is organized as follows. The next section describes the
