@@ -3,11 +3,6 @@
 
 \input{contract-syntax.tex}
 
-In this section, we formalize \name's contract language, and describe our
-contract classification scheme, which analyzes a contract and maps it to the
-weakest store consistency level sufficient to satisfy its consistency
-requirements.
-
 \subsection{Syntax}
 
 The syntax of our core contract language is shown in Fig.
@@ -46,9 +41,8 @@ object happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
   \set{\eff} \in \mathtt{Effect\; Set}
 }\\
 \EffSoup & \in & \mathtt{EffSoup}	  & \coloneqq & \set{\eff} \\
-\visZ, \soZ, &	\in & \mathtt{Relations} & \coloneqq &
-  \set{\eff}\times\set{\eff} \\
-\sameobjZ		&     &  & \\
+\visZ, \soZ, \sameobjZ &	\in & \mathtt{Relations} & \coloneqq & \EffSoup \times \EffSoup \\
+%\sameobjZ		&     &  & \\
 {\E} 		& \in & \mathtt{ExecState}  & \coloneqq & \Exec \\
 \end{array}
 \end{smathpar}
@@ -58,13 +52,13 @@ object happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 \end{figure}
 
 \name contracts are constraints over axiomatic definitions of program
-executions.Fig.~\ref{sem:contracts} summarizes artifacts relevant to
-define an axiomatic execution. We formalize an axiomatic execution as
-a tuple $\Exec$, where $\EffSoup$, called the \emph{effect soup}, is
-the set of all effects generated during the program execution, and
-$\visZ,\soZ,\sameobjZ \subseteq \EffSoup \times \EffSoup$ are
-\emph{visibility}, \emph{session order}, and \emph{same object}
-relations, respectively, witnessed over generated effects at run-time.
+executions.Fig.~\ref{sem:contracts} summarizes artifacts relevant to define an
+axiomatic execution. We formalize an axiomatic execution as a tuple $\Exec$,
+where $\EffSoup$, called the \emph{effect soup}, is the set of all effects
+generated during the program execution, and $\visZ,\soZ,\sameobjZ \subseteq
+\EffSoup \times \EffSoup$ are \emph{visibility}, \emph{session order}, and
+\emph{same object} relations, respectively, witnessed over generated effects at
+run-time.
 
 Note that the axiomatic definition of an execution ($\E$) provides
 interpretations for primitive relations (eg: $\visZ$) that occur free
@@ -90,56 +84,40 @@ variety of store semantics including those that combine any subset of session
 and causality guarantees, and multiple consistency levels.  However, for our
 purposes, we identify three particular consistency levels -- eventual, causal,
 and strong, commonly offered by many distributed stores with tunable
-consistency, with increasing overhead in terms of latency and availability. For
-each of the these three consistency levels, we capture the semantics as a
-formula in our contract language, and informally describe the kind of
-application-level consistency requirements that can be met under the
-consistency level:
-
-% Indeed, the techniques presented here can be
-% extended to other consistency stratifications. We assign each
-% application-level contract into one of these following classes:
+consistency, with increasing overhead in terms of latency and availability.
 
 \begin{itemize}
 \setlength{\itemsep}{2pt}
 
 \item \textbf{Eventually consistency}: Eventually consistent operations can
-	be satisfied as long as the client can reach at least one replica. For
-	example, \cf{deposit} is an eventually consistent operation; its semantics
-	does not require its action to manifest on all replicas before other
-	operations in its session are allowed to proceed. While eventually consistent
-	data stores typically offer \emph{basic} eventual consistency with all
-	possible anomalies, we assume that our store provides stronger semantics that
-	remain highly-available~\cite{BailisHAT,COPS}; the store always exposes a
-	causal cut of the updates. This semantics can be formally captured in terms
-	of the following contract definition:
+	be satisfied as long as the client can reach at least one replica. In the
+	bank account example, \cf{deposit} is an eventually consistent operation.
+	While eventually consistent data stores typically offer \emph{basic} eventual
+	consistency with all possible anomalies, we assume that our store provides
+	stronger semantics that remain highly-available~\cite{BailisHAT,COPS}; the
+	store always exposes a \emph{causal cut} of the updates. This semantics can
+	be formally captured in terms of the following contract definition:
 
   \vspace{-1em}
   \begin{smathpar}
   \ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{smathpar}
-  \noindent where $\small \hboZ = ((\soZ \cap \sameobjZ) \cup \visZ)^+$.
 
 \item \textbf{Causal consistency}: Causally consistent operations are required
 	to see a causally consistent snapshot of the object state, including the
 	actions performed on the same session.  The latter requirement implies that
 	if two operations $o_1$ and $o_2$ from the same session are applied to two
 	different replicas $r_1$ and $r_2$, the second operation cannot be discharged
-	until the effect of $o_1$ is merged with $o_2$ in both $r_1$ and $r_2$. The
-	\cf{getBalance} operation requires causal consistency, as it requires the
-	operations from the same session to be visible, which cannot be guaranteed
-	under just eventual consistency. The corresponding store semantics is
-	captured by the contract $\ccc$ defined below:
+	until the effect of $o_1$ is included in $r_2$. The \cf{getBalance} operation
+	requires causal consistency, as it requires the operations from the same
+	session to be visible, which cannot be guaranteed under eventual consistency.
+	The corresponding store semantics is captured by the contract $\ccc$ defined
+	below:
 
   \vspace{-1em}
   \begin{smathpar}
   \ccc = \forall a.~\hbo{a}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{smathpar}
-
-  %%; two operations in the same session but on different objects are
-  %% considered causally unrelated under this definition. Stores typically
-  %%avoid tracking causality across objects to mitigate overheads when
-  %% causality tracking is unnecessary.
 
 \item \textbf{Strong Consistency}: Strongly consistent operations may block
   indefinitely under network partitions. An example is the total-order
@@ -174,12 +152,11 @@ A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \end{center}
 \end{definition}
 \vspace{-2em}
-\noindent The $\Delta$ referred in the above defintion is a
-conjunction of assumptions about the nature of primitive relations,
-e.g., $\Rvis$ and $\Rso$ are irreflexive, and the happens-before
-relation $\hbZ$ is acyclic. A \emph{well-formed} axiomatic execution
-($\E$) is expected to satisfy these assumptions (i.e., $\E \models
-\Delta$).
+\noindent The $\Delta$ referred in the above defintion is a conjunction of
+assumptions about the nature of primitive relations, e.g., $\Rvis$ and $\Rso$
+are irreflexive, and the happens-before relation $\hbZ$ is acyclic. A
+\emph{well-formed} axiomatic execution ($\E$) is expected to satisfy these
+assumptions (i.e., $\E \models \Delta$).
 
 If the contract ($\cv_{op}$) of an operation ($\mathit{op}$) is \emph{weaker
 than} a store contract ($\cv_{st}$), then constraints expressed by the former
@@ -193,25 +170,27 @@ Observe that the contracts $\scc$, $\ccc$ and $\ecc$ are themselves totally
 ordered with respect to the $\le$ relation: $\ecc \le \ccc \le \scc$.  This
 concurs with the intuition that any contract satisfiable under $\ecc$ or $\ccc$
 is satisfiable under $\scc$, and any contract that is satisfiable under $\ecc$
-is satisfiable under $\ccc$. However, we are interested in the \emph{weakest}
-guarantee (among $\ecc$, $\ccc$, and $\scc$) required to satisfy the contract.
-We define the corresponding consistency level as the \emph{consistency class of
-the contract}. The classification scheme, presented formally in
-Figure~\ref{sem:classify}, defines rules to judge the consistency class of a
-contact. For example, the scheme classifies the \cf{getBalance} contract
-($\cv_{gb}$) from \S~\ref{sec:motivation} as a {\sf CausallyConsistent}
-contract, because the sequent $\Delta \vdash \ccc \Rightarrow \cv_{gb}$ is
-valid in first-order logic (therefore, $\cv_{gb} \le \ccc$), whereas the
-sequent $\Delta \vdash \ecc \Rightarrow \cv_{gb}$ is invalid (therefore,
-$\cv_{gb} \not\le \ecc$). Due to the confinement of our contract language to a
-decidable subset of the logic, validity of such sequents can be decided
-mechanically allowing us to automate the classification scheme in \name.
+is satisfiable under $\ccc$. We are interested in the \emph{weakest} guarantee
+(among $\ecc$, $\ccc$, and $\scc$) required to satisfy the contract. We define
+the corresponding consistency level as the \emph{consistency class} of the
+contract.
+
+The classification scheme, presented formally in Figure~\ref{sem:classify},
+defines rules to judge the consistency class of a contact. For example, the
+scheme classifies the \cf{getBalance} contract ($\cv_{gb}$) from
+\S~\ref{sec:motivation} as a {\sf\small CausallyConsistent} contract, because
+the sequent $\Delta \vdash \ccc \Rightarrow \cv_{gb}$ is valid in first-order
+logic (therefore, $\cv_{gb} \le \ccc$), whereas the sequent $\Delta \vdash \ecc
+\Rightarrow \cv_{gb}$ is invalid (therefore, $\cv_{gb} \not\le \ecc$). Since we
+confine of our contract language to a decidable subset of the logic, validity
+of such sequents can be decided mechanically allowing us to automate the
+classification scheme in \name.
 
 Along with three straightforward rules that classify contracts into consistency
 classes, the classification scheme also presents a rule that judges
 well-formedness of a contract. A contract is well-formed if and only if it is
-satisfiable under $\scc$ - the strongest possible consistency guarantee any
-store can provide. Otherwise, it is considered ill-formed, and rejected
+satisfiable under $\scc$ - the strongest possible consistency guarantee that
+the store can provide. Otherwise, it is considered ill-formed, and rejected
 statically.
 
 \subsection{Soundness of Contract Classification}
@@ -221,9 +200,10 @@ classification-based contract enforcement. To help us state the result, we
 define an axiomatic model of the our system described informally in
 \S~\ref{sec:sysmod}:
 
+\vspace{-1em}
 \begin{smathpar}
 \begin{array}{lclcl}
-\multicolumn{5}{l}{
+\multicolumn{5}{c}{
   {op} \in \mathtt{Operation} \qquad
   \tau \in \mathtt{Consistency\; Class}
 }\\
@@ -232,17 +212,17 @@ define an axiomatic model of the our system described informally in
 {\sigma} & \in & \mathtt{Session} & \coloneqq & \cdot \ALT (op,\tau); \sigma \\
 \Sigma 	& \in & \mathtt{Session\;Soup}   & \coloneqq &
   \langle s,{\sigma} \rangle \pll \Sigma \ALT \emptyset \\
-				&			&	\mathtt{Store}		  & \coloneqq & \E;\Sigma \\
+				&			&	\mathtt{Config}		  & \coloneqq & \E;\Sigma \\
 \end{array}
 \end{smathpar}
 
-We model the system as a tuple $\E;\Sigma$, where the execution $\E$
-captures the data store's current state of the execution, and
-$\Sigma$, the session soup, is the set of concurrent client sessions
-interacting with the store. A session is modeled simply as a sequence
-of replicated data type operations ($\mathit{op}$), tagged with the consistency
-class ($\tau$) of their contracts (as determined by the contract
-classification scheme). We assume a rewrite relation of form:
+We model the system as a tuple $\E;\Sigma$, where the axiomatic execution $\E$
+captures the data store's current state, and session soup $\Sigma$ is the
+set of concurrent client sessions interacting with the store. A session is
+modeled simply as a sequence of replicated data type operations
+($\mathit{op}$), tagged with the consistency class ($\tau$) of their contracts
+(as determined by the contract classification scheme). We assume a rewrite
+relation of form:
 
 \vspace{-1.7em}
 \begin{smathpar}
