@@ -78,9 +78,9 @@ classification, and the impact of summarization optimization.
 
 We deploy \name applications in \emph{clusters} where each cluster is composed
 of 5 fully replicated Cassandra replicas within the same datacenter. We
-instantiate one shim layer node for every cassandra replica, an place it on the
-same VM as the cassandra replica. The clients are instantiated on the same data
-center as the store, and run the transactions. We deploy the each node in the
+instantiate one shim layer node for every cassandra replica, and place it on the
+same VM as the cassandra replica. Clients are instantiated on the same data
+center as the store, and run transactions. We deploy the each node in the
 cluster cluster on \cf{c3.4xlarge} Amazon EC2 instances with 16 virtual CPUs,
 30GB memory, and 320GB of SSD storage. Our shim layer nodes are multi-threaded,
 and we allocate 8 CPUs for each shim layer node. The clients also run on
