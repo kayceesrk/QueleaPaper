@@ -10,7 +10,7 @@ implement custom solutions for durability and fault-tolerance. \name realizes
 RDTs stronger consistency models on top of off-the-shelf eventually consistent
 distributed stores. In this respect, \name is similar to~\cite{BoltOn} where
 causal consistency is achieved through a shim layer on Cassandra, which
-explicitly tracks and enforces depedencies between updates.
+explicitly tracks and enforces dependencies between updates.
 However,~\cite{BoltOn} does not support user-defined RDTs, automatic contract
 classification and transactions.
 
@@ -23,7 +23,7 @@ on the developer to choose the correct consistency(isolation) level for
 operations(transactions). \name relieves the developer of this burden, and
 instead expects contracts expressing declarative visibility requirements.
 
-Our contract language is inspired by the axiomatic decription of RDT semantics
+Our contract language is inspired by the axiomatic description of RDT semantics
 proposed by~\cite{Burckhardt2014}. While they use axioms for formal
 verification of correctness of an RDT implementation, we utilize them as a
 means for the user to express the desired consistency guarantees in the
