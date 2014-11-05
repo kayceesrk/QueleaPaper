@@ -8,21 +8,20 @@ strategy.
 % $\ccc$, and $\ecc$ guarantees can satisfy application-level
 % consistency constraints of all \name contracts.
 
-Fig.~\ref{sem:oper} summarizes the artifacts needed. We formalize an
-abstract model of a replicated data store as a tuple $\E;\Sigma$, where $\E$
-denotes the execution state, and $\Sigma$, the session soup, is the set of
-concurrent client sessions interacting with the store. The execution state
-($\E$) of a data store is modeled as a tuple $\Exec$ where $\EffSoup$,
-called the \emph{effect soup}, is a set of effects generated during the
-execution, and $\visZ,\soZ \subseteq \EffSoup \times \EffSoup$ are
-visibility and session order relations, respectively, witnessed over
-generated effects. A session is modeled simply as a sequence of replicated
-data type operations ($op$), tagged with the consistency class ($\tau$) of
-their contracts (as determined by the contract classification scheme). Our
-contract language and classification scheme is independent of store
-semantics. Accordingly, we avoid making any specific assumptions about the
-semantics of the store. However, we do assume the existence of a reduction
-relation of the form:
+Figure~\ref{sem:oper} summarizes the artifacts needed. We formalize an abstract
+model of a replicated data store as a tuple $\E;\Sigma$, where $\E$ denotes the
+execution state, and $\Sigma$, the session soup, is the set of concurrent
+client sessions interacting with the store. The execution state ($\E$) of a
+data store is modeled as a tuple $\Exec$ where $\EffSoup$, called the
+\emph{effect soup}, is a set of effects generated during the execution, and
+$\visZ,\soZ \subseteq \EffSoup \times \EffSoup$ are visibility and session
+order relations, respectively, witnessed over generated effects. A session is
+modeled simply as a sequence of replicated data type operations ($op$), tagged
+with the consistency class ($\tau$) of their contracts (as determined by the
+contract classification scheme). Our contract language and classification
+scheme is independent of store semantics. Accordingly, we avoid making any
+specific assumptions about the semantics of the store. However, we do assume
+the existence of a reduction relation of the form:
 
 \begin{smathpar}
   \auxred{} {\E;\langle (op,\tau);\sigma \rangle \pll \Sigma} {\eff}

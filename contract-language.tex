@@ -5,7 +5,7 @@
 
 \subsection{Syntax}
 
-The syntax of our core contract language is shown in Fig.
+The syntax of our core contract language is shown in Figure
 ~\ref{fig:contract-lang}. The language is based on first-order logic (FOL), and
 admits prenex universal quantification over typed effect variables. We use a
 special effect variable ($\cureff$) to denote the effect of \emph{current
@@ -52,8 +52,8 @@ object happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 \end{figure}
 
 \name contracts are constraints over axiomatic definitions of program
-executions.Fig.~\ref{sem:contracts} summarizes artifacts relevant to define an
-axiomatic execution. We formalize an axiomatic execution as a tuple $\Exec$,
+executions. Figure~\ref{sem:contracts} summarizes artifacts relevant to define
+an axiomatic execution. We formalize an axiomatic execution as a tuple $\Exec$,
 where $\EffSoup$, called the \emph{effect soup}, is the set of all effects
 generated during the program execution, and $\visZ,\soZ,\sameobjZ \subseteq
 \EffSoup \times \EffSoup$ are \emph{visibility}, \emph{session order}, and
@@ -203,63 +203,52 @@ define an axiomatic model of the our system described informally in
 \vspace{-1em}
 \begin{smathpar}
 \begin{array}{lclcl}
-\multicolumn{5}{c}{
-  {op} \in \mathtt{Operation} \qquad
-  \tau \in \mathtt{Consistency\; Class}
-}\\
-\cv(\tau) & \in & \mathtt{Store\; Contract\; of \; \tau} & \coloneqq & \scc,
-  \ccc, \ecc\\
-{\sigma} & \in & \mathtt{Session} & \coloneqq & \cdot \ALT (op,\tau); \sigma \\
-\Sigma 	& \in & \mathtt{Session\;Soup}   & \coloneqq &
-  \langle s,{\sigma} \rangle \pll \Sigma \ALT \emptyset \\
-				&			&	\mathtt{Config}		  & \coloneqq & \E;\Sigma \\
+{\it op} 	& \in & \mathtt{Operation} \\
+{\tau}		& \in & \mathtt{Consistency Class} 	& \coloneqq & {\sf ec},{\sf cc},{\sf sc} \\
+{\sigma} 	& \in & \mathtt{Session} 					 	& \coloneqq & \cdot \ALT \langle op,\tau \rangle; \sigma \\
+\Sigma 		& \in & \mathtt{Session\;Soup}   	 	& \coloneqq & \sigma \pll \Sigma \ALT \emptyset \\
+					&			&	\mathtt{Config}		  			 	& \coloneqq & \E,\Sigma \\
 \end{array}
 \end{smathpar}
 
-We model the system as a tuple $\E;\Sigma$, where the axiomatic execution $\E$
-captures the data store's current state, and session soup $\Sigma$ is the
-set of concurrent client sessions interacting with the store. A session is
-modeled simply as a sequence of replicated data type operations
-($\mathit{op}$), tagged with the consistency class ($\tau$) of their contracts
-(as determined by the contract classification scheme). We assume a rewrite
-relation of form:
+We model the system as a tuple $\E,\Sigma$, where the axiomatic execution $\E$
+captures the data store's current state, and session soup $\Sigma$ is the set
+of concurrent client sessions interacting with the store. A session $\sigma$ is
+a sequence of pairs composed of replicated data type operations $\mathit{op}$,
+tagged with the consistency class $\tau$ of their contracts (as determined by
+the contract classification scheme). We assume a rewrite relation of form:
 
 \vspace{-1.7em}
 \begin{smathpar}
-  \auxred{} {\E;\langle (op,\tau);\sigma \rangle \pll \Sigma} {\eff}
-    {\E';\langle \sigma \rangle \pll \Sigma'}
+  \auxred{} {\E,\langle op,\tau \rangle;\sigma \pll \Sigma} {\eff}
+    {\E',\sigma \pll \Sigma}
 \end{smathpar}
 
-\noindent on the system state. The relation captures the progress of
-the execution (from $\E$ to $\E'$)  due to the successful completion
-of a client operation ($\mathit{op}$) from one of the sessions in $\Sigma$,
-generating a new effect ($\eff$). If the resultant execution ($\E'$)
-satisfies the store contract ($\cv(\tau)$) of $\tau$ (i.e., $\E
-\models \cv(\tau)$), then we say that the store has \emph{enforced} the
-contract $\cv(\tau)$ in the execution $\E'$.
-
-With help of the axiomatic model, we now state the soundness of
-contract enforcement as follows:
+\noindent on the system state. The relation captures the progress of the
+execution (from $\E$ to $\E'$)  due to the successful completion of a client
+operation $\mathit{op}$ from one of the sessions in $\Sigma$, generating a new
+effect $\eff$. If the resultant execution $\E'$ satisfies the store contract
+$\cv_\tau$ (i.e., $\E \models \cv_\tau$), then we say that the store has
+\emph{enforced} the contract $\cv_\tau$ in the execution $\E'$. With help of
+the axiomatic model, we now state the soundness of contract enforcement as
+follows:
 
 \begin{theorem}[Soundness of Contract Enforcement]
 \label{lem:core-preservation}
-Let $\cv$ be a well-formed contract of a replicated data type operation $\mathit{op}$,
-and let $\tau$ denote the consistency class of $\cv$ as determined by
-the contract classification scheme. For all well-formed execution
+Let $\cv$ be a well-formed contract of a replicated data type operation
+$\mathit{op}$, and let $\tau$ denote the consistency class of $\cv$ as
+determined by the contract classification scheme. For all well-formed execution
 states $\E$, $\E'$ such that
-$\auxred{} {\E;\langle (op,\tau);\,\sigma \rangle \pll \Sigma} {\eff}
- {\E';\langle \sigma \rangle \pll \Sigma}$,
-if $\E' \models [\eff/\cureff]\,\cv(\tau)$, then $\E' \models [\eff/\cureff]\,\cv$
+$\auxred{} {\E,\langle op,\tau \rangle;\sigma \pll \Sigma} {\eff} {\E', \sigma
+\pll \Sigma}$, if $\E' \models \cv_\tau[\eff/\cureff]$, then $\E' \models
+\cv[\eff/\cureff]$
 \end{theorem}
 
 \noindent The theorem states that if a data store correctly enforces $\scc$,
 $\ccc$, and $\ecc$ contracts in all well-formed executions, then the same
 store, extended with the classification scheme shown in
 Figure~\ref{sem:classify}, can enforce all well-formed \name contracts. The
-proof of the theorem is given in a tech report and is provided as part of the
-supplementary material~\cite{techrep}\footnote{The supplementary material and
-tech report also defines an operational semantics that concretizes the rewrite
-relation ($\xrightarrow{}$), along with the proof that it correctly enforces
-all \name contracts.}.
-
-
+proof of the theorem is given in the supplementary material\footnote{The
+supplementary material also defines an operational semantics that concretizes
+the rewrite relation ($\xrightarrow{}$), along with the proof that it correctly
+enforces all \name contracts.}.
