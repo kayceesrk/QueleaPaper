@@ -23,12 +23,8 @@ causal, and strong consistency for data type operations, and RC, MAV, and RR
 semantics for transactions.  This functionality is implemented entirely on top
 of the standard interface exposed by Cassandra. From an engineering
 perspective, leveraging an off-the-shelf data store enables an implementation
-comprising roughly only 2500 lines of Haskell code, packaged as a
-library\footnote{url to the hackage}.
-
-%% Complex business logic is implemented with the help of
-%% transactions on the web-server side, with clients interacting with the
-%% web-service over REST interface.
+comprising roughly only 2500 lines of Haskell code, which is packaged as a
+library.
 
 \subsection{Shim Layer}
 
@@ -77,19 +73,16 @@ balance $b$ is equivalent to a bank account with a single deposit of $b$.
 with a series of add operations of live elements from the original set.
 \end{itemize}
 
-\noindent Since the semantics of summarization depends on the semantics of the data
-type, our programming model provides a summarization function for each RDT:
-\begin{codehaskell}
-summarize :: Effect e => [e] -> [e]
-\end{codehaskell}
-\noindent with the intention that the length of the result is smaller that the
-length of the argument. We utilize the \cf{summarize} function to summarize the
-object state both in the shim layer node and the backing store, typically when
-the number of effects on an object crosses a tunable threshold. Shim layer
-summarization is straight-forward; a summarization thread takes the local lock
-on the object, and replaces its state with the summarized state. The shim layer
-node remains unavailable for that particular object during summarization
-(usually a few milliseconds).
+Since the semantics of summarization depends on the semantics of the data type,
+our programming model provides a summarization function (\cf{summarize}) for
+each RDT of type \cf{[e] -> [e]} with the intention that the length of the
+result is smaller that the length of the argument. We utilize the
+\cf{summarize} function to summarize the object state both in the shim layer
+node and the backing store, typically when the number of effects on an object
+crosses a tunable threshold. Shim layer summarization is straight-forward; a
+summarization thread takes the local lock on the object, and replaces its state
+with the summarized state. The shim layer node remains unavailable for that
+particular object during summarization (usually a few milliseconds).
 
 Performing summarization in the backing store is more complicated since the whole
 process needs to be atomic from a client's perspective, but Cassandra does not

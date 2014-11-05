@@ -4,16 +4,16 @@
 While contracts on individual operations offer the programmer object-level
 declarative reasoning, real-world scenarios often involve operations that span
 multiple objects. In order to address this problem, several recent
-systems~\cite{Walter,Burckhardt2012,BailisHAT} have proposed a variety of
-transactions, with varying semantics, in order to compose operations on
-multiple objects. However, given that classical transaction models such as
-serializability and snapshot isolation require inter-replica coordination,
-these systems espouse \emph{coordination-free transactions} that remain
-available under network partitions, but only provide weaker isolation
-guarantees. Coordination-free transactions have intricate consistency semantics
-and widely varying runtime overheads. As with operation-level consistency, the
-onus is on the programmer to pick the correct transaction kind; this selection
-is complicated by operation consistency requirements.
+systems~\cite{Walter,Burckhardt2012,BailisHAT} have proposed eventually
+consistent transactions in order to compose operations on multiple objects.
+However, given that classical transaction models such as serializability and
+snapshot isolation require inter-replica coordination, these systems espouse
+\emph{coordination-free transactions} that remain available under network
+partitions, but only provide weaker isolation guarantees. Coordination-free
+transactions have intricate consistency semantics and widely varying runtime
+overheads. As with operation-level consistency, the onus is on the programmer
+to pick the correct transaction kind. This choice is further is complicated by
+consistency semantics of individual operations.
 
 \subsection{Syntax and Semantics Extension}
 \label{sec:syn_sem_ext}
@@ -30,11 +30,17 @@ $\small \sametxnZ$ that holds for effects from the same transaction. $\small
 belong to the \emph{current} transaction.
 
 We assume that operations not part of any transaction belong to their own
-unique transaction. While transactions may have varying isolation
-guarantees, we make the standard assumption that all transactions provide
-atomicity. Hence, we include the following axiom in $\Delta$: \[\small \forall
-a,b,c.~\txn{a}{b,c} ~\wedge~ \sameobj{b}{c} ~\wedge~ \vis{b}{a} \Rightarrow
-\vis{c}{a}\] \noindent The semantics of this contract is illustrated in
+unique transaction. While transactions may have varying isolation guarantees,
+we make the standard assumption that all transactions provide atomicity. Hence,
+we include the following axiom in $\Delta$:
+
+\vspace{-1.5em}
+\begin{smathpar}
+\forall a,b,c.~\txn{a}{b,c} ~\wedge~ \sameobj{b}{c} ~\wedge~ \vis{b}{a}
+\Rightarrow \vis{c}{a}
+\end{smathpar}
+
+\noindent The semantics of this contract is illustrated in
 Figure~\ref{fig:txn_atomicity}.
 
 \subsection{Transactional Bank Account}
@@ -52,7 +58,7 @@ transactions is given below:
 \noindent \begin{minipage}[t]{0.53\columnwidth}
 \begin{codehaskell}
 save amt =
-  x <- dollar(classify $\psi_1$)
+  x <- dollar(classify $\cv_{sv}$)
   atomically x dollar do
     b <- withdraw c amt
     when b dollar deposit s amt
@@ -61,7 +67,7 @@ save amt =
 \begin{minipage}[t]{0.47\columnwidth}
 \begin{codehaskell}
 totalBalance =
-  x <- dollar(classify $\psi_2$)
+  x <- dollar(classify $\cv_{tb}$)
   atomically x dollar do
     b1 <- getBalance s
     b2 <- getBalance s
@@ -69,7 +75,7 @@ totalBalance =
 \end{codehaskell}
 \end{minipage}
 
-\noindent $\cv_1$ and $\cv_2$ are the contracts on the corresponding
+\noindent $\cv_{sv}$ and $\cv_{tb}$ are the contracts on the corresponding
 transactions. The function \cf{classify} assigns the contracts
 \emph{statically} to one of the transaction isolation levels offered by the
 store; \cf{\$()} is meta-programming syntax for splicing the result into the
@@ -79,8 +85,8 @@ visible atomically. Our goal is to ensure that \cf{totalBalance} returns the
 result obtained from a consistent snapshot of the object states.
 
 While making both transactions serializable would ensure correctness,
-distributed stores rarely offer serializable transactions. Moreover,
-serializability is unavailable and hinders scalability. As we will see, these
+distributed stores rarely offer serializable transactions since it is
+unavailable and hinders scalability~\cite{BailisHAT}. As we will see, these
 transactions can be satisfied with much weaker isolation guarantees. Despite
 the atomicity offered by the transaction, anomalies are still possible. For
 example, the two \cf{getBalance} operations in \cf{totalBalance} transactions
@@ -94,24 +100,23 @@ guarantee will be sufficient to prevent the anomaly.
 Instead, \name requires the programmer to simply state the consistency
 requirement as a contract. Since we would like both the \cf{getBalance}
 operations to witness the same set of \cf{save} transactions, we define the
-constraint on \cf{totalBalance} transaction $\psi_2$ as:
+constraint on \cf{totalBalance} transaction $\psi_{tb}$ as:
 
-\vspace{-1em}
+\vspace{-1.2em}
 \begin{smathpar}
 \begin{array}{l}
-\cv_{2} = \forall a:\rcf{getBalance}, b:\rcf{getBalance}, \\
-\qquad (c:\rcf{withdraw} \vee \rcf{deposit}), (c:\rcf{withdraw} \vee \rcf{deposit}). \\
+\cv_{tb} = \forall a:\rcf{getBalance}, b:\rcf{getBalance}, \\
+\qquad (c:\rcf{withdraw} \vee \rcf{deposit}), (d:\rcf{withdraw} \vee \rcf{deposit}). \\
 \qquad \txn{a,b}{c,d} ~\wedge~ \vis{c}{a} ~\wedge~ \sameobj{d}{b} \Rightarrow \vis{d}{b}
 \end{array}
 \end{smathpar}
 
 \noindent The key idea in the above definition is that the $\txnZ$ primitive
-allows us to relate operations on different objects.
-
-The \cf{save} transaction only needs to ensure that the two writes it performs
-are made visible atomically. Since this is ensured by combining them in a
-transaction, \cf{save} does not require any additional constraints, and
-$\psi_1$ is simply $\small \true$.
+allows us to relate operations on different objects. The \cf{save} transaction
+only needs to ensure that the two writes it performs are made visible
+atomically. Since this is ensured by combining them in a transaction, \cf{save}
+does not require any additional constraints, and $\psi_1$ is simply $\small
+\true$.
 
 \subsection{Coordination-free Transactions}
 
@@ -138,13 +143,16 @@ A transaction with ANSI RC semantics only witnesses committed operations. Let
 us assume that the store buffers updates until all the updates from the
 transaction are available at a replica. If the transaction commits, the
 buffered updates are made visible. Otherwise, the buffered updates are
-discarded. In particular, a store implementing RC does not require
-inter-replica coordination. RC does not entail any further isolation
-guarantees. We can express RC as follows:
+discarded. RC does not entail any further isolation guarantees. Hence, a store
+implementing RC does not require inter-replica coordination. We can express RC
+as follows:
 
 \vspace{-1em}
 \begin{smathpar}
-\rcc = \forall a,b,c.~\txn{a}{b,c} \wedge \sameobj{b}{c} \wedge \vis{b}{a} \Rightarrow \vis{c}{a}
+\begin{array}{l}
+\rcc = \forall a,b,c.~\txn{a}{b,c} \wedge \sameobj{b}{c} \\
+\qquad \qquad \qquad \wedge~ \vis{b}{a} \Rightarrow \vis{c}{a}
+\end{array}
 \end{smathpar}
 
 \noindent Notice that the above definition is the same as the atomicity
@@ -171,9 +179,9 @@ semantics is captured with the following contract:
 
 \noindent whose semantics is illustrated in the Figure~\ref{fig:txn_mav}.
 
-RR semantics requires that the transaction witness a snapshot of the data store
-state. Importantly, this snapshot can be obtained from any replica, and hence
-RR is coordination-free. An example for such a transaction is the
+ANSI RR semantics requires that the transaction witness a snapshot of the data
+store state. Importantly, this snapshot can be obtained from any replica, and
+hence RR is coordination-free. An example for such a transaction is the
 \cf{totalBalance} transaction. The semantics of RR is captured by the following
 contract:
 

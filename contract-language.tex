@@ -98,7 +98,7 @@ consistency, with increasing overhead in terms of latency and availability.
 	store always exposes a \emph{causal cut} of the updates. This semantics can
 	be formally captured in terms of the following contract definition:
 
-  \vspace{-1em}
+  \vspace{-1.5em}
   \begin{smathpar}
   \ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{smathpar}
@@ -114,7 +114,7 @@ consistency, with increasing overhead in terms of latency and availability.
 	The corresponding store semantics is captured by the contract $\ccc$ defined
 	below:
 
-  \vspace{-1em}
+  \vspace{-1.5em}
   \begin{smathpar}
   \ccc = \forall a.~\hbo{a}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{smathpar}
@@ -124,7 +124,7 @@ consistency, with increasing overhead in terms of latency and availability.
   contract on \cf{withdraw} operation. The corresponding store semantics is
 	captured by the $\scc$ contract definition:
 
-  \vspace{-1em}
+  \vspace{-1.5em}
   \begin{smathpar}
   \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
   \end{smathpar}
