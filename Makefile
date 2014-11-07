@@ -7,6 +7,15 @@ all:
 	bibtex pldi15
 	pdflatex -shell-escape pldi15
 
+techrep:
+	pdflatex -shell-escape pldi15_techrep
+	pdflatex -shell-escape pldi15_techrep
+	bibtex pldi15_techrep
+	bibtex pldi15_techrep
+	pdflatex -shell-escape pldi15_techrep
+	bibtex pldi15_techrep
+	pdflatex -shell-escape pldi15_techrep
+
 fast:
 	pdflatex -shell-escape pldi15
 
