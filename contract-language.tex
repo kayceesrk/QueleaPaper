@@ -244,7 +244,7 @@ statically.
 
 We now present a meta-theoretic result that certifies the soundness of
 classification-based contract enforcement. To help us state the result, we
-define an axiomatic model of the our system described informally in
+define an operational semantics of the our system described informally in
 \S~\ref{sec:sysmod}:
 
 \vspace{-1em}
@@ -263,7 +263,7 @@ captures the data store's current state, and session soup $\Sigma$ is the set
 of concurrent client sessions interacting with the store. A session $\sigma$ is
 a sequence of pairs composed of replicated data type operations $\mathit{op}$,
 tagged with the consistency class $\tau$ of their contracts (as determined by
-the contract classification scheme). We assume a rewrite relation of form:
+the contract classification scheme). We assume a reduction relation of form:
 
 \vspace{-1.7em}
 \begin{smathpar}
@@ -277,8 +277,8 @@ operation $\mathit{op}$ from one of the sessions in $\Sigma$, generating a new
 effect $\eff$. If the resultant execution $\E'$ satisfies the store contract
 $\cv_\tau$ (i.e., $\E \models \cv_\tau$), then we say that the store has
 \emph{enforced} the contract $\cv_\tau$ in the execution $\E'$. With help of
-the axiomatic model, we now state the soundness of contract enforcement as
-follows:
+the operational semantics, we now state the soundness of contract enforcement
+as follows:
 
 \begin{theorem}[Soundness of Contract Enforcement]
 \label{thm:classification-sound}
@@ -296,6 +296,5 @@ $\ccc$, and $\ecc$ contracts in all well-formed executions, then the same
 store, extended with the classification scheme shown in
 Figure~\ref{sem:classify}, can enforce all well-formed \name contracts. The
 proof of the theorem is given in the supplementary material\footnote{The
-supplementary material also defines an operational semantics that concretizes
-the rewrite relation ($\xrightarrow{}$), along with the proof that it correctly
-enforces all \name contracts.}.
+supplementary material also provides the concrete reduction rules for enforcing
+the consistency classes.}.

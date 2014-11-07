@@ -48,7 +48,7 @@
 \Theta  & \in & \mathtt{Store}      & \coloneqq & r \mapsto \set{\eff} \\
 {\tau}		& \in & \mathtt{Consistency Class} 	& \coloneqq & {\sf ec},{\sf cc},{\sf sc} \\
 {\sigma} 	& \in & \mathtt{Session} 					 	& \coloneqq & \cdot \ALT \langle op,\tau \rangle; \sigma \\
-\Sigma 		& \in & \mathtt{Session\;Soup}   	 	& \coloneqq & 
+\Sigma 		& \in & \mathtt{Session\;Soup}   	 	& \coloneqq &
       \langle s, i, \sigma \rangle \pll \Sigma \ALT \emptyset \\
 					&			&	\mathtt{Config}		  			 	& \coloneqq & \E;\Theta;\Sigma \\
 \end{array}
@@ -76,7 +76,7 @@
 
 
 \vspace{5mm}
-\textbf{Auxiliary Reductions} \; 
+\textbf{Auxiliary Reductions} \;
   \fbox{\(\auxred{\Theta} {(\E,\langle s,i,op \rangle)} {r} {(\E',\eff)}\)}\\
 
 \begin{minipage}{\textwidth}
@@ -87,10 +87,10 @@
 \RuleTwo
 {
 r \in \dom(\Theta) \qquad
-ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad 
+ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
 \Ops(op)(ctxt) {\rdtredsto}^{*} v' \qquad
 \eff = (s,~i,~op,~v')\\
-\EffSoup' = \{\eff\} \cup \EffSoup \qquad 
+\EffSoup' = \{\eff\} \cup \EffSoup \qquad
 \visZ' = \Theta(r)\times\{\eff\} \cup \visZ \qquad
 \soZ' = \EffSoup_{({\sf SessID}=s,\,{\sf SeqNo}<i)}\times\{\eff\} \cup \soZ
 \qquad
@@ -106,7 +106,7 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
 
 
 \vspace{5mm}
-\textbf{Operational Semantics} \; 
+\textbf{Operational Semantics} \;
   \fbox{\(\E;\Theta;\Sigma \;\xrightarrow{\eff}\; \E';\Theta';\Sigma'\)}\\
 
 \begin{minipage}{\columnwidth}
@@ -116,7 +116,7 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
 \begin{array}{l}
 \RuleTwo
 {
-  \eff \in \EffSoup \quad \eff \notin \Theta(r) \\ 
+  \eff \in \EffSoup \quad \eff \notin \Theta(r) \\
   \E.\visZ^{-1}(\eff) \cup \E.\soZ^{-1}(\eff) \subseteq \Theta(r)
   \qquad \Theta' = \Theta[r \mapsto \{\eff\} \cup \Theta(r)]
 }
@@ -132,12 +132,12 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
 \stretcharraybig
 \begin{array}{l}
 \RuleTwo
-{ 
+{
   \tau = {\sf EventuallyConsistent} \\
   \auxred{\Theta} {(\E,\langle s,i,op \rangle)} {r} {(\E',\eff)}
 }
 {
-  \E;\Theta;\langle s,i,\langle op,\tau \rangle\; \sigma \rangle \pll \Sigma \;\xrightarrow{\eff}\; 
+  \E;\Theta;\langle s,i,\langle op,\tau \rangle\; \sigma \rangle \pll \Sigma \;\xrightarrow{\eff}\;
   \E';\Theta; \langle s,i+1,\sigma \rangle\pll \Sigma
 }
 \end{array}
@@ -168,7 +168,7 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
 \stretcharraybig
 \begin{array}{l}
 \RuleTwo
-{ 
+{
   \tau = {\sf StronglyConsistent} \\
   \auxred{\Theta} {(\E,\langle s,i,op \rangle)} {r}
   {(\E',\eff)} \qquad \E.A \subseteq \Theta(r) \\
@@ -184,7 +184,7 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
 \end{minipage}
 
 
-\caption{Axiomatic semantics of a replicated data store.}
+\caption{Operational semantics of a replicated data store.}
 \label{sem:oper}
 \end{figure*}
 \onecolumn
