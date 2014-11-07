@@ -17,37 +17,38 @@ overall system architecture.
 \label{fig:impl_mod}
 \end{figure}
 
-Replicated data types and the stronger consistency semantics are implemented
-and enforced in the \emph{shim layer}. Our implementation supports eventual,
+Replicated data types and various consistency semantics are implemented and
+enforced in the \emph{shim layer}. Our implementation supports eventual,
 causal, and strong consistency for data type operations, and RC, MAV, and RR
-semantics for transactions.  This functionality is implemented entirely on top
-of the standard interface exposed by Cassandra. From an engineering
-perspective, leveraging an off-the-shelf data store enables an implementation
-comprising roughly only 2500 lines of Haskell code, which is packaged as a
-library.
+semantics for transactions.  This functionality is implemented entirely on
+top of the standard interface exposed by Cassandra. From an engineering
+perspective, leveraging an off-the-shelf data store enables an
+implementation comprising roughly only 2500 lines of Haskell code, which is
+packaged as a library.
 
 \subsection{Shim Layer}
 
-Each new effect in \name is realized as a row insertion in Cassandra, and the
-state of an object is the set of all corresponding rows. The shim layer
+Each new effect in \name is realized as a row insertion in Cassandra, and
+the state of an object is the set of all corresponding rows. The shim layer
 maintains a causally consistent in-memory snapshot of a subset of objects in
 the backing store, by explicitly tracking dependencies introduced between
-effects due to visibility, session and same transaction relations. Dependence
-tracking is similar to the techniques presented in~\cite{BoltOn}
-and~\cite{Eiger}. Because Cassandra provides durability, convergence and fault
-tolerance, each shim layer node simply acts as a soft-state cache, do not
-communicate directly with each other, and can safely be terminated at any
-point. Similarly, new shim layer nodes can be spawned on demand.
+effects due to visibility, session and same transaction
+relations. Dependence tracking is similar to the techniques presented
+in~\cite{BoltOn} and~\cite{Eiger}. Because Cassandra provides durability,
+convergence, and fault tolerance, each shim layer node simply acts as a
+soft-state cache, with no inter-node communication, and can safely be
+terminated at any point. Similarly, new shim layer nodes can be spawned on
+demand.
 
 The shim layer nodes periodically fetch updates from the backing store for
 eventually consistent operations, and on-demand for causally consistent and
 strongly consistent operations. Strongly consistent operations are performed
-after obtaining exclusive leases on objects. The lease mechanism is implemented
-with the help of Cassandra's support for conditional updates and expiring
-columns. Cassandra does not provide general-purpose transactions. Since the
-transaction guarantees provided by \name are
+after obtaining exclusive leases on objects. The lease mechanism is
+implemented with the help of Cassandra's support for conditional updates and
+expiring columns. Cassandra does not provide general-purpose
+transactions. Since the transaction guarantees provided by \name are
 coordination-free~\cite{BailisHAT}, we realize efficient implementations by
-explicitly tracking the dependencies between operations and transactions.
+explicitly tracking dependencies between operations and transactions.
 Importantly, the weaker isolation semantics of transactions in \name permit
 transactions to be discharged if at least one shim layer node is reachable.
 
@@ -56,7 +57,7 @@ transactions to be discharged if at least one shim layer node is reachable.
 The main challenge in realizing an efficient implementation of operation-based
 replicated data types is that the state of the object defined in terms of its
 set of effects grows with every effectful operation. If left unchecked,
-performance slow down over time, until the shim layer memory or backing store
+performance slows down over time, until the shim layer memory or backing store
 disk runs out of memory. Luckily, the state of the operation-based replicated
 data type can often be summarized to an \emph{observably equivalent} smaller
 state. For example, a last-writer-wins register with multiple updates can be
@@ -77,9 +78,9 @@ on the object, and replaces its state with the summarized state. The shim layer
 node remains unavailable for that particular object during summarization
 (usually a few milliseconds).
 
-Performing summarization in the backing store is more complicated; the whole
-process needs to be atomic from a client's perspective, but Cassandra does not
-provide multi-row transactions. We have engineered and implemented a scalable
-summarization mechanism for the backing that permits concurrent client
-operations, but nonetheless prohibits these operations from witnessing
-intermediate states of the summarization process.
+Performing summarization in the backing store is more complicated since the
+whole process needs to be atomic from a client's perspective, but Cassandra
+does not provide multi-row transactions. We have engineered and implemented
+a scalable summarization mechanism for the backing store that permits
+concurrent client operations, but nonetheless prohibits these operations
+from witnessing intermediate states of the summarization process.
