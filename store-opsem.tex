@@ -33,7 +33,7 @@ The state of an operational execution ($\E$) is a tuple $\Exec$ where
 $\EffSoup$ is a set of effects, and $\visZ$, $\soZ$, $\sameobjZ$
 $\subseteq$ $\EffSoup \times \EffSoup$ are \emph{visibility},
 \emph{session order}, and \emph{same object} relations over effects,
-respectively. We concretize an effect ($\eff$) as a tuple
+respectively. We define an effect ($\eff$) as a tuple
 $(s,i,op,v)$, which records the fact that $i^{th}$ action in session
 with {\sf SessID} $s$, which is an operation $op$ on the replicated
 object, has been successfully executed on some replica yielding a
@@ -141,7 +141,7 @@ For every well-formed execution state $\E$, and contract class $\tau
 \begin{smathpar}
 (\E, \Theta, \langle s,i,\langle op,\tau \rangle;
 \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
-\langle s,i,\sigma \rangle \Sigma')
+\langle s,i,\sigma \rangle \pll \Sigma')
 \end{smathpar}
 then (\romannumeral 1) $\E'$ is well-formed, and (\romannumeral 2)
 $\E' \models \cv_{\tau}[\eff/\cureff]$
@@ -149,7 +149,7 @@ $\E' \models \cv_{\tau}[\eff/\cureff]$
 \begin{proof}
   By case analysis on $(\E, \Theta, \langle s,i,\langle op,\tau \rangle;
   \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
-  \langle s,i,\sigma \rangle \Sigma')$. 
+  \langle s,i,\sigma \rangle \pll \Sigma')$. 
   \GK{Lets first finalize all notations, rules, and also agree on
   all theorem statements. This way we don't have to change the proof
   again.} 
@@ -163,7 +163,7 @@ contract $\cv$ in the contract class $\tau$, If:
 \begin{smathpar}
 (\E, \Theta, \langle s,i,\langle op,\tau \rangle;
 \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
-\langle s,i,\sigma \rangle \Sigma')
+\langle s,i,\sigma \rangle \pll \Sigma')
 \end{smathpar}
 then (\romannumeral 1) $\E'$ is well-formed, and (\romannumeral 2)
 $\E' \models \cv[\eff/\cureff]$
