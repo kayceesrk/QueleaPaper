@@ -149,10 +149,10 @@ relatively low overhead for a more expressive programming model which
 provides stronger provable consistency guarantees.
 
 Figure~\ref{grf:rubis} compares the \name implementation of RUBiS in a
-\cf{1DC} configuration against a single replica ({\sf NoRep}) and a strongly
-replicated ({\sf StrongRep}) \cf{1DC} deployment. The benchmark uses the
+\cf{1DC} configuration against a single replica ({\sf\small NoRep}) and a strongly
+replicated ({\sf\small StrongRep}) \cf{1DC} deployment. The benchmark uses the
 default RUBiS bidding mix, which has 15\% read-write interactions, which is
-representative of the auction workload.  Without replication, {\sf NoRep}
+representative of the auction workload.  Without replication, {\sf\small NoRep}
 trivially provides strong consistency. However, this deployment does not
 scale beyond 1750 operations per second. Strong replication offers better
 throughput at the cost of greater latency due to inter-replica
@@ -175,4 +175,4 @@ in memory, performance still degrades due to the cost of fetching all
 previous updates from the backing store into the shim layer. Fetching the
 latest updates is essential for SC operations. With summarization enabled on
 both disk and memory, latency does not increase over time, and the
-implementation realizes throughput of 67K operations/minute. 
+implementation realizes throughput of 67K operations/minute.
