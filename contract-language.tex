@@ -150,14 +150,40 @@ consistency, with increasing overhead in terms of latency and availability.
   \begin{smathpar}
   \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
   \end{smathpar}
-
 \end{itemize}
-
-% Contract classification rules
-% ------------------------------
-\input{contract-classification}
+\vspace{-1em}
 
 \subsection{Contract Comparison and Classification}
+
+\newcommand{\DDe}[1]{#1}
+\begin{figure}
+\begin{smathpar}
+\begin{array}{c}
+\vspace{3mm}
+\RuleTwo
+{\DDe{\cv} \le \DDe{\scc}}
+{{\sf WellFormed}(\cv)}  \qquad
+
+\RuleTwo
+{\DDe{\cv} \le \DDe{\ecc}}
+{{\sf EventuallyConsistent}(\cv)} \\
+
+\vspace{3mm}
+\RuleTwo
+{\DDe{\cv} \not\le \DDe{\ecc}
+\quad \DDe{\cv} \le \DDe{\ccc}}
+{{\sf CausallyConsistent}(\cv)} \qquad
+
+\RuleTwo
+{\DDe{\cv} \not\le \DDe{\ccc}
+\quad \DDe{\cv} \le \DDe{\scc}}
+{{\sf StronglyConsistent}(\cv)}
+\end{array}
+\end{smathpar}
+\vspace{-5mm}
+\caption{Contract classification.}
+\label{sem:classify}
+\end{figure}
 
 Our goal is to map application-level consistency constraints on operations to
 appropriate store-level consistency guarantees capable of satisfying these
@@ -167,13 +193,12 @@ contracts in our contract language lets us compare and determine if contract
 under a store consistency level identified by the contract $\cv_{st}$. Towards
 this end, we define a binary \emph{weaker than} relation for our contract
 language as following:
+
 \begin{definition}
 A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \le \cv_{st}$ ) if and only if $\Delta \vdash \cv_{st} \Rightarrow \cv_{op}$.
-\begin{center}
-\end{center}
 \end{definition}
-\vspace{-2em}
+
 \noindent The $\Delta$ referred in the above defintion is a conjunction of
 assumptions about the nature of primitive relations, e.g., $\Rvis$ and $\Rso$
 are irreflexive, and the happens-before relation $\hbZ$ is acyclic. A
