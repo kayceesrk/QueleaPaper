@@ -47,7 +47,7 @@ object happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 \end{array}
 \end{smathpar}
 
-\caption{An Axiomatic Execution}
+\caption{Axiomatic execution in \name.}
 \label{sem:contracts}
 \end{figure}
 
@@ -61,14 +61,13 @@ generated during the program execution, and $\visZ,\soZ,\sameobjZ \subseteq
 run-time.
 
 Note that the axiomatic definition of an execution ($\E$) provides
-interpretations for primitive relations (eg: $\visZ$) that occur free
-in contract formulas, and also fixes the domain of quantification to
-set of all effects ($\EffSoup$) observed during the program execution.
-As such, $\E$ is a potential model for any first-order formula ($\cv$)
-expressible in our contract language. If $\E$ is indeed a valid model
-for $\cv$ (expressed using the model-theoretic consequence relation as $\E
-\models \cv$), we say that the execution $\E$ satisfied the contract
-$\cv$:
+interpretations for primitive relations (eg: $\visZ$) that occur free in
+contract formulas, and also fixes the domain of quantification to set of all
+effects ($\EffSoup$) observed during the program execution. As such, $\E$ is a
+potential model for any first-order formula ($\cv$) expressible in our contract
+language. If $\E$ is indeed a valid model for $\cv$ (expressed using the
+model-theoretic consequence relation as $\E \models \cv$), we say that the
+execution $\E$ satisfied the contract $\cv$:
 \begin{definition}
 An axiomatic execution $\E$ is said to satisfy a contract $\cv$ if and
 only if $E \models \cv$.
