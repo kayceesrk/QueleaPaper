@@ -1,7 +1,30 @@
 \section{Contract Language}
 \label{sec:lang}
 
-\input{contract-syntax.tex}
+\begin{figure}
+\begin{smathpar}
+\begin{array}{rclcl}
+\multicolumn{5}{l}{
+  {x,y,z} \in \mathtt{EffVar} \qquad
+  {\cureff} \in \mathtt{CurEff} \qquad
+  {\sf Op} \in \mathtt{OperName}
+}\\
+\cv 		& \in & \mathtt{Contract} 	& \coloneqq & \forall (x : \tau).\cv
+        \ALT \pi \\
+\tau		& \in	& \mathtt{EffType}	& \coloneqq &  {\sf Op}
+        \ALT \tau \vee \tau \\
+\pi			&	\in & \mathtt{Prop} & \coloneqq & \true \ALT R(x,y)
+        \ALT \pi \vee \pi \\
+			  & 		&	 &  \ALT & \pi \wedge \pi \ALT \pi \Rightarrow \pi \\
+R				& \in & \mathtt{Relation}	& \coloneqq & \visZ \ALT \soZ
+        \ALT \sameobjZ \ALT R^+ \\
+				&			&	 &  \ALT & R \cup R \ALT R \cap R \\
+\end{array}
+\end{smathpar}
+\caption{Contract language.}
+\label{fig:contract-lang}
+\end{figure}
+
 
 \subsection{Syntax}
 
