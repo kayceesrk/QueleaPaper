@@ -1,4 +1,3 @@
-\twocolumn
 \begin{figure*}[t]
 \textbf{RDT Specification Language}\\
 \begin{minipage}{\columnwidth}
@@ -50,7 +49,7 @@
 {\sigma} 	& \in & \mathtt{Session} 					 	& \coloneqq & \cdot \ALT \langle op,\tau \rangle; \sigma \\
 \Sigma 		& \in & \mathtt{Session\;Soup}   	 	& \coloneqq &
       \langle s, i, \sigma \rangle \pll \Sigma \ALT \emptyset \\
-					&			&	\mathtt{Config}		  			 	& \coloneqq & \E;\Theta;\Sigma \\
+					&			&	\mathtt{Config}		  			 	& \coloneqq & (\E, \Theta, \Sigma) \\
 \end{array}
 \end{smathpar}
 \end{minipage}
@@ -107,7 +106,7 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
 
 \vspace{5mm}
 \textbf{Operational Semantics} \;
-  \fbox{\(\E;\Theta;\Sigma \;\xrightarrow{\eff}\; \E';\Theta';\Sigma'\)}\\
+  \fbox{\((\E,\Theta,\Sigma) \;\xrightarrow{\eff}\; (\E',\Theta',\Sigma')\)}\\
 
 \begin{minipage}{\columnwidth}
 \rulelabel{EffVis}
@@ -121,7 +120,7 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
   \qquad \Theta' = \Theta[r \mapsto \{\eff\} \cup \Theta(r)]
 }
 {
-  \E;\Theta;\Sigma \;\xrightarrow{\eff}\; \E;\Theta';\Sigma
+  (\E,\Theta,\Sigma) \;\xrightarrow{\eff}\; (\E, \Theta', \Sigma)
 }
 \end{array}
 \end{smathpar}
@@ -137,8 +136,9 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
   \auxred{\Theta} {(\E,\langle s,i,op \rangle)} {r} {(\E',\eff)}
 }
 {
-  \E;\Theta;\langle s,i,\langle op,\tau \rangle\; \sigma \rangle \pll \Sigma \;\xrightarrow{\eff}\;
-  \E';\Theta; \langle s,i+1,\sigma \rangle\pll \Sigma
+  (\E,\Theta,\langle s,i,\langle op,\tau \rangle\; \sigma \rangle \pll \Sigma) 
+    \;\xrightarrow{\eff}\;
+  (\E',\Theta, \langle s,i+1,\sigma \rangle\pll \Sigma)
 }
 \end{array}
 \end{smathpar}
@@ -157,8 +157,11 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
   \auxred{\Theta} {(\E,\langle s,i,op \rangle)} {r} {(\E',\eff)} \qquad
   \E'.\soZ^{-1}(\eff) \subseteq \Theta(r)
 }
-{\E;\Theta;\langle s,i,\langle op,\tau \rangle; \sigma \rangle \pll \Sigma \;\xrightarrow{\eff}\;
-\E';\Theta;\langle s,i+1,\sigma \rangle \pll \Sigma }
+{
+  (\E,\Theta,\langle s,i,\langle op,\tau \rangle; \sigma \rangle \pll \Sigma) 
+    \;\xrightarrow{\eff}\;
+  (\E',\Theta,\langle s,i+1,\sigma \rangle \pll \Sigma) 
+}
 \end{array}
 \end{smathpar}
 \end{minipage}
@@ -176,8 +179,9 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
   \forall r'\in \dom(\Theta'). \Theta'(r') = \Theta(r') \cup \{\eff\}
 }
 {
-  \E;\Theta;\langle s,i,\langle op,\tau \rangle; \sigma \rangle \pll \Sigma
-  \;\xrightarrow{\eff}\; \E;\Theta';\langle s,i+1,\sigma \rangle \pll \Sigma
+  (\E, \Theta, \langle s,i,\langle op,\tau \rangle; \sigma \rangle \pll \Sigma)
+    \;\xrightarrow{\eff}\; 
+  (\E, \Theta', \langle s,i+1,\sigma \rangle \pll \Sigma)
 }
 \end{array}
 \end{smathpar}
@@ -187,6 +191,4 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
 \caption{Operational semantics of a replicated data store.}
 \label{sem:oper}
 \end{figure*}
-\onecolumn
-
 

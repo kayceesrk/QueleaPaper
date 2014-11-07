@@ -295,6 +295,52 @@ $\auxred{} {\E,\langle op,\tau \rangle;\sigma \pll \Sigma} {\eff} {\E', \sigma
 $\ccc$, and $\ecc$ contracts in all well-formed executions, then the same
 store, extended with the classification scheme shown in
 Figure~\ref{sem:classify}, can enforce all well-formed \name contracts. The
-proof of the theorem is given in the supplementary material\footnote{The
-supplementary material also provides the concrete reduction rules for enforcing
-the consistency classes.}.
+proof of the theorem is given below:
+
+\begin{proof}
+  Hypothesis:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \auxred{} {\E,\langle op,\tau \rangle;\sigma \pll \Sigma} {\eff}
+    {\E', \sigma \pll \Sigma} & H\npp\\
+    \E' \models \cv_\tau[\eff/\cureff] & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Since $\tau$ is the contract class of $\cv$, by inversion, we have
+  $\cv \le \cv_\tau$. By the definition of $\le$ relation:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \Delta \vdash \forall \cureff.\,\cv_\tau \Rightarrow \cv & H\npp\\
+  \end{array}
+  \end{smathpar}
+   Since $\eff$ denotes new effect, it is a fresh variable that does
+   not occur free in $\Delta$. From $H2$, after instantiating bound
+   $\cureff$ with $\eff$, we have:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \Delta \vdash \cv_\tau[\eff/\cureff] \Rightarrow \cv[\eff/\cureff]
+      & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Due to the soundness of natural deduction for first-order logic,
+  $H3$ implies that for all models $\mathcal{M}$ such that
+  $\mathcal{M} \models \Delta$, if $\mathcal{M} \models
+  \cv_\tau[\eff/\cureff]$ then $\mathcal{M} \models
+  \cv[\eff/\cureff]$. Since $\E'$ is well-formed, we have:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \E' \models \Delta & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Proof follows from $H1$ and $H4$.
+  \qed
+\end{proof}
+
+It is important to note that Theorem~\ref{thm:classification-sound}
+does not ascribe any semantics to the reduction relation
+($\xrightarrow{}$). As such, it makes no assumptions about how the
+store actually implements ${\sf ec}$, ${\sf cc}$ and ${\sf sc}$
+guarantees. The specific implementation strategy is determined by the
+operational semantics of the store, which \emph{defines} the reduction
+relation for that particular store. The following section describes
+operational semantics of the store used by the \name implementation.

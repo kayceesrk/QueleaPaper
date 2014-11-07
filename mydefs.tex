@@ -105,6 +105,10 @@
 \newcommand{\msentails}[2]{#1 \models #2}
 \newcommand{\hasTyp}[2]{#1 \vdash #2}
 \newcommand{\auxred}[4]{#1 #2 \;\xrightarrow{#3}\; #4 }
+\renewcommand{\qed}{\nobreak \ifvmode \relax \else
+      \ifdim\lastskip<1.5em \hskip-\lastskip
+      \hskip1.5em plus0em minus0.5em \fi \nobreak
+      \vrule height0.75em width0.5em depth0.25em\fi}
 
 
 % Operational semantics rules
