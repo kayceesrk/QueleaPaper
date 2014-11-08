@@ -199,19 +199,42 @@ A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \le \cv_{st}$ ) if and only if $\Delta \vdash \cv_{st} \Rightarrow \cv_{op}$.
 \end{definition}
 
-\noindent The $\Delta$ referred in the above defintion is a conjunction of
-assumptions about the nature of primitive relations, e.g., $\Rvis$ and $\Rso$
-are irreflexive, and the happens-before relation $\hbZ$ is acyclic. A
-\emph{well-formed} axiomatic execution ($\E$) is expected to satisfy these
-assumptions (i.e., $\E \models \Delta$).
+\noindent The $\Delta$ referred in the above definition is a conjunction of
+following assumptions about the nature of primitive relations:
 
-If the contract ($\cv_{op}$) of an operation ($\mathit{op}$) is \emph{weaker
-than} a store contract ($\cv_{st}$), then constraints expressed by the former
-are implied by guarantees provided by the latter. The completeness of
-first-order logic allows us to assert that any well-formed execution ($\E$)
-that satisfies $\cv_{st}$ (i.e., $\E\models \cv_{st}$) also satisfies
-$\cv_{op}$ (i.e., $\E \models \cv_{op}$). Consequently, it is safe to execute
-operation $\mathit{op}$ under a store consistency level captured by $\cv_{st}$.
+\begin{itemize}
+\item $\visZ$ relates actions on the same object:
+  \begin{itemize}
+    \item $\forall a,b. \visZ(a,b) \Rightarrow \sameobjZ(a,b)$
+  \end{itemize}
+\item $\soZ$ is a transitive relation:
+  \begin{itemize}
+    \item $\forall a,b,c. \soZ(a,b) \conj \soZ(b,c) \Rightarrow \soZ(a,c)$
+  \end{itemize}
+\item $\sameobjZ$ is an equivalence relation:
+  \begin{itemize}
+    \item $\forall a. \sameobjZ(a,a)$
+    \item $\forall a,b. \sameobjZ(a,b) \Rightarrow \sameobjZ(b,a)$
+    \item $\forall a,b,c. \soZ(a,b) \conj \soZ(b,c) \Rightarrow \soZ(a,c)$
+  \end{itemize}
+\end{itemize}
+
+\noindent A \emph{well-formed} axiomatic execution ($\E$) is expected
+to satisfy these assumptions:
+
+\begin{definition}
+An axiomatic execution $\E$ is said to be well-formed if and only if
+$\E \models \Delta$.
+\end{definition}
+
+\noindent If the contract ($\cv_{op}$) of an operation ($\mathit{op}$)
+is \emph{weaker than} a store contract ($\cv_{st}$), then constraints
+expressed by the former are implied by guarantees provided by the
+latter. The completeness of first-order logic allows us to assert that
+any well-formed execution ($\E$) that satisfies $\cv_{st}$ (i.e.,
+$\E\models \cv_{st}$) also satisfies $\cv_{op}$ (i.e., $\E \models
+\cv_{op}$). Consequently, it is safe to execute operation
+$\mathit{op}$ under a store consistency level captured by $\cv_{st}$.
 
 Observe that the contracts $\scc$, $\ccc$ and $\ecc$ are themselves totally
 ordered with respect to the $\le$ relation: $\ecc \le \ccc \le \scc$.  This
@@ -310,11 +333,18 @@ proof of the theorem is given below:
   $\cv \le \cv_\tau$. By the definition of $\le$ relation:
   \begin{smathpar}
   \begin{array}{cr}
+    \Delta \vdash \cv_\tau \Rightarrow \cv & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Since $\cureff$ occurs free in $\cv$ and $\cv_\tau$, but not in
+  $\Delta$, we introduce quantifier to bind $\cureff$:
+  \begin{smathpar}
+  \begin{array}{cr}
     \Delta \vdash \forall \cureff.\,\cv_\tau \Rightarrow \cv & H\npp\\
   \end{array}
   \end{smathpar}
    Since $\eff$ denotes new effect, it is a fresh variable that does
-   not occur free in $\Delta$. From $H2$, after instantiating bound
+   not occur free in $\Delta$. From $H3$, after instantiating bound
    $\cureff$ with $\eff$, we have:
   \begin{smathpar}
   \begin{array}{cr}
@@ -323,7 +353,7 @@ proof of the theorem is given below:
   \end{array}
   \end{smathpar}
   Due to the soundness of natural deduction for first-order logic,
-  $H3$ implies that for all models $\mathcal{M}$ such that
+  $H4$ implies that for all models $\mathcal{M}$ such that
   $\mathcal{M} \models \Delta$, if $\mathcal{M} \models
   \cv_\tau[\eff/\cureff]$ then $\mathcal{M} \models
   \cv[\eff/\cureff]$. Since $\E'$ is well-formed, we have:
@@ -332,7 +362,7 @@ proof of the theorem is given below:
     \E' \models \Delta & H\npp\\
   \end{array}
   \end{smathpar}
-  Proof follows from $H1$ and $H4$.
+  Proof follows from $H1$, $H5$, and $H4$.
   \qed
 \end{proof}
 
