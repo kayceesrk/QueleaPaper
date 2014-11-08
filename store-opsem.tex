@@ -15,7 +15,10 @@ with $\Theta$, a representation of the store as a map from replicas to
 their local states. The local state of a replica $r$ (i.e.,
 $\Theta(r)$) is a set of effects that are currently visible at $r$.
 An operation $op$ performed at replica $r$ can only witness the set of
-effects ($\Theta(r)$) visible at $r$. For the sake of clarity, we only
+effects ($\Theta(r)$) visible at $r$. To avoid too many paranthesis in
+our formal presentation, we represent operation $op$, whose contract
+is in consistency class $\tau$, as $op_\tau$ instead of the usual
+$\langle op,\tau \rangle$. For the sake of clarity, we only
 consider a single replicated object of well-defined type (for eg: a
 replicated object of type \cf{BankAccount}) in our formalization.  Our
 semantics are parametric over the specification of this replicated
@@ -134,25 +137,345 @@ result, and Theorem~\ref{thm:classification-sound}, we have the
 assurance that \name correctly enforces all well-formed consistency
 contracts.
 
+% First, we prove few useful lemmas:
+
+% \begin{lemma}[]
+% \end{lemma}
+
 \begin{theorem}[Soundness Modulo Classification]
 \label{thm:weak-soundness}
 For every well-formed execution state $\E$, and contract class $\tau 
 \in \{{\sf ec},{\sf cc},{\sf sc}\}$, If:
 \begin{smathpar}
-(\E, \Theta, \langle s,i,\langle op,\tau \rangle;
+(\E, \Theta, \langle s,i,op_\tau ::
 \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
-\langle s,i,\sigma \rangle \pll \Sigma')
+\langle s,i+1,\sigma \rangle \pll \Sigma)
 \end{smathpar}
 then (\romannumeral 1) $\E'$ is well-formed, and (\romannumeral 2)
 $\E' \models \cv_{\tau}[\eff/\cureff]$
 \end{theorem}
 \begin{proof}
-  By case analysis on $(\E, \Theta, \langle s,i,\langle op,\tau \rangle;
-  \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
-  \langle s,i,\sigma \rangle \pll \Sigma')$. 
-  \GK{Lets first finalize all notations, rules, and also agree on
-  all theorem statements. This way we don't have to change the proof
-  again.} 
+  By case analysis on the derivation:
+  \begin{smathpar}
+    (\E, \Theta, \langle s,i,op_\tau ::
+    \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
+    \langle s,i+1,\sigma \rangle \pll \Sigma)
+  \end{smathpar}
+  Cases:
+  \begin{itemize}
+    \item Case \rulelabel{EC}: Hypotheses:
+      \begin{smathpar}
+      \begin{array}{cr}
+      \tau = {\sf EventuallyConsistent} & H\npp \\
+      \auxred{\Theta}{(\E,\langle s,i,op \rangle)} {r} 
+        {(\E',\eff)} & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Goal (\romannumeral 1) follows from $H1$ and
+      Lemma~\ref{lem:auxred-wf}. Goal (\romannumeral 2) is the
+      following: 
+      \begin{smathpar}
+      \begin{array}{cr}
+        \E' \models \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\eff}
+          \Rightarrow \vis{a}{\eff} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      Let $\EffSoup' = \E'.\EffSoup$, $\Rvis' = \E'.\Rvis$, $\Rso' =
+      \E'.\Rso$, and $\hboZ' =(\Rso' \cup \Rvis')^{+}$.  By inversion
+      on $H1$, we get the following hypotheses:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \EffSoup' = \EffSoup \cup \{\eff\} & H\npp\\
+        \visZ' = \Theta(r)\times\eff ~\cup~ \visZ & H\npp\\
+        \Rso' = \EffSoup_{{\sf SessID}=s,\,{\sf SeqNo}<i}\times\eff ~\cup~ \Rso & H\npp\\
+        \sameobjZ' = \EffSoup' \times \EffSoup'& H\npp\\
+      \end{array}
+      \end{smathpar}
+       Since $\E'$ defines $\EffSoup'$ as the universe of values.
+       Therefore, the goal can be rewritten:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \forall (a,b\in\EffSoup').
+        \msentails{E'}{\De{\hbo{a}{b} \wedge
+        \vis{b}{\eff}} \Rightarrow 
+          \De{\vis{a}{\eff}}} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      New hypotheses after \emph{intros}:
+      \begin{smathpar}
+      \begin{array}{cr}
+        a \in \EffSoup' & H\npp\\
+        b \in \EffSoup' & H\npp\\
+      \end{array}
+      \end{smathpar}
+      And new goal:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \msentails{E'}{\De{\hbo{a}{b} \wedge
+        \vis{b}{\eff}} \Rightarrow 
+          \De{\vis{a}{\eff}}} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      Since $(\mathcal{M} \models A \Rightarrow B) \Leftrightarrow
+      (\mathcal{M} \models A \Rightarrow \mathcal{M} \models B)$, we
+      prove $G0$ by proving: 
+      \begin{smathpar}
+      \begin{array}{cr}
+        (\E' \models ~\hbo{a}{b} \wedge \vis{b}{\eff})
+          \Rightarrow (\E' \models \vis{a}{\eff}) & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      After intros:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \E' \models ~\hbo{a}{b} \wedge \vis{b}{\eff} &
+        H\npp\\
+      \end{array}
+      \end{smathpar}
+      Since $\E'$ defines $\hboZ'$ and $\Rvis'$ as interpretations for
+      $\hboZ$ and $\Rvis$ respectively, we have:
+      \begin{smathpar}
+      \begin{array}{cr}
+          {{\sf hbo'}(a,b)} \wedge \Rvis'(b,\eff) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      And the goal is:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \Rvis'(a,\eff) & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      Inversion on $H9$:
+      \begin{smathpar}
+      \begin{array}{cr}
+          {{\sf hbo'}(a,b)} & H\npp\\
+          \Rvis'(b,\eff) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Since $\eff$ is unique, from $H3$ and $H11$ we have the following:
+      \begin{smathpar}
+      \begin{array}{cr}
+            b\in\Theta(r)& H\npp\\
+      \end{array}
+      \end{smathpar}
+      Since local state (i.e., $\Theta(r)$) is causally consistent
+      (lemma~\ref{lem:local-state-is-cc}) using $H10$ and $H12$ we
+      derive the following:
+      \begin{smathpar}
+      \begin{array}{cr}
+        a \in \Theta(r) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Now, from $H3$ and $H13$, we deduce:
+      \begin{smathpar}
+      \begin{array}{cr}
+        (a,\eff) \in \Rvis'& \\
+      \end{array}
+      \end{smathpar}
+      which is what needs to be proven ($G4$).
+
+    \item Case $\rulelabel{CC}$: Hypotheses:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \tau = {\sf CausallyConsistent} & H\npp \\
+        \auxred{\Theta}{(\E,\langle s,i,op \rangle)} {r} 
+          {(\E',\eff)} & H\npp\\
+         \E'.\Rso(\eff) \subseteq \Theta(r)& H\npp\\
+      \end{array}
+      \end{smathpar}
+     Goal (\romannumeral 1) follows from $H15$ and
+     Lemma~\ref{lem:auxred-wf}. We now prove Goal (\romannumeral 2).
+     Expanding the definition of $\ccc$, goal is the following:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \ccc = \forall a.~\hbo{a}{\eff} \Rightarrow
+        \vis{a}{\eff} & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      Let $\EffSoup' = \E'.\EffSoup$, $\Rvis' = \E'.\Rvis$, $\Rso' =
+      \E'.\Rso$, and $\hboZ' =(\Rso' \cup \Rvis')^{+}$. By inversion
+      on $H15$, we get the following:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \EffSoup' = \EffSoup \cup \{\eff\} & H\npp\\
+        \visZ' = \Theta(r)\times\eff ~\cup~ \visZ & H\npp\\
+        \Rso' = \EffSoup_{{\sf SessID}=s,\,{\sf SeqNo}<i}\times\eff ~\cup~ \Rso & H\npp\\
+        \sameobjZ' = \EffSoup' \times \EffSoup'& H\npp\\
+      \end{array}
+      \end{smathpar}
+%     From $H16$ and $H19$, we have:
+%     \begin{smathpar}
+%     \begin{array}{cr}
+%       \EffSoup_{{\sf SessID}=s,\,{\sf SeqNo}<i} \in \Theta(r) &
+%       H\npp \\
+%     \end{array}
+%     \end{smathpar}
+      By similar reasoning as with the previous case (\rulelabel{EC}),
+      we get a context with following hypotheses:
+      \begin{smathpar}
+      \begin{array}{cr}
+        a \in \EffSoup' & H\npp\\
+        {\hboZ'(a,\eff)}  & H\npp\\
+      \end{array}
+      \end{smathpar}
+      And the goal is the following:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \Rvis'(a,\eff) & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      Since \emph{happens-before} is transitive, by inversion on
+      $H23$, we get two cases:
+      \begin{itemize}
+        \item SCase 1: Hypotheses:
+        \begin{smathpar}
+        \begin{array}{cr}
+          (\Rso' \cup \Rvis')(a,\eff) & H\npp\\
+        \end{array}
+        \end{smathpar}
+        Inversion on $H24$ leads to two subcases. In one case, we
+        assume $\Rvis'(a,\eff)$ and try to prove the goal $G6$. The
+        proof for this case mimics the proof for Case \rulelabel{EC}.
+        Alternatively, in second case, we assume:
+        \begin{smathpar}
+        \begin{array}{cr}
+          \Rso'(a,\eff) & H\npp\\
+        \end{array}
+        \end{smathpar}
+        and prove $G6$. From $H25$ and $H16$, we infer:
+        \begin{smathpar}
+        \begin{array}{cr}
+          a \in \Theta(r) & H\npp\\
+        \end{array}
+        \end{smathpar}
+        Now, from $H26$ and $H18$ we know:
+        \begin{smathpar}
+        \begin{array}{cr}
+          (a,\eff) \in \Rvis' & \\
+        \end{array}
+        \end{smathpar}
+        which is the goal ($G6$).
+
+        \item SCase 2: Hypotheses (after abbreviating the occurance
+        of$(\Rso' \cup \Rvis')^{+}$ as {\sf hbo'}):
+        \begin{smathpar}
+        \begin{array}{cr}
+          \exists(c\in\EffSoup').{\sf hbo'}(a,c) \wedge (\Rso' \cup
+          \Rvis')(c,\eff) & H\npp\\
+        \end{array}
+        \end{smathpar}
+        Inverting $H27$, followed by expanding $\Rso' \cup \Rvis'$:
+        \begin{smathpar}
+        \begin{array}{cr}
+          c\in\EffSoup' & H\npp\\
+           {\sf hbo'}(a,c) \wedge (\Rso'(c,\eff) \vee \Rvis'(c,\eff))& H\npp\\
+        \end{array}
+        \end{smathpar}
+        Inverting the disjunction in $H29$, we get two cases:
+        \begin{itemize}
+          \item SSCase R: Hypothesis is
+          \begin{smathpar}
+          \begin{array}{cr}
+             {\sf hbo'}(a,c) \wedge \Rvis'(c,\eff)& H\npp\\
+          \end{array}
+          \end{smathpar}
+          Observe that hypothesis $H30$ and current goal ($G6$) are
+          same as hypothesis $H9$ and goal ($G4$) in Case
+          \rulelabel{EC}. The proof for this SSCase is also the same.
+
+          \item SSCase L: Hypothesis is
+          \begin{smathpar}
+          \begin{array}{cr}
+             {\sf hbo'}(a,c) \wedge \Rso'(c,\eff)& H\npp\\
+          \end{array}
+          \end{smathpar}
+          Inverting $H31$:
+          \begin{smathpar}
+          \begin{array}{cr}
+             {\sf hbo'}(a,c)& H\npp\\
+             \Rso'(c,\eff)& H\npp\\
+          \end{array}
+          \end{smathpar}
+          From $H33$ and $H16$, we infer:
+          \begin{smathpar}
+          \begin{array}{cr}
+            c \in \Theta(r) & H\npp \\
+          \end{array}
+          \end{smathpar}
+          Since local state is causally consistent
+          (lemma~\ref{lem:local-state-is-cc}), from $H32$ and $H34$,
+          we have:
+          \begin{smathpar}
+          \begin{array}{cr}
+            a \in \Theta(r) & H\npp\\
+          \end{array}
+          \end{smathpar}
+           Proof follows from $H35$ and $H18$.
+        % End of SSCase
+        \end{itemize}
+      % End of SCases
+      \end{itemize}
+
+    \item Case \rulelabel{SC}: Hypotheses:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \tau = {\sf StronglyConsistent} & H\npp \\
+        \auxred{\Theta} {(\E,\langle s,i,op \rangle)} {r}
+        {(\E',\eff)} & H\npp\\ 
+        \E.A \subseteq \Theta(r) & H\npp\\
+        \dom(\Theta') = \dom(\Theta) & H\npp\\
+        \forall r'\in \dom(\Theta'). \Theta'(r') = \Theta(r') \cup
+          \{\eff\} & H\npp\\
+      \end{array}
+      \end{smathpar}
+      Let $\EffSoup' = \E'.\EffSoup$, $\Rvis' = \E'.\Rvis$, $\Rso' =
+      \E'.\Rso$, and $\hboZ' =(\Rso' \cup \Rvis')^{+}$. Inversion on
+      $H37$ gives: 
+      \begin{smathpar}
+      \begin{array}{cr}
+        \EffSoup' = \EffSoup \cup \{\eff\} & H\npp\\
+        \visZ' = \Theta(r)\times\eff ~\cup~ \visZ & H\npp\\
+        \Rso' = \EffSoup_{{\sf SessID}=s,\,{\sf SeqNo}<i}\times\eff ~\cup~ \Rso & H\npp\\
+        \sameobjZ' = \EffSoup' \times \EffSoup'& H\npp\\
+      \end{array}
+      \end{smathpar}
+       Goal (\romannumeral 1) follows from $H36$ and
+       Lemma~\ref{lem:auxred-wf}. Expanding the definition of $\scc$,
+       goal is the following:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \forall a.~\sameobj{a}{\eff} \Rightarrow \vis{a}{\eff} 
+          ~\vee~ \vis{\eff}{a} ~\vee~ a = \eff & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      By similar reasoning as with the \rulelabel{EC} case,
+      we get a context with following hypotheses:
+      \begin{smathpar}
+      \begin{array}{cr}
+        a \in \EffSoup' & H\npp\\
+        {\sameobjZ'(a,\eff)}  & H\npp\\
+      \end{array}
+      \end{smathpar}
+      And the goal is the following:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \vis{a}{\eff} ~\vee~ \vis{\eff}{a} ~\vee~ a = \eff & G\mpp\\
+      \end{array}
+      \end{smathpar}
+      From $H40$ and $H44$, we know that either $a \in \EffSoup$ or $a
+      = \eff$. If $a = \eff$, then $G8$ follows trivially. On the
+      other hand, when $a \in \EffSoup$, from $H37$ we know that $a
+      \in \Theta(r)$. From $H41$, we derive:
+      \begin{smathpar}
+      \begin{array}{cr}
+        a \in \visZ'(\eff)& \\
+      \end{array}
+      \end{smathpar}
+      Which means first disjunct of $G8$ is valid, proving the
+      theorem.
+  % End of all cases    
+  \end{itemize}
+
 \end{proof}
 
 \begin{corollary}[Soundness]
@@ -161,9 +484,9 @@ For every well-formed execution state $\E$, and contract class $\tau
 \in \{{\sf ec},{\sf cc},{\sf sc}\}$, and for every consistency
 contract $\cv$ in the contract class $\tau$, If:
 \begin{smathpar}
-(\E, \Theta, \langle s,i,\langle op,\tau \rangle;
+(\E, \Theta, \langle s,i,op_\tau :: 
 \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
-\langle s,i,\sigma \rangle \pll \Sigma')
+\langle s,i+1,\sigma \rangle \pll \Sigma)
 \end{smathpar}
 then (\romannumeral 1) $\E'$ is well-formed, and (\romannumeral 2)
 $\E' \models \cv[\eff/\cureff]$

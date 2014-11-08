@@ -46,7 +46,7 @@
 \begin{array}{lclcl}
 \Theta  & \in & \mathtt{Store}      & \coloneqq & r \mapsto \set{\eff} \\
 {\tau}		& \in & \mathtt{Consistency Class} 	& \coloneqq & {\sf ec},{\sf cc},{\sf sc} \\
-{\sigma} 	& \in & \mathtt{Session} 					 	& \coloneqq & \cdot \ALT \langle op,\tau \rangle; \sigma \\
+{\sigma} 	& \in & \mathtt{Session} 					 	& \coloneqq & \cdot \ALT op_\tau::\sigma \\
 \Sigma 		& \in & \mathtt{Session\;Soup}   	 	& \coloneqq &
       \langle s, i, \sigma \rangle \pll \Sigma \ALT \emptyset \\
 					&			&	\mathtt{Config}		  			 	& \coloneqq & (\E, \Theta, \Sigma) \\
@@ -136,7 +136,7 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
   \auxred{\Theta} {(\E,\langle s,i,op \rangle)} {r} {(\E',\eff)}
 }
 {
-  (\E,\Theta,\langle s,i,\langle op,\tau \rangle\; \sigma \rangle \pll \Sigma) 
+  (\E,\Theta,\langle s,i,op_\tau::\sigma \rangle \pll \Sigma) 
     \;\xrightarrow{\eff}\;
   (\E',\Theta, \langle s,i+1,\sigma \rangle\pll \Sigma)
 }
@@ -158,7 +158,7 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
   \E'.\soZ^{-1}(\eff) \subseteq \Theta(r)
 }
 {
-  (\E,\Theta,\langle s,i,\langle op,\tau \rangle; \sigma \rangle \pll \Sigma) 
+  (\E,\Theta,\langle s,i,op_\tau::\sigma \rangle \pll \Sigma) 
     \;\xrightarrow{\eff}\;
   (\E',\Theta,\langle s,i+1,\sigma \rangle \pll \Sigma) 
 }
@@ -179,7 +179,7 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
   \forall r'\in \dom(\Theta'). \Theta'(r') = \Theta(r') \cup \{\eff\}
 }
 {
-  (\E, \Theta, \langle s,i,\langle op,\tau \rangle; \sigma \rangle \pll \Sigma)
+  (\E, \Theta, \langle s,i,op_\tau::\sigma \rangle \pll \Sigma)
     \;\xrightarrow{\eff}\; 
   (\E, \Theta', \langle s,i+1,\sigma \rangle \pll \Sigma)
 }
