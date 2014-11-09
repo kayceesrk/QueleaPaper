@@ -1,0 +1,174 @@
+\begin{theorem}[Causal Consistency Preservation]
+  \label{thm:local-state-is-cc}
+  For every well-formed execution state $\E$, and a store $\Theta$
+  that is causally consistent under $\E$, if: 
+  \begin{smathpar}
+    (\E, \Theta, \langle s,i,op_\tau ::
+    \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
+    \langle s,i+1,\sigma \rangle \pll \Sigma)
+  \end{smathpar}
+  then $\Theta'$ is causally consistent under $\E'$.
+\end{theorem}
+\begin{proof}
+  By case analysis on on:
+  \begin{smathpar}
+    (\E, \Theta, \langle s,i,op_\tau ::
+    \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
+    \langle s,i+1,\sigma \rangle \pll \Sigma)
+  \end{smathpar}
+  Cases:
+  \begin{itemize}
+    \item Case \rulelabel{EffVis}: Final execution state is same as
+    the initial (i.e., $\E' = \E$). Therefore, we need to prove that
+    new store configuration $\Theta$ is causally consistent under
+    $\E=\Exec$. Hypotheses:
+    \begin{smathpar}
+    \begin{array}{cr}
+      r \in {\sf ReplID} & H\npp \\
+      \eff \in A & H\npp \\
+      \eff \notin \Theta(r)& H\npp \\
+      \E.\visZ^{-1}(\eff) \cup \E.\soZ^{-1}(\eff) \subseteq \Theta(r)
+      & H\npp \\
+      \Theta' = \Theta \cup [r \mapsto \{\eff\} \cup \Theta(r)] & H\npp \\
+      \hspace*{-0.5in}\forall (r\in{\sf dom}(\Theta)). \forall (\eff \in
+        \Theta(r)). & \\
+      \hspace*{0.3in}\forall (a\in\EffSoup). \hbo{a}{\eff} \Rightarrow a \in \Theta(r) & H\npp \\
+    \end{array}
+    \end{smathpar}
+    From $H4$ and $H5$, it suffices to prove:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \forall (a\in \EffSoup). \hbo{a}{\eff} 
+        \Rightarrow a \in \Theta'(r) & G\mpp\\
+    \end{array}
+    \end{smathpar}
+    After \emph{intros}, hypotheses:
+    \begin{smathpar}
+    \begin{array}{cr}
+      a\in\EffSoup & H\npp\\
+      \hbo{a}{\eff} & H\npp \\
+    \end{array}
+    \end{smathpar}
+    Goal:
+    \begin{smathpar}
+    \begin{array}{cr}
+      a \in \Theta'(r) & G\mpp \\
+    \end{array}
+    \end{smathpar}
+    Inversion on $H7$ leads to two cases:
+    \begin{itemize}
+      \item SCase \emph{$a$ directly precedes $\eff$ }: Hypothesis:
+      \begin{smathpar}
+      \begin{array}{cr}
+        (\Rvis \cup \Rso)(a,\eff) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      From $H3$ and $H8$, we conclude that $a \in \Theta'(r)$.
+      
+      \item SCase \emph{$a$ transitively precedes $\eff$}: Hypothesis:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \exists (c \in \EffSoup). \hbo{a}{c} \wedge (\Rvis \cup
+        \Rso)(c,\eff) & H\npp \\
+      \end{array}
+      \end{smathpar}
+      Inverting $H9$:
+      \begin{smathpar}
+      \begin{array}{cr}
+        c \in A & H\npp \\
+        \hbo{a}{c} & H\npp \\
+        (\Rvis \cup \Rso)(c,\eff) & H\npp \\
+      \end{array}
+      \end{smathpar}
+      From $H3$ and $H12$, we have:
+      \begin{smathpar}
+      \begin{array}{cr}
+        c \in \Theta'(r) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      From $H5$, $H13$ and $H11$, we conclude that $a \in \Theta'(r)$.
+    \end{itemize}
+
+    \item Cases \rulelabel{EC} and \rulelabel{CC}: Store configuration
+    ($\Theta$) remains unchanged. Further, no new \emph{happens
+    before} order is added either among existing effects, or
+    \emph{from} the newly generated effect \emph{to} existing effects.
+    Consequently, proof is trivial.
+
+    \item Case \rulelabel{SC}: Let $\E=\Exec$ and $\E'=(\EffSoup', 
+      \visZ',\soZ',\sameobjZ')$. Hypotheses:
+    \begin{smathpar}
+    \begin{array}{cr}
+      r \in {\sf ReplID} & H\npp \\
+      \tau = {\sf StronglyConsistent}(\cv) & H\npp \\
+      \auxred{\Theta} {(\E,\langle s,i,op \rangle)} {r}
+        {(\E',\eff)} & H\npp \\
+      A \subseteq \Theta(r) & H\npp\\
+      {\sf dom}(\Theta') = {\sf dom}(\Theta) & H\npp\\
+      \forall r'\in {\sf dom}(\Theta'). \Theta'(r') = \Theta(r') \cup
+      \{\eff\} & H\npp\\
+      \hspace*{-0.5in}\forall (r'\in{\sf dom}(\Theta)). \forall (\eff' \in
+        \Theta(r')). & \\
+      \hspace*{0.3in}\forall (a\in A). \hbo{a}{\eff'} \Rightarrow a
+        \in \Theta(r') & H\npp \\
+    \end{array}
+    \end{smathpar}
+    The goal:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \hspace*{-0.5in}\forall (r'\in{\sf dom}(\Theta')). \forall (\eff' \in
+        \Theta'(r')). & \\
+      \hspace*{0.3in}\forall (a\in\EffSoup'). \hboZ'(a,\eff') \Rightarrow a
+        \in \Theta'(r') & G\mpp \\
+    \end{array}
+    \end{smathpar}
+    Inverting $H16$:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \EffSoup' = \EffSoup \cup \{\eff\} & H\npp\\
+      \visZ' = \Theta(r)\times\eff ~\cup~ \visZ & H\npp\\
+      \{\eff'\} = \EffSoup_{({\sf SessID}=s,\,{\sf SeqNo}=i-1)} & \\
+      \soZ' = (\soZ^{-1}(\eff') \cup \eff') \times\{\eff\} \cup \soZ
+        & H\npp\\
+      \sameobjZ' = \EffSoup' \times \EffSoup'& H\npp\\
+    \end{array}
+    \end{smathpar}
+    Using $H19$ and $H20$, we can reduce the goal ($G2$) to:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \forall (r'\in{\sf dom}(\Theta')). 
+      \forall (a\in \EffSoup'). \hboZ'(a,\eff) \Rightarrow a
+        \in \Theta'(r') & G\mpp \\
+    \end{array}
+    \end{smathpar}
+    After \emph{intros}, hypotheses:
+    \begin{smathpar}
+    \begin{array}{cr}
+      r' \in \dom(\Theta') & H\npp \\
+      a \in \EffSoup' & H\npp\\
+      \hboZ'(a,\eff) & H\npp\\
+    \end{array}
+    \end{smathpar}
+    Goal:
+    \begin{smathpar}
+    \begin{array}{cr}
+      a \in \Theta'(r') & G\mpp \\
+    \end{array}
+    \end{smathpar}
+    From $H26$ and $H21$, we know that either $a \in \EffSoup$ or
+    $a = \eff$.
+    \begin{itemize}
+      \item If $a \in \EffSoup$, then from $H17$, we know that $a
+      \in \Theta(r')$. However, from $H19$ we know that $\Theta(r')
+      \subset \Theta'(r')$, which lets us conclude that $a \in
+      \Theta'(r')$.
+
+      \item If $a = \eta$, then $H27$ is $\hboZ'(\eff,\eff)$. However,
+      from lemma~\ref{lem:auxred-wf} we know that $\E'$ is
+      well-formed, which means that $\hboZ'$ is acyclic. Hence, a
+      contradiction. \emph{ex\_falso\_quodlibet}.
+    \end{itemize}
+  % End of main cases  
+  \end{itemize}
+\qed
+\end{proof}

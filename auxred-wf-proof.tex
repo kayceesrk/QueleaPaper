@@ -1,0 +1,100 @@
+\begin{lemma}[Auxiliary Reduction Preserves Well-Formedness]
+\label{lem:auxred-wf}
+For every well-formed execution state $\E$, if
+$\auxred{\Theta}{(\E,\langle s,i,op \rangle)} {r} {(\E',\eff)}$, then
+$\E'$ is well-formed.
+\end{lemma}
+\begin{proof}
+  Let us denote $\E.\EffSoup$, $\E.\Rvis$, $\E.\Rso$, and $\E.\sameobjZ$
+  as $\EffSoup$, $\Rvis$, $\Rso$, and $\sameobjZ$ respectively.
+  Likewise, let us denote $\E'.\EffSoup$, $\E'.\Rvis$, $\E'.\Rso$, and
+  $\E'.\sameobjZ$ as $\EffSoup$, $\Rvis$, $\Rso$, and $\sameobjZ$
+  respectively. By inversion on $\auxred{\Theta}{(\E,\langle s,i,op
+  \rangle)} {r} {(\E',\eff)}$, we have following hypotheses:
+  \begin{smathpar}
+  \begin{array}{cr}
+    r \in \dom(\Theta) & H\npp\\
+    ctxt = {\ctxtFn}^{*}(\Theta(r)) & H\npp\\
+    \eff = (s,i,op,v) & H\npp\\
+    \{\eff'\} = \EffSoup_{({\sf SessID}=s,\,{\sf SeqNo}=i-1)} & H\npp\\
+    \EffSoup' = \{\eff\} \cup \EffSoup & H\npp\\
+    \visZ' = \Theta(r)\times\{\eff\} \cup \visZ & H\npp\\
+    \soZ' = (\soZ^{-1}(\eff') \cup \eff') \times\{\eff\} \cup \soZ
+      & H\npp \\
+    \sameobjZ' = \EffSoup' \times \EffSoup' & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Since $\E$ is well-formed, from the definition of
+  well-formedness and \emph{models} relation, we have the following:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a \in \EffSoup). \neg\hboZ(a,a) & H\npp\\
+    \forall (a,b \in \EffSoup). \visZ(a,b) \Rightarrow 
+      \sameobjZ(a,b) & H\npp\\
+    \forall (a,b,c \in \EffSoup). \soZ(a,b) \conj \soZ(b,c) \Rightarrow
+      \soZ(a,c) & H\npp\\
+    \forall (a \in \EffSoup). \sameobjZ(a,a) & H\npp\\
+    \forall (a,b \in \EffSoup). \sameobjZ(a,b) \Rightarrow 
+      \sameobjZ(b,a) & H\npp\\
+    \forall (a,b,c \in \EffSoup). \soZ(a,b) \conj \soZ(b,c) \Rightarrow
+      \soZ(a,c) & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Since $\hboZ = (\Rvis \cup \Rso)^{+}$, $H8$ is equivalent to
+  conjunction of following assertions:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a \in \EffSoup). \neg\visZ(a,a) & H\npp\\
+    \forall (a \in \EffSoup). \neg\soZ(a,a) & H\npp\\
+    \forall (a,b \in \EffSoup). \neg (\visZ(a,b) \conj \soZ(b,a)) & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Since $\eff$ is fresh, $\eff \notin \Theta(r)$. From $H4$, $H5$, and
+  $H14$, we have the acyclicity property for $\visZ'$:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a \in \EffSoup'). \neg\visZ'(a,a) & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Also, $\eff \notin \EffSoup$, and from $H4$, $H6$ and $H15$, we have
+  acyclicity for $\soZ'$: 
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a \in \EffSoup'). \neg\soZ'(a,a) & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Similarly, from the uniqueness of $\eff$, and $H5$, $H6$, and $H16$,
+  we have the following:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a,b \in \EffSoup'). \neg (\visZ'(a,b) \conj \soZ'(b,a)) & H\npp\\
+  \end{array}
+  \end{smathpar}
+  From $H17-19$, we prove the acyclicity of $\hboZ'$: 
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a \in \EffSoup').\neg\hboZ(a,a) & G\mpp\\
+  \end{array}
+  \end{smathpar}
+  The $\sameobjZ'$ relation is simply the cross product
+  $\EffSoup' \times \EffSoup'$. Hence following trivially hold:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a,b \in \EffSoup'). \visZ'(a,b) \Rightarrow 
+      \sameobjZ'(a,b) & G\mpp\\
+    \forall (a \in \EffSoup'). \sameobjZ'(a,a) & G\mpp\\
+    \forall (a,b \in \EffSoup'). \sameobjZ'(a,b) \Rightarrow 
+      \sameobjZ'(b,a) & G\mpp\\
+  \end{array}
+  \end{smathpar}
+  Finally, from $H3$, $H4$, $H6$ and $H10$, we have transitivity for $\soZ'$:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a,b,c \in \EffSoup'). \soZ'(a,b) \conj \soZ'(b,c) \Rightarrow
+      \soZ'(a,c) & G\mpp\\
+  \end{array}
+  \end{smathpar}
+  Well-formedness of $\E'$ follows from $G0-4$.
+\end{proof}
+
+
