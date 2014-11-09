@@ -8,6 +8,10 @@ strong, causal and eventual consistency guarantees. The semantics also
 serves as a high-level description of our implementation of the store
 underlying \name.
 
+% Semantics
+% ---------
+\input{store-opsem-rules}
+
 Figure ~\ref{sem:oper} presents operational semantics as rules
 defining the reduction relation ($\xrightarrow{}$) over the execution
 state.  Since we now have a concrete store, we extend our system model
@@ -68,10 +72,6 @@ coordination. Any eventually consistent store can provide causal
 visibility while being eventually consistent.  Therefore, we do not
 lose any generality by assuming that the store provides causal
 visiblity.
-
-% Semantics
-% ---------
-\input{store-opsem-rules}
 
 Rule $\rulelabel{Oper}$ is an auxiliary reduction of the
 form:\vspace{-1.7mm}

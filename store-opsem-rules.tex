@@ -116,9 +116,10 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
 \begin{array}{l}
 \RuleTwo
 {
-  \eff \in \EffSoup \quad \eff \notin \Theta(r) \\
-  \E.\visZ^{-1}(\eff) \cup \E.\soZ^{-1}(\eff) \subseteq \Theta(r)
-  \hspace*{0.1in} \Theta' = \Theta \cup [r \mapsto \{\eff\} \cup \Theta(r)]
+  \eff \in \EffSoup \quad 
+  \Theta' = \Theta \cup [r \mapsto \{\eff\} \cup \Theta(r)]\\
+  \eff \notin \Theta(r) \qquad 
+  \E.\visZ^{-1}(\eff) \cup \E.\soZ^{-1}(\eff) \subseteq \Theta(r)\\
 }
 {
   (\E,\Theta,\Sigma) \;\xrightarrow{\eff}\; (\E, \Theta', \Sigma)
