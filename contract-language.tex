@@ -203,6 +203,10 @@ A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 following assumptions about the nature of primitive relations:
 
 \begin{itemize}
+\item $\hboZ$ is acyclic:
+  \begin{itemize}
+    \item $\forall a. \neg\hboZ(a,a)$
+  \end{itemize}
 \item $\visZ$ relates actions on the same object:
   \begin{itemize}
     \item $\forall a,b. \visZ(a,b) \Rightarrow \sameobjZ(a,b)$

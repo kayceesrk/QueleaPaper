@@ -137,19 +137,132 @@ result, and Theorem~\ref{thm:classification-sound}, we have the
 assurance that \name correctly enforces all well-formed consistency
 contracts.
 
-% First, we prove few useful lemmas:
+First, we prove a useful lemma:
 
-% \begin{lemma}[]
-% \end{lemma}
+\begin{lemma}[Auxiliary Reduction Preserves Well-Formedness]
+For every well-formed execution state $\E$, if
+$\auxred{\Theta}{(\E,\langle s,i,op \rangle)} {r} {(\E',\eff)}$, then
+$\E'$ is well-formed.
+\end{lemma}
+\begin{proof}
+  Let us denote $\E.\EffSoup$, $\E.\Rvis$, $\E.\Rso$, and $\E.\sameobjZ$
+  as $\EffSoup$, $\Rvis$, $\Rso$, and $\sameobjZ$ respectively.
+  Likewise, let us denote $\E'.\EffSoup$, $\E'.\Rvis$, $\E'.\Rso$, and
+  $\E'.\sameobjZ$ as $\EffSoup$, $\Rvis$, $\Rso$, and $\sameobjZ$
+  respectively. By inversion on $\auxred{\Theta}{(\E,\langle s,i,op
+  \rangle)} {r} {(\E',\eff)}$, we have following hypotheses:
+  \begin{smathpar}
+  \begin{array}{cr}
+    r \in \dom(\Theta) & H\npp\\
+    ctxt = {\ctxtFn}^{*}(\Theta(r)) & H\npp\\
+    \Ops(op)(ctxt) {\rdtredsto}^{*} v & H\npp\\
+    \eff = (s,i,op,v) & H\npp\\
+    \{\eff'\} = \EffSoup_{({\sf SessID}=s,\,{\sf SeqNo}=i-1)}\\
+    \EffSoup' = \{\eff\} \cup \EffSoup & H\npp\\
+    \visZ' = \Theta(r)\times\{\eff\} \cup \visZ & H\npp\\
+    \soZ' = (\soZ^{-1}(\eff') \cup \eff') \times\{\eff\} \cup \soZ
+      & H\npp \\
+    \sameobjZ' = \EffSoup' \times \EffSoup' & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Since $\E$ is well-formed, from the definition of
+  well-formedness and \emph{models} relation, we have the following:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a \in \EffSoup). \neg\hboZ(a,a) & H\npp\\
+    \forall (a,b \in \EffSoup). \visZ(a,b) \Rightarrow 
+      \sameobjZ(a,b) & H\npp\\
+    \forall (a,b,c \in \EffSoup). \soZ(a,b) \conj \soZ(b,c) \Rightarrow
+      \soZ(a,c) & H\npp\\
+    \forall (a \in \EffSoup). \sameobjZ(a,a) & H\npp\\
+    \forall (a,b \in \EffSoup). \sameobjZ(a,b) \Rightarrow 
+      \sameobjZ(b,a) & H\npp\\
+    \forall (a,b,c \in \EffSoup). \soZ(a,b) \conj \soZ(b,c) \Rightarrow
+      \soZ(a,c) & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Since $\hboZ = (\Rvis \cup \Rso)^{+}$, $H8$ is equivalent to
+  conjunction of following assertions:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a \in \EffSoup). \neg\visZ(a,a) & H\npp\\
+    \forall (a \in \EffSoup). \neg\soZ(a,a) & H\npp\\
+    \forall (a,b \in \EffSoup). \neg (\visZ(a,b) \conj \soZ(b,a)) & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Since $\eff$ is fresh, $\eff \notin \Theta(r)$. From $H4$, $H5$, and
+  $H14$, we have the acyclicity property for $\visZ'$:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a \in \EffSoup'). \neg\visZ'(a,a) & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Also, $\eff \notin \EffSoup$, and from $H4$, $H6$ and $H15$, we have
+  acyclicity for $\soZ'$: 
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a \in \EffSoup'). \neg\soZ'(a,a) & H\npp\\
+  \end{array}
+  \end{smathpar}
+  Similarly, from the uniqueness of $\eff$, and $H5$, $H6$, and $H16$,
+  we have the following:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a,b \in \EffSoup'). \neg (\visZ'(a,b) \conj \soZ'(b,a)) & H\npp\\
+  \end{array}
+  \end{smathpar}
+  From $H17-19$, we prove the acyclicity of $\hboZ'$: 
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a \in \EffSoup').\neg\hboZ(a,a) & G\mpp\\
+  \end{array}
+  \end{smathpar}
+  The $\sameobjZ'$ relation is simply the cross product
+  $\EffSoup' \times \EffSoup'$. Hence following trivially hold:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a,b \in \EffSoup'). \visZ'(a,b) \Rightarrow 
+      \sameobjZ'(a,b) & G\mpp\\
+    \forall (a \in \EffSoup'). \sameobjZ'(a,a) & G\mpp\\
+    \forall (a,b \in \EffSoup'). \sameobjZ'(a,b) \Rightarrow 
+      \sameobjZ'(b,a) & G\mpp\\
+  \end{array}
+  \end{smathpar}
+  Finally, from $H4$, $H6$ and $H10$, we have transitivity for $\soZ'$:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \forall (a,b,c \in \EffSoup'). \soZ'(a,b) \conj \soZ'(b,c) \Rightarrow
+      \soZ'(a,c) & G\mpp\\
+  \end{array}
+  \end{smathpar}
+  Well-formedness of $\E'$ follows from $G0-4$.
+\end{proof}
+
+We now define causal consistency property of the store formally:
+
+\begin{definition}
+  A store $\Theta$ is said to be causally consistent under an execution
+  $\E=\Exec$ if and only if:
+  \begin{smathpar}
+  \begin{array}{cr}
+    \hspace*{-0.5in}\forall (r\in{\sf dom}(\Theta)). \forall (\eff \in
+      \Theta(r)). & \\
+    \hspace*{0.3in}\forall (a\in \EffSoup). \hbo{a}{\eff} \Rightarrow a 
+      \in \Theta(r) & H\npp \\
+  \end{array}
+  \end{smathpar}
+  Where, $\hboZ = (\Rvis \cup \Rso)^{+}$
+\end{definition}
 
 \begin{theorem}[Soundness Modulo Classification]
 \label{thm:weak-soundness}
-For every well-formed execution state $\E$, and contract class $\tau 
-\in \{{\sf ec},{\sf cc},{\sf sc}\}$, If:
+For every well-formed execution state $\E$, for every store $\Theta$
+that is causally consistent under $\E$, and for every contract class
+$\tau \in \{{\sf ec},{\sf cc},{\sf sc}\}$, if:
 \begin{smathpar}
-(\E, \Theta, \langle s,i,op_\tau ::
-\sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
-\langle s,i+1,\sigma \rangle \pll \Sigma)
+  (\E, \Theta, \langle s,i,op_\tau ::
+  \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
+  \langle s,i+1,\sigma \rangle \pll \Sigma)
 \end{smathpar}
 then (\romannumeral 1) $\E'$ is well-formed, and (\romannumeral 2)
 $\E' \models \cv_{\tau}[\eff/\cureff]$
@@ -172,7 +285,7 @@ $\E' \models \cv_{\tau}[\eff/\cureff]$
       \end{array}
       \end{smathpar}
       Goal (\romannumeral 1) follows from $H1$ and
-      Lemma~\ref{lem:auxred-wf}. Goal (\romannumeral 2) is the
+      lemma~\ref{lem:auxred-wf}. Goal (\romannumeral 2) is the
       following: 
       \begin{smathpar}
       \begin{array}{cr}
@@ -258,9 +371,9 @@ $\E' \models \cv_{\tau}[\eff/\cureff]$
             b\in\Theta(r)& H\npp\\
       \end{array}
       \end{smathpar}
-      Since local state (i.e., $\Theta(r)$) is causally consistent
-      (lemma~\ref{lem:local-state-is-cc}) using $H10$ and $H12$ we
-      derive the following:
+      Since $a,b \neq \eff$, we have that $\hboZ'(a,b) \Rightarrow
+      \hboZ(a,b)$.  Since $\Theta(r)$ is causally consistent under
+      $\E$, using $H10$ and $H12$ we derive the following:
       \begin{smathpar}
       \begin{array}{cr}
         a \in \Theta(r) & H\npp\\
@@ -402,9 +515,9 @@ $\E' \models \cv_{\tau}[\eff/\cureff]$
             c \in \Theta(r) & H\npp \\
           \end{array}
           \end{smathpar}
-          Since local state is causally consistent
-          (lemma~\ref{lem:local-state-is-cc}), from $H32$ and $H34$,
-          we have:
+          Since $a,c \neq \eff$, we know that $\hboZ'(a,c) \Rightarrow
+          \hboZ(a,c)$.  Since $\Theta(r)$ is causally consistent under
+          $\E$, using $H32$ and $H34$ we derive the following:
           \begin{smathpar}
           \begin{array}{cr}
             a \in \Theta(r) & H\npp\\
@@ -475,24 +588,212 @@ $\E' \models \cv_{\tau}[\eff/\cureff]$
       theorem.
   % End of all cases    
   \end{itemize}
-
 \end{proof}
 
 \begin{corollary}[Soundness]
-\label{thm:soundness}
-For every well-formed execution state $\E$, and contract class $\tau
-\in \{{\sf ec},{\sf cc},{\sf sc}\}$, and for every consistency
-contract $\cv$ in the contract class $\tau$, If:
-\begin{smathpar}
-(\E, \Theta, \langle s,i,op_\tau :: 
-\sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
-\langle s,i+1,\sigma \rangle \pll \Sigma)
-\end{smathpar}
-then (\romannumeral 1) $\E'$ is well-formed, and (\romannumeral 2)
-$\E' \models \cv[\eff/\cureff]$
+  \label{thm:soundness}
+  For every well-formed execution state $\E$, for every store $\Theta$
+  that is causally consistent under $\E$, for every contract class $\tau
+  \in \{{\sf ec},{\sf cc},{\sf sc}\}$, and for every consistency
+  contract $\cv$ in the contract class $\tau$, If:
+  \begin{smathpar}
+  (\E, \Theta, \langle s,i,op_\tau :: 
+  \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
+  \langle s,i+1,\sigma \rangle \pll \Sigma)
+  \end{smathpar}
+  then (\romannumeral 1) $\E'$ is well-formed, and (\romannumeral 2)
+  $\E' \models \cv[\eff/\cureff]$
 \end{corollary}
 \begin{proof}
-Follows from Theorems~\ref{thm:classification-sound} and
-\ref{thm:weak-soundness}
+  Follows from Theorems~\ref{thm:classification-sound} and
+  \ref{thm:weak-soundness}
+  \qed
+\end{proof}
+
+We now show that every configuration of the store that is reachable
+via the reduction relation ($\xrightarrow{}$) is causally consistent.
+
+\begin{lemma}[Causal Consistency Preservation]
+  \label{lem:local-state-is-cc}
+  For every well-formed execution state $\E$, and a store $\Theta$
+  that is causally consistent under $\E$, if: 
+  \begin{smathpar}
+    (\E, \Theta, \langle s,i,op_\tau ::
+    \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
+    \langle s,i+1,\sigma \rangle \pll \Sigma)
+  \end{smathpar}
+  then $\Theta'$ is causally consistent under $\E'$.
+\end{lemma}
+\begin{proof}
+  By case analysis on on:
+  \begin{smathpar}
+    (\E, \Theta, \langle s,i,op_\tau ::
+    \sigma \rangle \pll \Sigma) \xrightarrow{\eff} (\E', \Theta',
+    \langle s,i+1,\sigma \rangle \pll \Sigma)
+  \end{smathpar}
+  Cases:
+  \begin{itemize}
+    \item Case \rulelabel{EffVis}: Final execution state is same as
+    the initial (i.e., $\E' = \E$). Therefore, we need to prove that
+    new store configuration $\Theta$ is causally consistent under
+    $\E=\Exec$. Hypotheses:
+    \begin{smathpar}
+    \begin{array}{cr}
+      r \in {\sf ReplID} & H\npp \\
+      \eff \in A & H\npp \\
+      \eff \notin \Theta(r)& H\npp \\
+      \E.\visZ^{-1}(\eff) \cup \E.\soZ^{-1}(\eff) \subseteq \Theta(r)
+      & H\npp \\
+      \Theta' = \Theta \cup [r \mapsto \{\eff\} \cup \Theta(r)] & H\npp \\
+      \hspace*{-0.5in}\forall (r\in{\sf dom}(\Theta)). \forall (\eff \in
+        \Theta(r)). & \\
+      \hspace*{0.3in}\forall (a\in\EffSoup). \hbo{a}{\eff} \Rightarrow a \in \Theta(r) & H\npp \\
+    \end{array}
+    \end{smathpar}
+    From $H4$ and $H5$, it suffices to prove:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \forall (a\in \EffSoup). \hbo{a}{\eff} 
+        \Rightarrow a \in \Theta'(r) & G\mpp\\
+    \end{array}
+    \end{smathpar}
+    After \emph{intros}, hypotheses:
+    \begin{smathpar}
+    \begin{array}{cr}
+      a\in\EffSoup & H\npp\\
+      \hbo{a}{\eff} & H\npp \\
+    \end{array}
+    \end{smathpar}
+    Goal:
+    \begin{smathpar}
+    \begin{array}{cr}
+      a \in \Theta'(r) & G\mpp \\
+    \end{array}
+    \end{smathpar}
+    Inversion on $H7$ leads to two cases:
+    \begin{itemize}
+      \item SCase \emph{$a$ directly precedes $\eff$ }: Hypothesis:
+      \begin{smathpar}
+      \begin{array}{cr}
+        (\Rvis \cup \Rso)(a,\eff) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      From $H3$ and $H8$, we conclude that $a \in \Theta'(r)$.
+      
+      \item SCase \emph{$a$ transitively precedes $\eff$}: Hypothesis:
+      \begin{smathpar}
+      \begin{array}{cr}
+        \exists (c \in \EffSoup). \hbo{a}{c} \wedge (\Rvis \cup
+        \Rso)(c,\eff) & H\npp \\
+      \end{array}
+      \end{smathpar}
+      Inverting $H9$:
+      \begin{smathpar}
+      \begin{array}{cr}
+        c \in A & H\npp \\
+        \hbo{a}{c} & H\npp \\
+        (\Rvis \cup \Rso)(c,\eff) & H\npp \\
+      \end{array}
+      \end{smathpar}
+      From $H3$ and $H12$, we have:
+      \begin{smathpar}
+      \begin{array}{cr}
+        c \in \Theta'(r) & H\npp\\
+      \end{array}
+      \end{smathpar}
+      From $H5$, $H13$ and $H11$, we conclude that $a \in \Theta'(r)$.
+    \end{itemize}
+
+    \item Cases \rulelabel{EC} and \rulelabel{CC}: Store configuration
+    ($\Theta$) remains unchanged. Proof trivial.
+
+    \item Case \rulelabel{SC}: $\Sigma = \tuplee{s,\sigma} \pll
+    \Sigma_1$. Hypotheses:
+    \begin{smathpar}
+    \begin{array}{cr}
+      r \in {\sf ReplID} & H\npp \\
+      {\sf Unavailable}(\cv) & H\npp \\
+      \E_1;\Theta_1;\tuplee{s,op(v); \sigma} 
+        \;\xhookrightarrow{\eff,r}\; 
+      \E;\Theta_2;\tuplee{s,\sigma} & H\npp\\
+      \E_1.A \subseteq \Theta_1(r) & H\npp\\
+      \dom(\Theta) = \dom(\Theta_2) & H\npp\\
+      \forall r'\in \dom(\Theta). \Theta(r') = \Theta_2(r') \cup
+      \{\eff\} & H\npp\\
+    \end{array}
+    \end{smathpar}
+    Inductive hypothesis:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \hspace*{-0.5in}\forall (r'\in{\sf dom}(\Theta_1)). \forall (\eff' \in
+        \Theta_1(r')). & \\
+      \hspace*{0.3in}\forall (a\in\E_1.A). \hbo{a}{\eff'} \Rightarrow a
+        \in \Theta_1(r') & IH\npp \\
+    \end{array}
+    \end{smathpar}
+    The goal:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \hspace*{-0.5in}\forall (r'\in{\sf dom}(\Theta)). \forall (\eff' \in
+        \Theta(r')). & \\
+      \hspace*{0.3in}\forall (a\in\E.A). \hbo{a}{\eff'} \Rightarrow a
+        \in \Theta(r') & G\mpp \\
+    \end{array}
+    \end{smathpar}
+    Inverting $H16$:
+    \begin{smathpar}
+    \begin{array}{cr}
+        \E.\EffSoup = \E_1.\EffSoup \cup \{\eff\} & H\npp\\
+        \E.\visZ = \Theta_1(r)\times \{\eff\} ~\cup~ \E_1.\visZ & H\npp\\
+        \E.\Rso = \E_1.\EffSoup_{{\sf SessID}=s,\,{\sf SeqNo}<i}\times
+          \{\eff\} ~\cup~ \E_1.\Rso & H\npp\\
+        \Theta_2 = \Theta_1 & H\npp\\
+    \end{array}
+    \end{smathpar}
+    Using $H24$ to rewrite $H19$:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \forall r'\in \dom(\Theta). \Theta(r') = \Theta_1(r') \cup
+      \{\eff\} & H\npp\\
+    \end{array}
+    \end{smathpar}
+    Using $H25$ and $IH20$, we can reduce the goal ($G2$) to:
+    \begin{smathpar}
+    \begin{array}{cr}
+      \forall (r'\in{\sf dom}(\Theta)). 
+      \forall (a\in\E.\EffSoup). \hbo{a}{\eff} \Rightarrow a
+        \in \Theta(r') & G\mpp \\
+    \end{array}
+    \end{smathpar}
+    After \emph{intros}, hypotheses:
+    \begin{smathpar}
+    \begin{array}{cr}
+      r' \in \dom(\Theta) & H\npp \\
+      a \in \E.\EffSoup & H\npp\\
+      \hbo{a}{\eff} & H\npp\\
+    \end{array}
+    \end{smathpar}
+    Goal:
+    \begin{smathpar}
+    \begin{array}{cr}
+      a \in \Theta(r) & G\mpp \\
+    \end{array}
+    \end{smathpar}
+    From $H27$ and $H21$, we know that either $a \in \E_1.\EffSoup$ or
+    $a = \eff$.
+    \begin{itemize}
+      \item If $a \in \E_1.\EffSoup$, then from $H17$, we know that $a
+      \in \Theta_1(r)$. However, from $H25$ we know that $\Theta_1(r)
+      \subset \Theta(r)$, which lets us conclude that $a \in
+      \Theta(r)$.
+
+      \item If $a = \eta$, then $H28$ is $\hbo{\eff}{\eff}$, which is
+      $false$ since {\sf hbo} is irreflexive.
+      \emph{ex\_falso\_quodlibet}.
+    \end{itemize}
+  % End of main cases  
+  \end{itemize}
 \qed
 \end{proof}
+
+

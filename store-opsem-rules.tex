@@ -87,11 +87,12 @@
 {
 r \in \dom(\Theta) \qquad
 ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
-\Ops(op)(ctxt) {\rdtredsto}^{*} v' \qquad
-\eff = (s,~i,~op,~v')\\
+\Ops(op)(ctxt) {\rdtredsto}^{*} v \qquad
+\eff = (s,i,op,v) \qquad
+\{\eff'\} = \EffSoup_{({\sf SessID}=s,\,{\sf SeqNo}=i-1)}\\
 \EffSoup' = \{\eff\} \cup \EffSoup \qquad
 \visZ' = \Theta(r)\times\{\eff\} \cup \visZ \qquad
-\soZ' = \EffSoup_{({\sf SessID}=s,\,{\sf SeqNo}<i)}\times\{\eff\} \cup \soZ
+\soZ' = (\soZ^{-1}(\eff') \cup \eff') \times\{\eff\} \cup \soZ
 \qquad
 \sameobjZ' = \EffSoup' \times \EffSoup'
 }
@@ -117,7 +118,7 @@ ctxt = {\ctxtFn}^{*}(\Theta(r)) \qquad
 {
   \eff \in \EffSoup \quad \eff \notin \Theta(r) \\
   \E.\visZ^{-1}(\eff) \cup \E.\soZ^{-1}(\eff) \subseteq \Theta(r)
-  \qquad \Theta' = \Theta[r \mapsto \{\eff\} \cup \Theta(r)]
+  \qquad \Theta' = \Theta \cup [r \mapsto \{\eff\} \cup \Theta(r)]
 }
 {
   (\E,\Theta,\Sigma) \;\xrightarrow{\eff}\; (\E, \Theta', \Sigma)
