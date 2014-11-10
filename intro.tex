@@ -6,13 +6,13 @@ across multiple \emph{replicas} within and across data centers. Replication is
 intended not only to improve application throughput and reduce user-perceived
 latency, but also to tolerate partial failures without compromising overall
 service availability. Traditionally programmers have relied on \emph{strong
-consistency} guarantees such as linerarizability~\cite{Herlihy1990} or
+consistency} guarantees such as linearizability~\cite{Herlihy1990} or
 serializability~\cite{Serializability} in order to build correct applications.
 While strong consistency is an easily stated property, it masks the reality
 underlying large-scale distributed systems with respect to non-uniform latency,
 availability and network partitions~\cite{Brewer2000,Gilbert2002}. Indeed,
 modern web services, which aim to provide an "always-on" experience,
-overwhelmingly favour availability and partition tolerance over strong
+overwhelmingly favor availability and partition tolerance over strong
 consistency. To this end, several \emph{weak consistency} models such as
 eventual consistency, causal consistency, session guarantees, and timeline
 consistency have been proposed.
@@ -67,7 +67,7 @@ correctness of the mapping. The paper makes the following contributions:
 	We extend our contract language to express fine-grained transaction isolation
 	guarantees, and utilize the contract enforcement system to automatically
 	assign the correct isolation level for a transaction.
-\item We provide metatheory that certifies the soundness of our contract
+\item We provide meta-theory that certifies the soundness of our contract
 	enforcement system, and ensures that an operation is only executed if the
 	required conditions on consistency are met.
 \item An implementation of \name as a transparent shim layer over
@@ -82,7 +82,7 @@ system model.  We describe the challenges in programming with eventually
 consistent data stores, and introduces \name\ contracts as a proposed solution
 to overcome these issues in \S~\ref{sec:motivation}. \S~\ref{sec:lang} provides
 more details the contract language, and its mapping to the store consistency
-levels, along with metatheory for certifying the correctness of the mapping.
+levels, along with meta-theory for certifying the correctness of the mapping.
 \S~\ref{sec:txns} introduces transaction contracts and classification.
 \S~\ref{sec:impl} describes the implementation and provides details about the
 optimizations needed to make the system practical. \S~\ref{sec:results}

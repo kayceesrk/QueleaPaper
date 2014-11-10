@@ -33,7 +33,7 @@ admits prenex universal quantification over typed effect variables. We use a
 special effect variable ($\cureff$) to denote the effect of \emph{current
 operation} - the operation for which a contract is being written. The type of
 an effect is simply the name of the operation (eg: \cf{withdraw}) that induced
-the effect. We admit disjuntion in types to let an effect variable range over
+the effect. We admit disjunction in types to let an effect variable range over
 multiple operation names. The contract $\small \forall (a : \tau_1 \vee
 \tau_2).~\psi$ is just syntactic sugar for $\small \forall a. (\oper{a}{\tau_1}
 \vee \oper{a}{\tau_2}) \Rightarrow \psi$.
@@ -199,7 +199,7 @@ A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \le \cv_{st}$ ) if and only if $\Delta \vdash \cv_{st} \Rightarrow \cv_{op}$.
 \end{definition}
 
-The $\Delta$ referred in the above defintion is a conjunction of assumptions
+The $\Delta$ referred in the above definition is a conjunction of assumptions
 about the nature of primitive relations. A \emph{well-formed} axiomatic
 execution ($\E$) is expected to satisfy these assumptions (i.e., $\E \models
 \Delta$).

@@ -98,7 +98,7 @@ constraint. A subsequent \cf{getBalance} operation, that happens to witness all
 the previous operations, would report a negative balance.
 
 It is easy to see that preventing concurrent \cf{withdraw} operations
-eliminates this anamoly. This can be done by insisting that \cf{withdraw} be
+eliminates this anomaly. This can be done by insisting that \cf{withdraw} be
 executed as a strongly consistent operation. Despite this strengthening,
 \cf{getBalance} operation may still incorrectly report a negative balance to
 the end user. Consider the execution shown in
@@ -108,7 +108,7 @@ operation, respectively, on the same bank account object. As the \cf{vis} edge
 indicates, operation \cf{withdraw(50)} in session 2, witnesses the effects of
 \cf{deposit(100)} from session 1, concludes that there is sufficient balance,
 and completes successfully. However, the \cf{getBalance} operation may only
-witness this successful withdraw, but not the causally preceding \cf{dopsit},
+witness this successful withdraw, but not the causally preceding \cf{deposit},
 and reports the balance of negative 50 to the user.
 
 Under eventual consistency, the users may also be exposed to other forms of
@@ -144,7 +144,7 @@ for each data type in terms of a trace of operation invocations on that type,
 In our running example, it is clear that in order to preserve the integrity
 constraint, the \cf{withdraw} operation must be strongly consistent.  That is,
 given two \cf{withdraw} operations $a$ and $b$, either $a$ is visible to $b$ or
-vice versa. We express this application-level consistency requirement as a
+vice-versa. We express this application-level consistency requirement as a
 contract ($\cv_w$) over \cf{withdraw}:
 
 \vspace{-1em}
@@ -214,7 +214,7 @@ We devise a static approach instead. Contracts are analyzed with the help of a
 theorem prover, and statically mapped to a particular store-level consistency
 property that the prover guarantees preserves contract semantics. We call this
 procedure \emph{contract classification}. Given the variety and complexity of
-store level consistency properties, the idea is that the system implementor
+store level consistency properties, the idea is that the system implementer
 parameterizes the classification procedure by describing the store semantics in
 the \emph{same} contract language as the one used to express the contract on
 the operations. In the next section, we describe the contract language in
