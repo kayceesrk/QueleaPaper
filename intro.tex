@@ -21,7 +21,7 @@ Under weak consistency, the developer needs to be aware of concurrent
 conflicting updates, and has to pay careful attention to avoid unwanted
 inconsistencies (e.g., negative balances in a bank account, or having an item
 appear in a shopping cart after it has been removed~\cite{Dynamo}). Oftentimes,
-the inconsistency leaks from the application and is witnessed by the user.
+these inconsistencies leak from the application and is witnessed by the user.
 Ultimately, the developer must decide the consistency level appropriate for a
 particular operation; this is understandably an error-prone process requiring
 intricate knowledge of both the application as well as the semantics and
@@ -30,9 +30,9 @@ descriptions. Nonetheless, picking the correct consistency level is critical
 not only for correctness but also for scalability of the application. While
 choosing a weaker consistency level than required may introduce program errors
 and anomalies, choosing a stronger one than necessary can negatively impact
-program scalability.
+program scalability and performance.
 
-Weak consistency also hinders compositional reasoning about programs.  While an
+Weak consistency also hinders compositional reasoning about programs.  Although an
 application might be naturally expressed in terms of well-understood and
 expressive data types such as maps, trees, queues, or graphs, geo-distributed
 stores typically only provide a minimal set of data types with in-built
@@ -54,7 +54,7 @@ order} along with standard logical and relational operators. A \emph{contract
 enforcement system} statically maps operations over the datatype to a
 particular consistency level available on the store, and provably validates the
 correctness of the mapping. The paper makes the following contributions:
-
+\vspace*{-.4em}
 \begin{itemize}
 \setlength{\itemsep}{2pt}
 \item We introduce \name, a shallow extension of Haskell that supports the
@@ -77,13 +77,13 @@ correctness of the mapping. The paper makes the following contributions:
 	the practicality of our approach.
 \end{itemize}
 
-The rest of the paper is organized as follows. The next section describes the
+\noindent The rest of the paper is organized as follows. The next section describes the
 system model.  We describe the challenges in programming with eventually
 consistent data stores, and introduces \name\ contracts as a proposed solution
 to overcome these issues in \S~\ref{sec:motivation}. \S~\ref{sec:lang} provides
-more details the contract language, and its mapping to the store consistency
+more details on the contract language, and its mapping to the store consistency
 levels, along with meta-theory for certifying the correctness of the mapping.
-\S~\ref{sec:txns} introduces transaction contracts and classification.
+\S~\ref{sec:txns} introduces transaction contracts and their classification.
 \S~\ref{sec:impl} describes the implementation and provides details about the
 optimizations needed to make the system practical. \S~\ref{sec:results}
 discusses experimental evaluation. \S~\ref{sec:related} and~\ref{sec:concl}

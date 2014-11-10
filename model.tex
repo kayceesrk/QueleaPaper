@@ -13,7 +13,7 @@ distributed store is composed of a collection of \emph{replicas}, each of which
 stores a set of \emph{objects} ($x,y,\ldots$). We assume that every object is
 replicated at every replica in the store. The state of an object at any replica
 is the set of all updates (\emph{effects}) performed on the object. For
-example, the state of $x$ at replica 1 is the set composed of effects $w^x_1$
+example, the state of $x$ at replica 1 is the ordered set composed of effects $w^x_1$
 and $w^x_2$.
 
 Each object is associated with a set of \emph{operations}. The clients interact

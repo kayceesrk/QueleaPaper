@@ -69,8 +69,7 @@ of code.
 
 Our goal is to choose the correct consistency level for each of the bank
 account operations such that (1) the balance remains non-negative and (2) the
-\cf{getBalance} operation never incorrectly returns a negative balance. Let us
-first consider the anomalies that could arise under eventual consistency.
+\cf{getBalance} operation never incorrectly returns a negative balance. 
 
 \begin{figure}
 \centering
@@ -100,12 +99,12 @@ the previous operations, would report a negative balance.
 It is easy to see that preventing concurrent \cf{withdraw} operations
 eliminates this anomaly. This can be done by insisting that \cf{withdraw} be
 executed as a strongly consistent operation. Despite this strengthening,
-\cf{getBalance} operation may still incorrectly report a negative balance to
-the end user. Consider the execution shown in
+the \cf{getBalance} operation may still incorrectly report a negative balance to
+the user. Consider the execution shown in
 fig.~\ref{fig:negativeBalanceAnomaly}, which consists of three concurrent
 sessions performing a \cf{deposit}, a \cf{withdraw}, and a \cf{getBalance}
-operation, respectively, on the same bank account object. As the \cf{vis} edge
-indicates, operation \cf{withdraw(50)} in session 2, witnesses the effects of
+operation, respectively, on the same bank account object. As the {\sf vis} edge
+indicates, operation \cf{withdraw(50)} in session 2 witnesses the effects of
 \cf{deposit(100)} from session 1, concludes that there is sufficient balance,
 and completes successfully. However, the \cf{getBalance} operation may only
 witness this successful withdraw, but not the causally preceding \cf{deposit},
