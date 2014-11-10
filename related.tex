@@ -40,7 +40,7 @@ non-monotonic reasoning (eg: aggregations, such as \cf{COUNT}) as potential
 coordination points.  ~\cite{IConfluence} and ~\cite{Sieve} define
 \emph{invariant confluence} and \emph{invariant safety}, respectively, as
 conditions for safely executing an operation without coordination. ~\cite{Sieve}
-also proposes a program analysis that conservatively marks operations as
+also proposes a program analysis that conservatively marks certain operations as
 \emph{blue} (coordination not required), while marking the remaining as
 \emph{red} (coordination required). Unlike \name, these works focus on a
 coarse-grained classification of consistency as eventual or strong, and do not
