@@ -177,7 +177,12 @@ $\E' \models \cv_{\tau}[\eff/\cureff]$
       \end{array}
       \end{smathpar}
       Since \emph{happens-before} is transitive, by inversion on
-      $H23$, we get two cases:
+      $H22$, we get two cases\footnote{Recall that we only consider
+      single replicated object in our formalization. Accordingly, for
+      any execution $\E=\Exec$, we have $\sameobjZ = \EffSoup \times
+      \EffSoup$. Since, $\sooZ = \soZ \cap \sameobjZ$ and $\soZ
+      \subseteq \EffSoup \times \EffSoup$, we use $\soZ$ and $\sooZ$
+      interchangeably in proofs.}:
       \begin{itemize}
         \item SCase 1: Hypotheses:
         \begin{smathpar}
@@ -185,7 +190,7 @@ $\E' \models \cv_{\tau}[\eff/\cureff]$
           (\Rso' \cup \Rvis')(a,\eff) & H\npp\\
         \end{array}
         \end{smathpar}
-        Inversion on $H23$ leads to two subcases. In one case, we
+        Note that we Inversion on $H23$ leads to two subcases. In one case, we
         assume $\Rvis'(a,\eff)$ and try to prove the goal $G6$. The
         proof for this case mimics the proof for Case \rulelabel{EC}.
         Alternatively, in second case, we assume:

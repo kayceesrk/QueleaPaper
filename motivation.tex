@@ -23,7 +23,7 @@ withdraw fails if the account has insufficient balance. Every operation in
 \name is of the following type, written in Haskell syntax:
 
 \begin{codehaskell}
-type Operation = [e] -> a -> (r, Maybe e)
+type Operation = forall e a r. [e] -> a -> (r, Maybe e)
 \end{codehaskell}
 
 \noindent It takes a list of effects (the \emph{context} for the operation),
@@ -31,7 +31,7 @@ and an input argument, and returns a result along with an optional effect
 (read-only operations return \cf{Nothing}). The new effect (if emitted) is
 added to the state of the object at the current replica, and asynchronously
 sent to other replicas. The implementation of the bank account operations in
-\name is given in Figure~\ref{fig:ex}:
+\name is given in Figure~\ref{fig:ex}.
 
 \begin{figure}
 \begin{codehaskell}
@@ -98,18 +98,18 @@ constraint. A subsequent \cf{getBalance} operation, that happens to witness all
 the previous operations, would report a negative balance.
 
 It is easy to see that preventing concurrent \cf{withdraw} operations
-eliminates this anamoly. This can be done by insisting that \cf{withdraw} be
+eliminates this anomaly. This can be done by insisting that \cf{withdraw} be
 executed as a strongly consistent operation. Despite this strengthening,
-\cf{getBalance} operation may incorrectly report a negative balance to the end
-user. Consider the execution shown in fig.~\ref{fig:negativeBalanceAnomaly},
-which consists of three concurrent sessions performing a \cf{deposit}, a
-\cf{withdraw}, and a \cf{getBalance} operation, respectively, on the same bank
-account object. As the \cf{vis} edge indicates, operation \cf{withdraw(50)} in
-session 2, witnesses the effects of \cf{deposit(100)} from session 1, concludes
-that there is sufficient balance, and completes successfully. However, the
-\cf{getBalance} operation may only witness this successful withdraw, but not
-the causally preceding \cf{dopsit}, and reports the balance of negative 50 to
-the user.
+\cf{getBalance} operation may still incorrectly report a negative balance to
+the end user. Consider the execution shown in
+fig.~\ref{fig:negativeBalanceAnomaly}, which consists of three concurrent
+sessions performing a \cf{deposit}, a \cf{withdraw}, and a \cf{getBalance}
+operation, respectively, on the same bank account object. As the \cf{vis} edge
+indicates, operation \cf{withdraw(50)} in session 2, witnesses the effects of
+\cf{deposit(100)} from session 1, concludes that there is sufficient balance,
+and completes successfully. However, the \cf{getBalance} operation may only
+witness this successful withdraw, but not the causally preceding \cf{deposit},
+and reports the balance of negative 50 to the user.
 
 Under eventual consistency, the users may also be exposed to other forms of
 inconsistencies. Figure~\ref{fig:missingUpdateAnomaly} shows an execution where
@@ -132,19 +132,19 @@ various kinds of weak consistency alternatives.
 
 \name helps facilitate the mapping of operations to appropriate consistency
 levels by letting the programmer declare application-level consistency
-constraints as \emph{contracts} (Figure~\ref{fig:contract-lang}\footnote{\name
-exposes the contract construction language as a Haskell library}) that
-axiomatically specify the set of allowed executions involving this operation.
-In the case of the bank account, any execution that does not exhibit the
-anomalies described in the previous section is a \emph{well-formed} execution
-on the bank account object. By specifying the set of legal executions for each
-data type in terms of a trace of operation invocations on that type, \name\
-ensures that all executions over that type are well-formed.
+constraints as \emph{contracts}\footnote{\name exposes the contract
+construction language as a Haskell library} (Figure~\ref{fig:contract-lang})
+that axiomatically specify the set of allowed executions involving this
+operation. In the case of the bank account, any execution that does not exhibit
+the anomalies described in the previous section is a \emph{well-formed}
+execution on the bank account object. By specifying the set of legal executions
+for each data type in terms of a trace of operation invocations on that type,
+\name\ ensures that all executions over that type are well-formed.
 
 In our running example, it is clear that in order to preserve the integrity
 constraint, the \cf{withdraw} operation must be strongly consistent.  That is,
 given two \cf{withdraw} operations $a$ and $b$, either $a$ is visible to $b$ or
-vice versa. We express this application-level consistency requirement as a
+vice-versa. We express this application-level consistency requirement as a
 contract ($\cv_w$) over \cf{withdraw}:
 
 \vspace{-1em}
@@ -170,8 +170,8 @@ Any execution on a bank account object that preserves the above contract for a
 \begin{smathpar}
 \begin{array}{l}
 \forall (a:\rcf{deposit}), (b:\rcf{withdraw}), (c: \rcf{deposit} \vee \rcf{withdraw}). \\
-\qquad \vis{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff} \\
-\qquad \wedge~ (\soZ \cap \sameobjZ) (c,\cureff) \Rightarrow \vis{c}{\cureff}
+\qquad (\vis{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}) \\
+\qquad \wedge~ ((\soZ \cap \sameobjZ) (c,\cureff) \Rightarrow \vis{c}{\cureff})
 \end{array}
 \end{smathpar}
 
@@ -214,7 +214,7 @@ We devise a static approach instead. Contracts are analyzed with the help of a
 theorem prover, and statically mapped to a particular store-level consistency
 property that the prover guarantees preserves contract semantics. We call this
 procedure \emph{contract classification}. Given the variety and complexity of
-store level consistency properties, the idea is that the system implementor
+store level consistency properties, the idea is that the system implementer
 parameterizes the classification procedure by describing the store semantics in
 the \emph{same} contract language as the one used to express the contract on
 the operations. In the next section, we describe the contract language in

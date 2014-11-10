@@ -29,7 +29,7 @@ $\E'$ is well-formed.
   well-formedness and \emph{models} relation, we have the following:
   \begin{smathpar}
   \begin{array}{cr}
-    \forall (a \in \EffSoup). \neg\hboZ(a,a) & H\npp\\
+    \forall (a \in \EffSoup). \neg\hbZ(a,a) & H\npp\\
     \forall (a,b \in \EffSoup). \visZ(a,b) \Rightarrow 
       \sameobjZ(a,b) & H\npp\\
     \forall (a,b,c \in \EffSoup). \soZ(a,b) \conj \soZ(b,c) \Rightarrow
@@ -41,7 +41,7 @@ $\E'$ is well-formed.
       \soZ(a,c) & H\npp\\
   \end{array}
   \end{smathpar}
-  Since $\hboZ = (\Rvis \cup \Rso)^{+}$, $H8$ is equivalent to
+  Since $\hbZ = (\Rvis \cup \Rso)^{+}$, $H8$ is equivalent to
   conjunction of following assertions:
   \begin{smathpar}
   \begin{array}{cr}
@@ -71,10 +71,10 @@ $\E'$ is well-formed.
     \forall (a,b \in \EffSoup'). \neg (\visZ'(a,b) \conj \soZ'(b,a)) & H\npp\\
   \end{array}
   \end{smathpar}
-  From $H17-19$, we prove the acyclicity of $\hboZ'$: 
+  From $H17-19$, we prove the acyclicity of $\hbZ'$: 
   \begin{smathpar}
   \begin{array}{cr}
-    \forall (a \in \EffSoup').\neg\hboZ(a,a) & G\mpp\\
+    \forall (a \in \EffSoup').\neg\hbZ(a,a) & G\mpp\\
   \end{array}
   \end{smathpar}
   The $\sameobjZ'$ relation is simply the cross product
