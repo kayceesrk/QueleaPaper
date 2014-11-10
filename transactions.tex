@@ -75,7 +75,7 @@ totalBalance =
 \end{codehaskell}
 \end{minipage}
 
-\noindent $\cv_{sv}$ and $\cv_{tb}$ are the contracts on the corresponding
+$\cv_{sv}$ and $\cv_{tb}$ are the contracts on the corresponding
 transactions. The function \cf{classify} assigns the contracts
 \emph{statically} to one of the transaction isolation levels offered by the
 store; \cf{\$()} is meta-programming syntax for splicing the result into the
@@ -111,7 +111,7 @@ constraint on \cf{totalBalance} transaction $\psi_{tb}$ as:
 \end{array}
 \end{smathpar}
 
-\noindent The key idea in the above definition is that the $\txnZ$ primitive
+\noindent The key idea in the above definition is that the $\small \txnZ$ primitive
 allows us to relate operations on different objects. The \cf{save} transaction
 only needs to ensure that the two writes it performs are made visible
 atomically. Since this is ensured by combining them in a transaction, \cf{save}
@@ -156,8 +156,8 @@ as follows:
 \end{smathpar}
 
 \noindent Notice that the above definition is the same as the atomicity
-guarantee of transaction described in Section~\ref{sec:syn_sem_ext}. The
-\cf{save} is an example for RC transaction.
+guarantee of transaction described in \S~\ref{sec:syn_sem_ext}. The \cf{save}
+is an example for RC transaction.
 
 MAV semantics ensures that if some operation in a transaction $T_1$ witnesses
 the effects of another transaction $T_2$, then subsequent operations in $T_1$
@@ -185,7 +185,7 @@ hence RR is coordination-free. An example for such a transaction is the
 \cf{totalBalance} transaction. The semantics of RR is captured by the following
 contract:
 
-\vspace{-1em}
+\vspace{-1.2em}
 \begin{smathpar}
 \begin{array}{l}
 \rrc = \forall a,b,c,d.~\txn{a,b}{c,d} ~\wedge~ \vis{c}{a} \\

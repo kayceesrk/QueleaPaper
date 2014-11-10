@@ -49,8 +49,9 @@ language denotes \emph{a} superset of transitive closure of $R$. Formally,
 $R^{+}$ is any relation $R'$ such that forall $x$, $y$, and $z$, a) $R(x,y)
 \Rightarrow R'(x,y)$, and b) $R'(x,y) \conj R'(y,z) \Rightarrow R'(x,z)$} of
 primitive relations.  Commonly used derived relations are the \emph{same object
-session order} ($\small \sooZ = \soZ ~\cap~ \sameobjZ$), and the \emph{same
-object happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
+session order} ($\small \sooZ = \soZ ~\cap~ \sameobjZ$), \emph{happens-before
+order} ($\small \hbZ = (\soZ ~\cup~ \visZ)^+$) and the \emph{same object
+happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 
 \subsection{Semantics}
 
@@ -198,11 +199,34 @@ A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \le \cv_{st}$ ) if and only if $\Delta \vdash \cv_{st} \Rightarrow \cv_{op}$.
 \end{definition}
 
-\noindent The $\Delta$ referred in the above defintion is a conjunction of
-assumptions about the nature of primitive relations, e.g., $\Rvis$ and $\Rso$
-are irreflexive, and the happens-before relation $\hbZ$ is acyclic. A
-\emph{well-formed} axiomatic execution ($\E$) is expected to satisfy these
-assumptions (i.e., $\E \models \Delta$).
+The $\Delta$ referred in the above defintion is a conjunction of assumptions
+about the nature of primitive relations. A \emph{well-formed} axiomatic
+execution ($\E$) is expected to satisfy these assumptions (i.e., $\E \models
+\Delta$).
+
+\begin{definition}
+An axiomatic executions $\small \E = \Exec$ is said to be well-formed if the
+following axioms ($\Delta$) hold:
+
+\begin{itemize}
+\setlength{\itemsep}{2pt}
+\item The happens-before relation is acyclic: $\small \forall a.~\neg\hb{a}{a}$.
+\item Visibility only relates actions on the same object:
+	\begin{itemize}
+	\item $\small \forall a,b.~\vis{a}{b} \Rightarrow \sameobj{a}{b}$.
+	\end{itemize}
+\item Session order is a transitive relation:
+	\begin{itemize}
+	\item $\small \forall a,b,c.~\so{a}{b} ~\wedge~ \so{b}{c} \Rightarrow \so{a}{c}$.
+	\end{itemize}
+\item Same object is an equivalence relation:
+	\begin{itemize}
+	\item $\small \forall a.~\sameobj{a}{a}$.
+	\item $\small \forall a,b.~\sameobj{a}{b} \Rightarrow \sameobj{b}{a}$.
+	\item $\small \forall a,b,c.~\sameobj{a}{b} ~\wedge~ \sameobj{b}{c} \Rightarrow \sameobj{a}{c}$.
+	\end{itemize}
+\end{itemize}
+\end{definition}
 
 If the contract ($\cv_{op}$) of an operation ($\mathit{op}$) is \emph{weaker
 than} a store contract ($\cv_{st}$), then constraints expressed by the former
@@ -290,10 +314,9 @@ $\auxred{} {\E,\langle op,\tau \rangle;\sigma \pll \Sigma} {\eff} {\E', \sigma
 \cv[\eff/\cureff]$
 \end{theorem}
 
-\noindent The theorem states that if a data store correctly enforces $\scc$,
-$\ccc$, and $\ecc$ contracts in all well-formed executions, then the same
-store, extended with the classification scheme shown in
-Figure~\ref{sem:classify}, can enforce all well-formed \name contracts. The
-proof of the theorem is given in the supplementary material\footnote{The
-supplementary material also provides the concrete reduction rules for enforcing
-the consistency classes.}.
+The theorem states that if a data store correctly enforces $\scc$, $\ccc$, and
+$\ecc$ contracts in all well-formed executions, then the same store, extended
+with the classification scheme shown in Figure~\ref{sem:classify}, can enforce
+all well-formed \name contracts. The proof of the theorem is given in the
+supplementary material\footnote{The supplementary material also provides the
+concrete reduction rules for enforcing the consistency classes.}.

@@ -32,15 +32,15 @@ choosing a weaker consistency level than required may introduce program errors
 and anomalies, choosing a stronger one than necessary can negatively impact
 program scalability.
 
-Weak consistency also hinders compositional reasoning about programs.  While
-an application might be naturally expressed in terms of well-understood and
-expressive data types such as maps, trees, queues, or graphs,
-geo-distributed stores typically only provide a minimal set of data types
-with in-built conflict resolution strategies such as last-writer-wins (LWW)
-registers, counters, and sets~\cite{Cassandra,DynamoDB}.  Furthermore, while
-traditional database systems enable composability through transactions,
-geo-distributed stores typically lack unrestricted transactional access to
-the data.  Working in this environment thus requires application state to be
+Weak consistency also hinders compositional reasoning about programs.  While an
+application might be naturally expressed in terms of well-understood and
+expressive data types such as maps, trees, queues, or graphs, geo-distributed
+stores typically only provide a minimal set of data types with in-built
+conflict resolution strategies such as last-writer-wins (LWW) registers,
+counters, and sets~\cite{Cassandra,DynamoDB}.  Furthermore, while traditional
+database systems enable composability through transactions, geo-distributed
+stores typically lack unrestricted serializable transactional access to the
+data. Working in this environment thus requires application state to be
 suitably coerced to function using only the capabilities of the store.
 
 To address these issues, we describe \name, a declarative programming model and

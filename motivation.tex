@@ -23,7 +23,7 @@ withdraw fails if the account has insufficient balance. Every operation in
 \name is of the following type, written in Haskell syntax:
 
 \begin{codehaskell}
-type Operation = [e] -> a -> (r, Maybe e)
+type Operation = forall e a r. [e] -> a -> (r, Maybe e)
 \end{codehaskell}
 
 \noindent It takes a list of effects (the \emph{context} for the operation),
@@ -31,7 +31,7 @@ and an input argument, and returns a result along with an optional effect
 (read-only operations return \cf{Nothing}). The new effect (if emitted) is
 added to the state of the object at the current replica, and asynchronously
 sent to other replicas. The implementation of the bank account operations in
-\name is given in Figure~\ref{fig:ex}:
+\name is given in Figure~\ref{fig:ex}.
 
 \begin{figure}
 \begin{codehaskell}
