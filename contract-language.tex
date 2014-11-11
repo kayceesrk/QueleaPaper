@@ -10,7 +10,7 @@
   {\sf Op} \in \mathtt{OperName}
 }\\
 \cv 		& \in & \mathtt{Contract} 	& \coloneqq & \forall (x : \tau).\cv
-        \ALT \pi \\
+        \ALT \forall x.\cv \ALT \pi \\
 \tau		& \in	& \mathtt{EffType}	& \coloneqq &  {\sf Op}
         \ALT \tau \vee \tau \\
 \pi			&	\in & \mathtt{Prop} & \coloneqq & \true \ALT R(x,y)
@@ -30,14 +30,15 @@ R				& \in & \mathtt{Relation}	& \coloneqq & \visZ \ALT \soZ
 
 The syntax of our core contract language is shown in Figure
 ~\ref{fig:contract-lang}. The language is based on first-order logic (FOL), and
-admits prenex universal quantification over typed effect variables. We use a
-special effect variable ($\cureff$) to denote the effect of \emph{current
-operation} - the operation for which a contract is being written. The type of
-an effect is simply the name of the operation (eg: \cf{withdraw}) that induced
-the effect. We admit disjunction in types to let an effect variable range over
-multiple operation names. The contract $\small \forall (a : \tau_1 \vee
-\tau_2).~\psi$ is just syntactic sugar for $\small \forall a. (\oper{a}{\tau_1}
-\vee \oper{a}{\tau_2}) \Rightarrow \psi$.
+admits prenex universal quantification over typed and untyped effect variables.
+We use a special effect variable ($\cureff$) to denote the effect of
+\emph{current operation} - the operation for which a contract is being written.
+The type of an effect is simply the name of the operation (eg: \cf{withdraw})
+that induced the effect. We admit disjunction in types to let an effect variable
+range over multiple operation names. The contract $\small \forall (a : \tau_1
+\vee \tau_2).~\psi$ is just syntactic sugar for $\small \forall a.
+(\oper{a}{\tau_1} \vee \oper{a}{\tau_2}) \Rightarrow \psi$. An untyped effect
+variable ranges over all operation names.
 
 Quantifier-free propositions in our contract language are conjunctions,
 disjunctions and implications of predicates expressing relations between pairs
