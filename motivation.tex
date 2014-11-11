@@ -11,11 +11,12 @@ the desired correctness guarantees.
 
 A key novelty in \name is that it allows the addition of new RDTs to the store,
 which obviates the need for coercing the application logic to utilize the store
-provided data types. In addition, \name treats the convergence semantics of the
-data type separately from its consistency properties. This separation of
-concerns permits \emph{operational} reasoning for conflict resolution, and
-\emph{declarative} reasoning for consistency. The combination of these
-techniques enhances the programmability of the store.
+provided data types. In addition, \name treats the convergence semantics (i.e.,
+\emph{how} conflicting updates are resolved) of the data type separately from
+its consistency properties (i.e., \emph{when} updates become visible). This
+separation of concerns permits \emph{operational} reasoning for conflict
+resolution, and \emph{declarative} reasoning for consistency. The combination
+of these techniques enhances the programmability of the store.
 
 Let us assume that the bank account object provides three operations:
 \cf{deposit}, \cf{withdraw} and \cf{getBalance}, with the assumption that the
@@ -65,13 +66,36 @@ types. We have implemented a large corpus of RDTs for realistic benchmarks
 including shopping carts, auction and micro-blogging sites in few tens of lines
 of code.
 
+\subsubsection{Summarization}
+\label{sec:summarize}
+
+Observe that the definition of \cf{getBalance} reduces over the \emph{entire
+history} of updates to an account. If we are to realize an efficient
+implementation of this bank account RDT, we need a \emph{summary} of the
+account history. Intuitively, the current account balance summarizes the state
+of an account. A bank account with the history \cf{[Deposit 10, Withdraw 5]} is
+\emph{observably equivalent} to a bank account with a single deposit operation
+\cf{[Deposit 5]}; we can replace the earlier history with the latter and a
+client of the store would not able to tell the difference between the two.
+
+This notion of observable equivalence can be generalized to other RDTs as well.
+For example, a last-writer-wins register with multiple updates is equivalent to
+a register with only the last write. Similarly, a set with a collection of add
+and remove operations is equivalent to a set with a series of additions of live
+elements from the original set. Since the notion of observable equivalence is
+specific to each RDT, we expect the programmer to provide a summarization
+function (\cf{summarize}) of type \cf{[e] -> [e]} for each RDT. We utilize this
+function to ensure that the state of an object remains summarized in each
+replica. The summarization function for the bank account is {\footnotesize
+\cf{summarize ctxt = [Deposit \$ sel1 \$ getBalance ctxt ()]}}.
+
 \subsection{Anomalies under Eventual Consistency}
 
 Our goal is to choose the correct consistency level for each of the bank
 account operations such that (1) the balance remains non-negative and (2) the
 \cf{getBalance} operation never incorrectly returns a negative balance.
 
-\begin{figure}
+\begin{figure}[ht]
 \centering
 \subfigure[Unsafe withdraw]{\label{fig:unsafeWithdrawAnomaly}\includegraphics[width=0.34\columnwidth]{Figures/Motivation4}}
 \hfill
@@ -86,10 +110,10 @@ Consider the execution shown in Figure~\ref{fig:unsafeWithdrawAnomaly}. Assume
 that all operations in the figure are on the same bank account object with the
 initial balance being zero. Session 1 performs a \cf{deposit} of 100, followed
 by a \cf{withdraw} of 80 in the same session. The \cf{withdraw} operation
-witnesses the deposit and succeeds\footnote{Although visibility and session
+witnesses\footnote{Although visibility and session
 order relations relate effects, we have abused the notation in these examples
 to relate operations, with the idea that the relations relate the effect
-emitted by those operations}. Subsequently, session 2 perform a \cf{withdraw}
+emitted by those operations} the deposit and succeeds. Subsequently, session 2 perform a \cf{withdraw}
 operation, but importantly, due to eventual consistency, only witnesses the
 \cf{deposit} from session 1, but not the subsequent withdraw. Hence, this
 \cf{withdraw} also \emph{incorrectly} succeeds, violating the integrity
@@ -178,12 +202,12 @@ Any execution on a bank account object that preserves the above contract for a
 is an effect that was emitted either by a \cf{deposit} or a \cf{withdraw}
 operation. If a \cf{withdraw} $b$ is visible to \cf{getBalance} $\cureff$, then
 all \cf{deposit} operations $a$ visible to $b$ should also be visible to
-$\cureff$. This prevents negative balance anomalies. Our contract language
-provides operators to compose relations. The syntax $(R_1 \cap R_2)(a,b)$ is
-equivalent to $R_1(a,b) \wedge R_2(a,b)$. The last line of the above contract
-says that if a \cf{deposit} or a \cf{withdraw} operation precedes a
-\cf{getBalance} operation in session order, and is applied on the same object
-as the \cf{getBalance} operation, then it must be the case that the
+$\cureff$. Intuitively, this prevents negative balance anomalies. Our contract
+language provides operators to compose relations. The syntax $(R_1 \cap
+R_2)(a,b)$ is equivalent to $R_1(a,b) \wedge R_2(a,b)$. The last line of the
+above contract says that if a \cf{deposit} or a \cf{withdraw} operation
+precedes a \cf{getBalance} operation in session order, and is applied on the
+same object as the \cf{getBalance} operation, then it must be the case that the
 \cf{getBalance} operation witnesses the effects of the preceding operations.
 
 Finally, since there are no restrictions on when or how a \cf{deposit}

@@ -33,12 +33,14 @@ The syntax of our core contract language is shown in Figure
 admits prenex universal quantification over typed and untyped effect variables.
 We use a special effect variable ($\cureff$) to denote the effect of
 \emph{current operation} - the operation for which a contract is being written.
-The type of an effect is simply the name of the operation (eg: \cf{withdraw})
-that induced the effect. We admit disjunction in types to let an effect variable
-range over multiple operation names. The contract $\small \forall (a : \tau_1
-\vee \tau_2).~\psi$ is just syntactic sugar for $\small \forall a.
-(\oper{a}{\tau_1} \vee \oper{a}{\tau_2}) \Rightarrow \psi$. An untyped effect
-variable ranges over all operation names.
+Notice that $\cureff$ occurs free in the contract. We will fix its scope when
+classifying the contracts (\S~\ref{sec:classify}). The type of an effect is
+simply the name of the operation (eg: \cf{withdraw}) that induced the effect.
+We admit disjunction in types to let an effect variable range over multiple
+operation names. The contract $\small \forall (a : \tau_1 \vee \tau_2).~\psi$
+is just syntactic sugar for $\small \forall a. (\oper{a}{\tau_1} \vee
+\oper{a}{\tau_2}) \Rightarrow \psi$. An untyped effect variable ranges over all
+operation names.
 
 Quantifier-free propositions in our contract language are conjunctions,
 disjunctions and implications of predicates expressing relations between pairs
@@ -155,7 +157,8 @@ consistency, with increasing overhead in terms of latency and availability.
 \end{itemize}
 \vspace{-1em}
 
-\subsection{Contract Comparison and Classification}
+\subsection{Contract Classification}
+\label{sec:classify}
 
 \newcommand{\DDe}[1]{#1}
 \begin{figure}
@@ -199,14 +202,14 @@ language as following:
 \begin{definition}
 A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \le \cv_{st}$ ) if and only if $\Delta \vdash \forall \cureff.
-\cv_{st} \Rightarrow \cv_{op}$.  
+\cv_{st} \Rightarrow \cv_{op}$.
 \end{definition}
 
-The quantifier in the sequent binds $\cureff$ that occurs free in $\cv_{st}$ and
-$\cv_{op}$. Context ($\Delta$) of the sequent is a conjunction of assumptions
-about the nature of primitive relations. A \emph{well-formed} axiomatic
-execution ($\E$) is expected to satisfy these assumptions (i.e., $\E \models
-\Delta$).
+The quantifier in the sequent binds $\cureff$ that occurs free in $\cv_{st}$
+and $\cv_{op}$. Context ($\Delta$) of the sequent is a conjunction of
+assumptions about the nature of primitive relations. A \emph{well-formed}
+axiomatic execution ($\E$) is expected to satisfy these assumptions (i.e., $\E
+\models \Delta$).
 
 \begin{definition}
 An axiomatic executions $\small \E = \Exec$ is said to be well-formed if the
