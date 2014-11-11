@@ -36,23 +36,26 @@ sent back to the client, and emits a \emph{single} new effect $w^x_4$ that is
 appended to the state of $x$ at replica 1. Thus, every operation is evaluated
 over a \emph{snapshot} of the state of the object on which it is invoked. In
 this case, the effects $w^x_1$ and $w^x_2$ are \emph{visible} to $w^x_4$,
-written logically as $\small \vis{w^x_1}{w^x_4} \wedge \vis{w^x_2}{w^x_4}$, where
-$\small \visZ$ is the visibility relation between effects. Visibility is an
-irreflexive and asymmetric relation, and only relates effects produced by
+written logically as $\small \vis{w^x_1}{w^x_4} \wedge \vis{w^x_2}{w^x_4}$,
+where $\small \visZ$ is the visibility relation between effects. Visibility is
+an irreflexive and asymmetric relation, and only relates effects produced by
 operations on the same object. Executing a read-only operation is similar
-except that no new effects are produced.
+except that no new effects are produced. The effect added to a particular
+replica is asynchronously sent to other replicas, and eventually merged into
+all other replicas. Observe that this model does not assume a particular
+resolution strategy for concurrent conflicting updates, and instead preserves
+\emph{every} update. Conflicts are resolved when an operation reduces over the
+set of effects on an object at a particular replica.
 
-The effect added to a particular replica is asynchronously sent to other
-replicas, and eventually merged into all other replicas. Two effects $w^x_4$
-and $w^x_5$ that arise from the same session are said to be in \emph{session
-order} (written logically as $\small \so{w^x_4}{w^x_5}$). Session order is an
-irreflexive, transitive relation. The effects $w^x_4$ and $w^x_5$ arising from
-operations applied to the same object $x$ are said to be under the \emph{same
-object} relation, written $\small \sameobj{w^x_4}{w^x_5}$. Finally, we can
-associate every effect with the operation that generated the effect with the
-help of a relation $\small \operZ$. In the current example, $\small
-\oper{w^x_4}{foo}$ and $\small \oper{w^x_5}{bar}$ hold. For simplicity, we
-assume all operation names across all object are distinct.
+Two effects $w^x_4$ and $w^x_5$ that arise from the same session are said to be
+in \emph{session order} (written logically as $\small \so{w^x_4}{w^x_5}$).
+Session order is an irreflexive, transitive relation. The effects $w^x_4$ and
+$w^x_5$ arising from operations applied to the same object $x$ are said to be
+under the \emph{same object} relation, written $\small \sameobj{w^x_4}{w^x_5}$.
+Finally, we can associate every effect with the operation that generated the
+effect with the help of a relation $\small \operZ$. In the current example,
+$\small \oper{w^x_4}{foo}$ and $\small \oper{w^x_5}{bar}$ hold. For simplicity,
+we assume all operation names across all object are distinct.
 
 This model admits all the inconsistencies associated with eventual consistency.
 The goal of this work is to identify the precise consistency level for each
