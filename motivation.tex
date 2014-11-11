@@ -23,7 +23,7 @@ withdraw fails if the account has insufficient balance. Every operation in
 \name is of the following type, written in Haskell syntax:
 
 \begin{codehaskell}
-type Operation = forall e a r. [e] -> a -> (r, Maybe e)
+type Operation e a r = [e] -> a -> (r, Maybe e)
 \end{codehaskell}
 
 \noindent It takes a list of effects (the \emph{context} for the operation),
@@ -38,16 +38,16 @@ sent to other replicas. The implementation of the bank account operations in
 data Acc = Deposit Int | Withdraw Int
 				 | GetBalance
 
-getBalance :: [Acc] -> () -> (Int, Maybe Acc)
+getBalance :: Operation Acc () Int
 getBalance ctxt _ =
   let res = sum [x | Deposit x <- ctxt]
 						- sum [x | Withdraw x <- ctxt]
 	in (res, Nothing)
 
-deposit :: [Acc] -> Int -> ((), Maybe Acc)
+deposit :: Operation Acc Int ()
 deposit _ amt = (amt, Just dollar Deposit amt)
 
-withdraw :: [Acc] -> Int -> (Bool, Maybe Acc)
+withdraw :: Operation Acc Int Bool
 withdraw ctxt v =
 	if sel1 dollar getBalance ctxt () >= v
   then (True, Just dollar Withdraw v)
@@ -69,7 +69,7 @@ of code.
 
 Our goal is to choose the correct consistency level for each of the bank
 account operations such that (1) the balance remains non-negative and (2) the
-\cf{getBalance} operation never incorrectly returns a negative balance. 
+\cf{getBalance} operation never incorrectly returns a negative balance.
 
 \begin{figure}
 \centering
