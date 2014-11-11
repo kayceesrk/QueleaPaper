@@ -198,10 +198,12 @@ language as following:
 
 \begin{definition}
 A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
-\le \cv_{st}$ ) if and only if $\Delta \vdash \cv_{st} \Rightarrow \cv_{op}$.
+\le \cv_{st}$ ) if and only if $\Delta \vdash \forall \cureff.
+\cv_{st} \Rightarrow \cv_{op}$.  
 \end{definition}
 
-The $\Delta$ referred in the above definition is a conjunction of assumptions
+The quantifier in the sequent binds $\cureff$ that occurs free in $\cv_{st}$ and
+$\cv_{op}$. Context ($\Delta$) of the sequent is a conjunction of assumptions
 about the nature of primitive relations. A \emph{well-formed} axiomatic
 execution ($\E$) is expected to satisfy these assumptions (i.e., $\E \models
 \Delta$).
