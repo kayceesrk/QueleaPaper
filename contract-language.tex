@@ -29,14 +29,15 @@ R				& \in & \mathtt{Relation}	& \coloneqq & \visZ \ALT \soZ
 
 The syntax of our core contract language is shown in Figure
 ~\ref{fig:contract-lang}. The language is based on first-order logic (FOL), and
-admits prenex universal quantification over typed effect variables. We use a
-special effect variable ($\cureff$) to denote the effect of \emph{current
-operation} - the operation for which a contract is being written. The type of
-an effect is simply the name of the operation (eg: \cf{withdraw}) that induced
-the effect. We admit disjunction in types to let an effect variable range over
-multiple operation names. The contract $\small \forall (a : \tau_1 \vee
-\tau_2).~\psi$ is just syntactic sugar for $\small \forall a. (\oper{a}{\tau_1}
-\vee \oper{a}{\tau_2}) \Rightarrow \psi$.
+admits prenex universal quantification over typed and untyped effect variables.
+We use a special effect variable ($\cureff$) to denote the effect of
+\emph{current operation} - the operation for which a contract is being written.
+The type of an effect is simply the name of the operation (eg: \cf{withdraw})
+that induced the effect. We admit disjunction in types to let an effect variable
+range over multiple operation names. The contract $\small \forall (a : \tau_1
+\vee \tau_2).~\psi$ is just syntactic sugar for $\small \forall a.
+(\oper{a}{\tau_1} \vee \oper{a}{\tau_2}) \Rightarrow \psi$. An untyped effect
+variable ranges over all operation names.
 
 Quantifier-free propositions in our contract language are conjunctions,
 disjunctions and implications of predicates expressing relations between pairs
@@ -196,10 +197,12 @@ language as following:
 
 \begin{definition}
 A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
-\le \cv_{st}$ ) if and only if $\Delta \vdash \cv_{st} \Rightarrow \cv_{op}$.
+\le \cv_{st}$ ) if and only if $\Delta \vdash \forall \cureff.
+\cv_{st} \Rightarrow \cv_{op}$.  
 \end{definition}
 
-The $\Delta$ referred in the above definition is a conjunction of assumptions
+The quantifier in the sequent binds $\cureff$ that occurs free in $\cv_{st}$ and
+$\cv_{op}$. Context ($\Delta$) of the sequent is a conjunction of assumptions
 about the nature of primitive relations. A \emph{well-formed} axiomatic
 execution ($\E$) is expected to satisfy these assumptions (i.e., $\E \models
 \Delta$).
@@ -267,7 +270,7 @@ statically.
 
 We now present a meta-theoretic result that certifies the soundness of
 classification-based contract enforcement. To help us state the result, we
-define an operational semantics of the our system described informally in
+define an operational semantics of the system described informally in
 \S~\ref{sec:sysmod}:
 
 \vspace{-1em}
@@ -333,14 +336,7 @@ proof of the theorem is given below:
   $\cv \le \cv_\tau$. By the definition of $\le$ relation:
   \begin{smathpar}
   \begin{array}{cr}
-    \Delta \vdash \cv_\tau \Rightarrow \cv & H\npp\\
-  \end{array}
-  \end{smathpar}
-  Since $\cureff$ occurs free in $\cv$ and $\cv_\tau$, but not in
-  $\Delta$, we introduce quantifier to bind $\cureff$:
-  \begin{smathpar}
-  \begin{array}{cr}
-    \Delta \vdash \forall \cureff.\,\cv_\tau \Rightarrow \cv & H\npp\\
+    \Delta \vdash \forall \cureff. \cv_\tau \Rightarrow \cv & H\npp\\
   \end{array}
   \end{smathpar}
    Since $\eff$ denotes new effect, it is a fresh variable that does
