@@ -113,17 +113,16 @@ purposes, we identify three particular consistency levels -- eventual, causal,
 and strong, commonly offered by many distributed stores with tunable
 consistency, with increasing overhead in terms of latency and availability.
 
-\begin{itemize}
-\setlength{\itemsep}{2pt}
+\begin{itemize}[noitemsep]
 
 \item \textbf{Eventual consistency}: Eventually consistent operations can
 	be satisfied as long as the client can reach at least one replica. In the
 	bank account example, \cf{deposit} is an eventually consistent operation.
-	While eventually consistent data stores typically offer \emph{basic} eventual
-	consistency with all possible anomalies, we assume that our store provides
-	stronger semantics that remain highly-available~\cite{BailisHAT,COPS}; the
-	store always exposes a \emph{causal cut} of the updates. This semantics can
-	be formally captured in terms of the following contract definition:
+	While an \ecds typically offer \emph{basic} eventual consistency with all
+	possible anomalies, we assume that our store provides stronger semantics that
+	remain highly-available~\cite{BailisHAT,COPS}; the store always exposes a
+	\emph{causal cut} of the updates. This semantics can be formally captured in
+	terms of the following contract definition:
 
   \vspace{-1.5em}
   \begin{smathpar}
@@ -215,8 +214,7 @@ axiomatic execution ($\E$) is expected to satisfy these assumptions (i.e., $\E
 An axiomatic executions $\small \E = \Exec$ is said to be well-formed if the
 following axioms ($\Delta$) hold:
 
-\begin{itemize}
-\setlength{\itemsep}{2pt}
+\begin{itemize}[noitemsep]
 \item The happens-before relation is acyclic: $\small \forall a.~\neg\hb{a}{a}$.
 \item Visibility only relates actions on the same object:
 	\begin{itemize}

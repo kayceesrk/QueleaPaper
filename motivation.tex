@@ -2,10 +2,10 @@
 \label{sec:motivation}
 
 Consider how we might implement a highly available bank account on top of an
-eventually consistent data store, with the \emph{integrity} constraint that the
-balance must be non-negative. We begin by implementing a bank account
-replicated data type (RDT) in \name, and then describe the mechanisms to obtain
-the desired correctness guarantees.
+\ecds, with the \emph{integrity} constraint that the balance must be
+non-negative. We begin by implementing a bank account replicated data type
+(RDT) in \name, and then describe the mechanisms to obtain the desired
+correctness guarantees.
 
 \subsection{RDT specification}
 
@@ -63,11 +63,11 @@ function \cf{sum} returns the sum of elements in the list, and \cf{sel1}
 returns the first element of a tuple. For each operation, \cf{hist} is a
 \emph{snapshot} of the state of the object at some replica. In this sense,
 every operation on the RDT is atomic, and thus permitting sequential reasoning
-for implementing eventually consistent data types. Here, \cf{getBalance} is a
-read-only operation, \cf{deposit} always emits an effect, and \cf{withdraw}
-only emits an effect if there is sufficient balance in the account. We have
-implemented a large corpus of RDTs for realistic benchmarks including shopping
-carts, auction and micro-blogging sites in few tens of lines of code.
+for implementing the RDTs. Here, \cf{getBalance} is a read-only operation,
+\cf{deposit} always emits an effect, and \cf{withdraw} only emits an effect if
+there is sufficient balance in the account. We have implemented a large corpus
+of RDTs for realistic benchmarks including shopping carts, auction and
+micro-blogging sites in few tens of lines of code.
 
 \subsubsection{Summarization}
 \label{sec:summarize}

@@ -210,6 +210,7 @@
 
 \include{mydefs}
 
+\newcommand{\ecds}{ECDS}
 
 \begin{document}
 
@@ -233,15 +234,15 @@ levels, with stronger consistency gurantees incurring increased latency and
 throughput costs. However, correctly assigning the right consistency level
 for an operation requires subtle reasoning and is often an error-prone task.
 
-In this paper, we present \name, a declarative programming model for
-eventually consistent data stores, equipped with a \emph{contract} language,
-capable of specifying fine-grained application-level consistency
-properties. A \emph{contract enforcement system} analyses contracts, and
-\emph{automatically} generates the appropriate consistency protocol for the method
-protected by the contract. We describe an implementation of \name\ on top of
-an off-the-shelf eventually consistent data store, and provide support for
-\emph{coordination-free} transactions. Several benchmarks including two
-large web applications, illustrate the effectiveness of our approach.
+In this paper, we present \name, a declarative programming model for eventually
+consistent data stores (\ecds), equipped with a \emph{contract} language,
+capable of specifying fine-grained application-level consistency properties. A
+\emph{contract enforcement system} analyses contracts, and \emph{automatically}
+generates the appropriate consistency protocol for the method protected by the
+contract. We describe an implementation of \name\ on top of an off-the-shelf
+\ecds, and provide support for \emph{coordination-free} transactions. Several
+benchmarks including two large web applications, illustrate the effectiveness
+of our approach.
 \end{abstract}
 
 \input{intro}

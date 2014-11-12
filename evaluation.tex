@@ -8,8 +8,7 @@ also evaluate the impact of the summarization. We have implemented the
 following applications, which includes individual RDTs as well as larger
 applications composed of several RDTs:
 
-\begin{itemize}
-\setlength{\itemsep}{2pt}
+\begin{itemize}[noitemsep]
 \item \textbf{LWW register}: A last-write-wins register that provides read
 	and write operations, where the read returns the value of the latest write.
 
@@ -17,8 +16,7 @@ applications composed of several RDTs:
   and strong puts and gets, conditional puts, increment and decrement
   operations.
 
-\item \textbf{Bank account}: Our running example, with savings and checking
-  accounts.
+\item \textbf{Bank account}: Our running example.
 
 \item \textbf{Shopping list}: A collaborative shopping list that allows
   concurrent addition and deletion of items.
@@ -77,10 +75,8 @@ For our performance evaluation, we deploy \name applications in
 Cassandra replicas within the same datacenter. We instantiate one shim layer
 node co-located on the same VM as a Cassandra replica. Clients are instantiated
 within the same data center as the store, and run transactions. We deploy each
-cluster node on an \cf{c3.4xlarge} Amazon EC2 instance.  Our shim layer nodes
-are multi-threaded, and we allocate 8 CPUs (out of 16 available) for each shim
-layer node. The clients also run on \cf{c2.4xlarge} instances. We call this a
-\cf{1DC} configuration. For our geo-distributed experiments (\cf{2DC}), we
+cluster and client node on an \cf{c3.4xlarge} Amazon EC2 instance. We call this
+a \cf{1DC} configuration. For our geo-distributed experiments (\cf{2DC}), we
 instantiate 2 clusters, each with five nodes, and place the clusters on US-east
 (Virginia) and US-west (Oregon) locations. The average inter-region latency was
 85ms.
@@ -110,19 +106,18 @@ compromise correctness as \cf{withdraw} has to be an SC operation. The SC line
 corresponds to a configuration where all operations are strongly consistent;
 this ensures application correctness, at the cost of performance. \name
 corresponds to our implementation, which classifies operations based on their
-contract specifications.  Both \name and SC ensure correctness. With 512
-clients, the \name implementation was within 41\% of the latency and 18\% of
-the throughput of EC, whereas SC operations had 162\% higher latency and 52\%
-lower throughput than EC operations. Observe that there is a point in each case
-after which the latency increases while the throughput decreases; these
-correspond to points where the store becomes saturated with client requests.
-
-In a \cf{2DC} configuration (not shown here), the average latency of SC
-operations with 512 clients increased by 9.4$\times$ due to the cost of
-geo-distributed coordination, whereas \name operations were only 2.2$\times$
-slower, mainly due to the increased cost of \cf{withdraw} operations.
-Importantly, the latency of \cf{getBalance} and \cf{deposit} remained almost
-the same, illustrating the benefit of fine-grained contract classification.
+contract specifications. With 512 clients, the \name implementation was within
+41\% of the latency and 18\% of the throughput of EC, whereas SC operations had
+162\% higher latency and 52\% lower throughput than EC operations. Observe that
+there is a point in each case after which the latency increases while the
+throughput decreases; these correspond to points where the store becomes
+saturated with client requests. In a \cf{2DC} configuration (not shown here),
+the average latency of SC operations with 512 clients increased by 9.4$\times$
+due to the cost of geo-distributed coordination, whereas \name operations were
+only 2.2$\times$ slower, mainly due to the increased cost of \cf{withdraw}
+operations. Importantly, the latency of \cf{getBalance} and \cf{deposit}
+remained almost the same, illustrating the benefit of fine-grained contract
+classification.
 
 We compare the performance of different transaction isolation level choices in
 Figure~\ref{grf:LWW-txn} using the LWW register. The numbers were obtained

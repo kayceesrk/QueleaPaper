@@ -44,7 +44,7 @@ data. Working in this environment thus requires application state to be
 suitably coerced to function using only the capabilities of the store.
 
 To address these issues, we describe \name, a declarative programming model and
-implementation for eventually consistent geo-distributed data stores. The key
+implementation for \ecds. The key
 novelty of \name is an expressive \emph{contract language} to declare and
 verify fine-grained application-level consistency properties. The programmer
 uses the contract language to axiomatically specify the set of legal executions
@@ -55,14 +55,12 @@ enforcement system} statically maps operations over the datatype to a
 particular consistency level available on the store, and provably validates the
 correctness of the mapping. The paper makes the following contributions:
 \vspace*{-.4em}
-\begin{itemize}
-\setlength{\itemsep}{2pt}
+\begin{itemize}[noitemsep]
 \item We introduce \name, a shallow extension of Haskell that supports the
-	description and validation of replicated data types found on eventually
-	consistent stores. Contracts are used to specify fine-grained
-	application-level consistency properties, and are statically analyzed to
-	assign the most efficient and sound store consistency level to the
-	corresponding operation.
+	description and validation of replicated data types found on \ecds. Contracts
+	are used to specify fine-grained application-level consistency properties,
+	and are statically analyzed to assign the most efficient and sound store
+	consistency level to the corresponding operation.
 \item \name supports coordination-free transactions over arbitrary datatypes.
 	We extend our contract language to express fine-grained transaction isolation
 	guarantees, and utilize the contract enforcement system to automatically
@@ -78,12 +76,12 @@ correctness of the mapping. The paper makes the following contributions:
 \end{itemize}
 
 \noindent The rest of the paper is organized as follows. The next section
-describes the system model.  We describe the challenges in programming with
-eventually consistent data stores, and introduce \name\ contracts as a proposed
-solution to overcome these issues in \S~\ref{sec:motivation}. \S~\ref{sec:lang}
-provides more details on the contract language, and its mapping to the store
-consistency levels, along with meta-theory for certifying the correctness of
-the mapping. \S~\ref{sec:txns} introduces transaction contracts and their
-classification. \S~\ref{sec:impl} describes the implementation of \name on top
-of Cassandra. \S~\ref{sec:results} discusses experimental evaluation.
-\S~\ref{sec:related} and~\ref{sec:concl} present related work and conclusions.
+describes the system model.  We describe the challenges in programming under
+eventual consistency, and introduce \name\ contracts as a proposed solution to
+overcome these issues in \S~\ref{sec:motivation}. \S~\ref{sec:lang} provides
+more details on the contract language, and its mapping to the store consistency
+levels, along with meta-theory for certifying the correctness of the mapping.
+\S~\ref{sec:txns} introduces transaction contracts and their classification.
+\S~\ref{sec:impl} describes the implementation of \name on top of Cassandra.
+\S~\ref{sec:results} discusses experimental evaluation. \S~\ref{sec:related}
+and~\ref{sec:concl} present related work and conclusions.

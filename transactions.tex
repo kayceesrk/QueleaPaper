@@ -121,6 +121,7 @@ does not require any additional constraints, and $\psi_1$ is simply $\small
 \subsection{Coordination-free Transactions}
 
 \begin{figure}
+\vspace{-2.3mm}
 \centering
 \subfigure[Atomicity]{\label{fig:txn_atomicity}\includegraphics[width=0.25\columnwidth]{Figures/TxnAtomic}}
 \hfill
@@ -140,10 +141,11 @@ strategy. Our technique can indeed be applied to a different isolation level
 lattice.
 
 A transaction with ANSI RC semantics only witnesses committed operations. Let
-us assume that the store buffers updates until all the updates from the
-transaction are available at a replica. If the transaction commits, the
-buffered updates are made visible. Otherwise, the buffered updates are
-discarded. RC does not entail any further isolation guarantees. Hence, a store
+us assume that a replica will buffer transactional updates until all the
+updates from the same transaction are available at that replica. Once all the
+updates from a transaction are available, the buffered updates are made visible
+to subsequent client requests. This ensure atomicity of transactions.
+Importantly, RC does not entail any other guarantees. As a result, a store
 implementing RC does not require inter-replica coordination. We can express RC
 as follows:
 
