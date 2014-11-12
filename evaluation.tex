@@ -149,14 +149,14 @@ consistency properties, \name was within 30\%(20\%) of latency(throughput) of
 Cassandra with 512 clients, illustrating that the programmers only have to pay
 a minimal overhead for the expressive and stronger \name programming model.
 
-\begin{figure}[t]
+\begin{figure*}[t]
   \centering
   \subfigure[Latency]{\label{grf:rubis-lat}\includegraphics[width=0.32\textwidth]{graphs/Rubis-lat.pdf}}
   \subfigure[Throughput]{\label{grf:rubis-tp}\includegraphics[width=0.32\textwidth]{graphs/Rubis-tp.pdf}}
   \subfigure[Throughput vs. Latency]{\label{grf:Rubis-tp-vs-lat}\includegraphics[width=0.32\textwidth]{graphs/Rubis-tp-vs-lat.pdf}}
 	\caption{Rubis bidding mix performance.}
   \label{grf:rubis}
-\end{figure}
+\end{figure*}
 
 Figure~\ref{grf:rubis} compares the \name implementation of RUBiS in \cf{1DC}
 configuration against a single replica (NoRep) and strongly replicated
@@ -170,7 +170,7 @@ paying the cost of coordination when necessary.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.45\textwidth]{graphs/summarization.pdf}
+\includegraphics[width=0.75\columnwidth]{graphs/summarization.pdf}
 \caption{Impact of summarization.}
 \label{grf:summarization}
 \end{figure}
