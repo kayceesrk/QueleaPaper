@@ -84,23 +84,23 @@ experiments (\cf{2DC}), we instantiate 2 clusters, each with 5 nodes, and place
 the clusters on US-east (Virginia) and US-west (Oregon). The average
 inter-region latency was 85ms.
 
-\begin{figure*}
+\begin{figure*}[t]
   \centering
-  \subfigure[Bank account]{\label{grf:BA-tp-vs-lat}\includegraphics[width=0.24\textwidth]{graphs/BA-tp-vs-lat.pdf}}
-  \subfigure[LWW transactions]{\label{grf:LWW-txn}\includegraphics[width=0.24\textwidth]{graphs/LWW-txn.pdf}}
-  \subfigure[RUBiS bidding mix]{\label{grf:rubis}\includegraphics[width=0.24\textwidth]{graphs/Rubis.pdf}}
-  \subfigure[Impact of summarization]{\label{grf:summarization}\includegraphics[width=0.235\textwidth]{graphs/summarization.pdf}}
-	\caption{Quelea Performance.}
-  \label{grf:LWW_perf}
+  \subfigure[Latency]{\label{grf:BA-lat}\includegraphics[width=0.32\textwidth]{graphs/BA-lat.pdf}}
+  \subfigure[Throughput]{\label{grf:BA-tp}\includegraphics[width=0.32\textwidth]{graphs/BA-tp.pdf}}
+  \subfigure[Throughput vs. Latency]{\label{grf:BA-tp-vs-lat}\includegraphics[width=0.32\textwidth]{graphs/BA-tp-vs-lat.pdf}}
+	\caption{Bank account performance.}
+  \label{grf:BA}
 \end{figure*}
 
-Figure~\ref{grf:BA-tp-vs-lat} shows the throughput vs. latency of operations
-in bank account example as we increase the number of clients in \cf{1DC}
-configuration. Our client workload was generated using YCSB
-benchmark~\cite{YCSB}. The benchmark uniformly chose from 100,000 keys, where
-the operation spread was 25\% withdraw, 25\% deposit and 50\% getBalance, which
-corresponds to the default 50:50 read:write mix in YCSB. We increased the
-number of clients from 128 to 1024, and each experiment ran for 180 seconds.
+
+Figure~\ref{grf:BA} shows the performance of operations in bank account example
+as we increase the number of clients in \cf{1DC} configuration.. Our client
+workload was generated using YCSB benchmark~\cite{YCSB}. The benchmark
+uniformly chose from 100,000 keys, where the operation spread was 25\%
+withdraw, 25\% deposit and 50\% getBalance, which corresponds to the default
+50:50 read:write mix in YCSB. We increased the number of clients from 128 to
+1024, and each experiment ran for 180 seconds.
 
 The lines marked EC and CC correspond to all operations being assigned EC and
 CC consistency levels. These levels compromise correctness as withdraw has to
@@ -121,6 +121,15 @@ to the increased cost of \cf{withdraw} operations. Importantly, the latency of
 \cf{getBalance} and \cf{deposit} remained almost the same. This illustrates the
 benefit of fine-grained contract classification in \name.
 
+\begin{figure*}[t]
+  \centering
+  \subfigure[Latency]{\label{grf:LWW-txn-lat}\includegraphics[width=0.32\textwidth]{graphs/LWW-txn-lat.pdf}}
+  \subfigure[Throughput]{\label{grf:LWW-txn-tp}\includegraphics[width=0.32\textwidth]{graphs/LWW-txn-tp.pdf}}
+  \subfigure[Throughput vs. Latency]{\label{grf:LWW-txn-tp-vs-lat}\includegraphics[width=0.32\textwidth]{graphs/LWW-txn-tp-vs-lat.pdf}}
+	\caption{LWW register transaction performance.}
+  \label{grf:LWW-txn}
+\end{figure*}
+
 We compare the performance of different transaction isolation level choices in
 Figure~\ref{grf:LWW-txn} using the LWW register. The numbers were obtained
 under 1DC configuration. The YCSB workload was modified to issue 10 operations
@@ -140,6 +149,15 @@ consistency properties, \name was within 30\%(20\%) of latency(throughput) of
 Cassandra with 512 clients, illustrating that the programmers only have to pay
 a minimal overhead for the expressive and stronger \name programming model.
 
+\begin{figure}[t]
+  \centering
+  \subfigure[Latency]{\label{grf:rubis-lat}\includegraphics[width=0.32\textwidth]{graphs/Rubis-lat.pdf}}
+  \subfigure[Throughput]{\label{grf:rubis-tp}\includegraphics[width=0.32\textwidth]{graphs/Rubis-tp.pdf}}
+  \subfigure[Throughput vs. Latency]{\label{grf:Rubis-tp-vs-lat}\includegraphics[width=0.32\textwidth]{graphs/Rubis-tp-vs-lat.pdf}}
+	\caption{Rubis bidding mix performance.}
+  \label{grf:rubis}
+\end{figure}
+
 Figure~\ref{grf:rubis} compares the \name implementation of RUBiS in \cf{1DC}
 configuration against a single replica (NoRep) and strongly replicated
 (StrongRep) \cf{1DC} deployment. The benchmark was RUBiS bidding mix, which has
@@ -149,6 +167,14 @@ deployment does not scale beyond 1750 operations per second. Strong replication
 offers better throughput at the cost of greater latency due to inter-replica
 coordination. \name deployment offers the benefit of replication, while only
 paying the cost of coordination when necessary.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.45\textwidth]{graphs/summarization.pdf}
+\caption{Impact of summarization.}
+\label{grf:summarization}
+\end{figure}
+
 
 Finally, we study the impact of summarization in
 Figure~\ref{grf:summarization}. We utilize 128 clients and a single \name
