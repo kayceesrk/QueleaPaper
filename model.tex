@@ -3,7 +3,7 @@
 
 \begin{figure}
 \centering
-\includegraphics[width=0.75\columnwidth]{Figures/SystemModel}
+\includegraphics[width=0.7\columnwidth]{Figures/SystemModel}
 \caption{\name system model.}
 \label{fig:sysmod}
 \end{figure}
@@ -44,8 +44,8 @@ except that no new effects are produced. The effect added to a particular
 replica is asynchronously sent to other replicas, and eventually merged into
 all other replicas. Observe that this model does not assume a particular
 resolution strategy for concurrent conflicting updates, and instead preserves
-\emph{every} update. Conflicts are resolved when an operation reduces over the
-set of effects on an object at a particular replica.
+\emph{every} update. Update conflicts are resolved when an operation reduces
+over the set of effects on an object at a particular replica.
 
 Two effects $w^x_4$ and $w^x_5$ that arise from the same session are said to be
 in \emph{session order} (written logically as $\small \so{w^x_4}{w^x_5}$).

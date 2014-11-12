@@ -60,6 +60,7 @@ happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 \subsection{Semantics}
 
 \begin{figure}
+\vspace{-7pt}
 \begin{smathpar}
 \begin{array}{lclcl}
 \multicolumn{5}{l}{
@@ -162,22 +163,21 @@ consistency, with increasing overhead in terms of latency and availability.
 
 \newcommand{\DDe}[1]{#1}
 \begin{figure}
+\vspace{-10pt}
 \begin{smathpar}
-\begin{array}{c}
-\vspace{3mm}
+\begin{array}{cc}
 \RuleTwo
 {\DDe{\cv} \le \DDe{\scc}}
-{{\sf WellFormed}(\cv)}  \qquad
+{{\sf WellFormed}(\cv)}  &
 
 \RuleTwo
 {\DDe{\cv} \le \DDe{\ecc}}
-{{\sf EventuallyConsistent}(\cv)} \\
+{{\sf EventuallyConsistent}(\cv)} \\ \\
 
-\vspace{3mm}
 \RuleTwo
 {\DDe{\cv} \not\le \DDe{\ecc}
 \quad \DDe{\cv} \le \DDe{\ccc}}
-{{\sf CausallyConsistent}(\cv)} \qquad
+{{\sf CausallyConsistent}(\cv)} &
 
 \RuleTwo
 {\DDe{\cv} \not\le \DDe{\ccc}
@@ -185,7 +185,7 @@ consistency, with increasing overhead in terms of latency and availability.
 {{\sf StronglyConsistent}(\cv)}
 \end{array}
 \end{smathpar}
-\vspace{-5mm}
+\vspace{-3mm}
 \caption{Contract classification.}
 \label{sem:classify}
 \end{figure}

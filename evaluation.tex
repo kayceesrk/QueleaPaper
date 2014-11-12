@@ -11,9 +11,7 @@ applications composed of several RDTs:
 \begin{itemize}
 \setlength{\itemsep}{2pt}
 \item \textbf{LWW register}: A last-write-wins register that provides read
-  and write operations. Each write is associated with a timestamp, which is
-  used to resolve conflicting concurrent writes -- a newer write always
-  wins.
+	and write operations, where the read returns the value of the latest write.
 
 \item \textbf{DynamoDB register}: An integer register that allows eventual
   and strong puts and gets, conditional puts, increment and decrement
@@ -126,17 +124,16 @@ slower, mainly due to the increased cost of \cf{withdraw} operations.
 Importantly, the latency of \cf{getBalance} and \cf{deposit} remained almost
 the same, illustrating the benefit of fine-grained contract classification.
 
-We compare the performance of different transaction isolation level choices
-in Figure~\ref{grf:LWW-txn} using the LWW register. The numbers were
-obtained under a 1DC configuration. The YCSB workload was modified to issue
-10 operations per transaction, with a default 50:50 read:write mix. Each
-operation is assumed to be eventual consistent. \cf{NoTxn} corresponds to a
-configuration that does not use transactions. Compared to this, RC is only
-12\% shower in terms of latency with 512 clients, whereas RR is 2.3X
-slower. The difference between RC and \cf{NoTxn} is due to the meta-data
-overhead of recording transaction information in the object state. For RR
-transactions, the cost of capturing and maintaining a snapshot is the
-biggest source of overhead.
+We compare the performance of different transaction isolation level choices in
+Figure~\ref{grf:LWW-txn} using the LWW register. The numbers were obtained
+under a 1DC configuration. The YCSB workload was modified to issue 10
+operations per transaction, with a default 50:50 read:write mix. Each operation
+is assumed to be eventually consistent. \cf{NoTxn} corresponds to a
+configuration that does not use transactions. Compared to this, RC is only 12\%
+shower in terms of latency with 512 clients, whereas RR is 2.3X slower. The
+difference between RC and \cf{NoTxn} is due to the meta-data overhead of
+recording transaction information in the object state. For RR transactions, the
+cost of capturing and maintaining a snapshot is the biggest source of overhead.
 
 We also compared (not shown) the performance of EC LWW operations directly
 against Cassandra, which uses last-writer-wins as the only convergence
