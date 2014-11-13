@@ -1,0 +1,18 @@
+•	"Client-side execution is not always beneficial. For instance, computations that access a lot of data, such as search or recommendations, or running strongly consistent transactions, is best done in the DC.” SwiftCloud
+•	Cassandra does not provides an stability or concurrent update detection.
+•	Strong operations in MAV, RC — hold on to locks till transaction commit; can deadlock!!!
+	◦	Locks expire after 5 seconds (max time for a transaction)
+		▪	http://docs.oracle.com/cd/E26180_01/Platform.94/ATGInstallGuide/html/s0407settingthetransactiontimeoutonwe02.html
+		▪	http://publib.boulder.ibm.com/infocenter/soliddb/v6r3/index.jsp?topic=/com.ibm.swg.im.soliddb.programmer.doc/doc/s0005333.server.timeouts.html
+		▪	http://technet.microsoft.com/en-us/library/aa213032(v=sql.80).aspx
+	◦	At the end of the transaction, check if you still hold all the locks, if not abort.
+	◦	Abort simply does not write the transaction marker, effects of the transaction are not made visible.
+•	Same strategy as above, but obtain snapshot incrementally?
+•	Experiment
+	◦	Causal consistency and MAV cost is similar to High. Avail. and RC, except when the requests from the same session and transaction are routed to different replicas. In this case, typically the cost is similar to the cost of a strongly consistent operation. 
+•	Snapshot
+	◦	Let objs = the set of objects touched by the session invoking RR transaction
+	◦	Let effs = the set of effects on the objects in objs
+	◦	Let txns = the set of transactions to which effects in effs belong to
+	◦	Let moreEffs = the set of effects that constitute the transactions in txns
+	◦	Snapshot = effs U moreEffs 
