@@ -118,10 +118,10 @@ Consider the execution shown in Figure~\ref{fig:unsafeWithdrawAnomaly}. Assume
 that all operations in the figure are on the same bank account object with the
 initial balance being zero. Session 1 performs a \cf{deposit} of 100, followed
 by a \cf{withdraw} of 80 in the same session. The \cf{withdraw} operation
-witnesses\footnote{Although visibility and session
+witnesses the deposit and succeeds\footnote{Although visibility and session
 order relations relate effects, we have abused the notation in these examples
 to relate operations, with the idea that the relations relate the effect
-emitted by those operations} the deposit and succeeds. Subsequently, session 2 perform a \cf{withdraw}
+emitted by those operations}. Subsequently, session 2 perform a \cf{withdraw}
 operation, but importantly, due to eventual consistency, only witnesses the
 \cf{deposit} from session 1, but not the subsequent withdraw. Hence, this
 \cf{withdraw} also \emph{incorrectly} succeeds, violating the integrity
