@@ -92,8 +92,8 @@ instantiate 2 clusters, each with five nodes, and place the clusters on US-east
   \label{grf:LWW_perf}
 \end{figure*}
 
-Figure~\ref{grf:BA-tp-vs-lat} shows throughput vs. latency of operations
-in the bank account example as we increase the number of clients in a \cf{1DC}
+Figure~\ref{grf:BA-tp-vs-lat} shows throughput vs. latency of operations in the
+bank account example as we increase the number of clients in a \cf{1DC}
 configuration. Our client workload was generated using the YCSB
 benchmark~\cite{YCSB}. The benchmark uniformly chooses from 100,000 keys, where
 the operation spread was 25\% withdraw, 25\% deposit and 50\% getBalance, which
@@ -123,12 +123,12 @@ We compare the performance of different transaction isolation level choices in
 Figure~\ref{grf:LWW-txn} using the LWW register. The numbers were obtained
 under a 1DC configuration. The YCSB workload was modified to issue 10
 operations per transaction, with a default 50:50 read:write mix. Each operation
-is assumed to be eventually consistent. \cf{NoTxn} corresponds to a
-configuration that does not use transactions. Compared to this, RC is only 12\%
-shower in terms of latency with 512 clients, whereas RR is 2.3X slower. The
-difference between RC and \cf{NoTxn} is due to the meta-data overhead of
-recording transaction information in the object state. For RR transactions, the
-cost of capturing and maintaining a snapshot is the biggest source of overhead.
+is assumed to be eventually consistent. NoTxn corresponds to a configuration
+that does not use transactions. Compared to this, RC is only 12\% shower in
+terms of latency with 512 clients, whereas RR is 2.3X slower. The difference
+between RC and NoTxn is due to the meta-data overhead of recording transaction
+information in the object state. For RR transactions, the cost of capturing and
+maintaining a snapshot is the biggest source of overhead.
 
 We also compared (not shown) the performance of EC LWW operations directly
 against Cassandra, which uses last-writer-wins as the only convergence
@@ -139,15 +139,15 @@ relatively low overhead for a more expressive programming model which provides
 stronger provable consistency guarantees.
 
 Figure~\ref{grf:rubis} compares the \name implementation of RUBiS in a \cf{1DC}
-configuration against a single replica ({\sf\small NoRep}) and a strongly
-replicated ({\sf\small StrongRep}) \cf{1DC} deployment. The benchmark uses the
-default RUBiS bidding mix, which has 15\% read-write interactions, which is
-representative of the auction workload.  Without replication, {\sf\small NoRep}
-trivially provides strong consistency. However, this deployment does not scale
-beyond 1750 operations per second. Strong replication offers better throughput
-at the cost of greater latency due to inter-replica coordination. The \name
-deployment offers the benefit of replication, while only paying the cost of
-coordination when necessary.
+configuration against a single replica (NoRep) and a strongly replicated
+(StrongRep) \cf{1DC} deployment. The benchmark uses the default RUBiS bidding
+mix, which has 15\% read-write interactions, which is representative of the
+auction workload.  Without replication, NoRep trivially provides strong
+consistency. However, this deployment does not scale beyond 1750 operations per
+second. Strong replication offers better throughput at the cost of greater
+latency due to inter-replica coordination. The \name deployment offers the
+benefit of replication, while only paying the cost of coordination when
+necessary.
 
 Finally, we study the impact of summarization in
 Figure~\ref{grf:summarization}. We use 128 clients and a single \name replica,
@@ -162,7 +162,7 @@ every operation has to reduce over the set of all previous operations,
 operations take increasingly more time to complete since they must contend with
 an ever growing set.  With summarization only in memory, performance still
 degrades due to the cost of fetching all previous updates from the backing
-store into the shim layer. Fetching the latest updates is essential for SC
-operations. With summarization enabled on both disk and memory, latency does
-not increase over time, and the implementation realizes throughput of 67K
-operations/minute.
+store into the shim layer. Fetching the latest updates from the backing store
+is essential for SC operations. With summarization enabled on both disk and
+memory, latency does not increase over time, and the implementation realizes
+throughput of 67K operations/minute.
