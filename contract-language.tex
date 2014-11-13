@@ -2,6 +2,7 @@
 \label{sec:lang}
 
 \begin{figure}
+\vspace{-7pt}
 \begin{smathpar}
 \begin{array}{rclcl}
 \multicolumn{5}{c}{
@@ -9,7 +10,7 @@
   {\sf Op} \in \mathtt{OperName}
 }\\
 \cv 		& \in & \mathtt{Contract} 	& \coloneqq & \forall (x : \tau).\cv
-        \ALT \pi \\
+        \ALT \forall x.\cv \ALT \pi \\
 \tau		& \in	& \mathtt{EffType}	& \coloneqq &  {\sf Op}
         \ALT \tau \vee \tau \\
 \pi			&	\in & \mathtt{Prop} & \coloneqq & \true \ALT R(x,y)
@@ -32,12 +33,14 @@ The syntax of our core contract language is shown in Figure
 admits prenex universal quantification over typed and untyped effect variables.
 We use a special effect variable ($\cureff$) to denote the effect of
 \emph{current operation} - the operation for which a contract is being written.
-The type of an effect is simply the name of the operation (eg: \cf{withdraw})
-that induced the effect. We admit disjunction in types to let an effect variable
-range over multiple operation names. The contract $\small \forall (a : \tau_1
-\vee \tau_2).~\psi$ is just syntactic sugar for $\small \forall a.
-(\oper{a}{\tau_1} \vee \oper{a}{\tau_2}) \Rightarrow \psi$. An untyped effect
-variable ranges over all operation names.
+Notice that $\cureff$ occurs free in the contract. We will fix its scope when
+classifying the contracts (\S~\ref{sec:classify}). The type of an effect is
+simply the name of the operation (eg: \cf{withdraw}) that induced the effect.
+We admit disjunction in types to let an effect variable range over multiple
+operation names. The contract $\small \forall (a : \tau_1 \vee \tau_2).~\psi$
+is just syntactic sugar for $\small \forall a. (\oper{a}{\tau_1} \vee
+\oper{a}{\tau_2}) \Rightarrow \psi$. An untyped effect variable ranges over all
+operation names.
 
 Quantifier-free propositions in our contract language are conjunctions,
 disjunctions and implications of predicates expressing relations between pairs
@@ -57,6 +60,7 @@ happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 \subsection{Semantics}
 
 \begin{figure}
+\vspace{-7pt}
 \begin{smathpar}
 \begin{array}{lclcl}
 \multicolumn{5}{l}{
@@ -92,7 +96,7 @@ potential model for any first-order formula ($\cv$) expressible in our contract
 language. If $\E$ is indeed a valid model for $\cv$ (written as $\E \models
 \cv$), we say that the execution $\E$ satisfied the contract $\cv$:
 \begin{definition}
-An axiomatic execution $\E$ is said to satisfy a contract $\cv$ if and
+An axiomatic execution $\E$  satisfies a contract $\cv$ if and
 only if $E \models \cv$.
 \end{definition}
 
@@ -108,17 +112,16 @@ purposes, we identify three particular consistency levels -- eventual, causal,
 and strong, commonly offered by many distributed stores with tunable
 consistency, with increasing overhead in terms of latency and availability.
 
-\begin{itemize}
-\setlength{\itemsep}{2pt}
+\begin{itemize}[noitemsep]
 
 \item \textbf{Eventual consistency}: Eventually consistent operations can
 	be satisfied as long as the client can reach at least one replica. In the
 	bank account example, \cf{deposit} is an eventually consistent operation.
-	While eventually consistent data stores typically offer \emph{basic} eventual
-	consistency with all possible anomalies, we assume that our store provides
-	stronger semantics that remain highly-available~\cite{BailisHAT,COPS}; the
-	store always exposes a \emph{causal cut} of the updates. This semantics can
-	be formally captured in terms of the following contract definition:
+	While an \ecds typically offer \emph{basic} eventual consistency with all
+	possible anomalies, we assume that our store provides stronger semantics that
+	remain highly-available~\cite{BailisHAT,COPS}; the store always exposes a
+	\emph{causal cut} of the updates. This semantics can be formally captured in
+	terms of the following contract definition:
 
   \vspace{-1.5em}
   \begin{smathpar}
@@ -153,26 +156,26 @@ consistency, with increasing overhead in terms of latency and availability.
 \end{itemize}
 \vspace{-1em}
 
-\subsection{Contract Comparison and Classification}
+\subsection{Contract Classification}
+\label{sec:classify}
 
 \newcommand{\DDe}[1]{#1}
 \begin{figure}
+\vspace{-10pt}
 \begin{smathpar}
-\begin{array}{c}
-\vspace{3mm}
+\begin{array}{cc}
 \RuleTwo
 {\DDe{\cv} \le \DDe{\scc}}
-{{\sf WellFormed}(\cv)}  \qquad
+{{\sf WellFormed}(\cv)}  &
 
 \RuleTwo
 {\DDe{\cv} \le \DDe{\ecc}}
-{{\sf EventuallyConsistent}(\cv)} \\
+{{\sf EventuallyConsistent}(\cv)} \\ \\
 
-\vspace{3mm}
 \RuleTwo
 {\DDe{\cv} \not\le \DDe{\ecc}
 \quad \DDe{\cv} \le \DDe{\ccc}}
-{{\sf CausallyConsistent}(\cv)} \qquad
+{{\sf CausallyConsistent}(\cv)} &
 
 \RuleTwo
 {\DDe{\cv} \not\le \DDe{\ccc}
@@ -180,7 +183,7 @@ consistency, with increasing overhead in terms of latency and availability.
 {{\sf StronglyConsistent}(\cv)}
 \end{array}
 \end{smathpar}
-\vspace{-5mm}
+\vspace{-3mm}
 \caption{Contract classification.}
 \label{sem:classify}
 \end{figure}
@@ -200,18 +203,17 @@ A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \cv_{st} \Rightarrow \cv_{op}$.
 \end{definition}
 
-The quantifier in the sequent binds $\cureff$ that occurs free in $\cv_{st}$ and
-$\cv_{op}$. Context ($\Delta$) of the sequent is a conjunction of assumptions
-about the nature of primitive relations. A \emph{well-formed} axiomatic
-execution ($\E$) is expected to satisfy these assumptions (i.e., $\E \models
-\Delta$).
+The quantifier in the sequent binds $\cureff$ that occurs free in $\cv_{st}$
+and $\cv_{op}$. Context ($\Delta$) of the sequent is a conjunction of
+assumptions about the nature of primitive relations. A \emph{well-formed}
+axiomatic execution ($\E$) is expected to satisfy these assumptions (i.e., $\E
+\models \Delta$).
 
 \begin{definition}
-An axiomatic executions $\small \E = \Exec$ is said to be well-formed if the
+An axiomatic execution $\small \E = \Exec$ is well-formed if the
 following axioms ($\Delta$) hold:
 
-\begin{itemize}
-\setlength{\itemsep}{2pt}
+\begin{itemize}[noitemsep]
 \item The happens-before relation is acyclic: $\small \forall a.~\neg\hb{a}{a}$.
 \item Visibility only relates actions on the same object:
 	\begin{itemize}
@@ -254,7 +256,7 @@ scheme classifies the \cf{getBalance} contract ($\cv_{gb}$) from
 the sequent $\Delta \vdash \ccc \Rightarrow \cv_{gb}$ is valid in first-order
 logic (therefore, $\cv_{gb} \le \ccc$), whereas the sequent $\Delta \vdash \ecc
 \Rightarrow \cv_{gb}$ is invalid (therefore, $\cv_{gb} \not\le \ecc$). Since we
-confine of our contract language to a decidable subset of the logic, validity
+confine our contract language to a decidable subset of the logic, validity
 of such sequents can be decided mechanically allowing us to automate the
 classification scheme in \name.
 
