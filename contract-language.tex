@@ -89,9 +89,8 @@ interpretations for primitive relations (eg: $\visZ$) that occur free in
 contract formulas, and also fixes the domain of quantification to set of all
 effects ($\EffSoup$) observed during the program execution. As such, $\E$ is a
 potential model for any first-order formula ($\cv$) expressible in our contract
-language. If $\E$ is indeed a valid model for $\cv$ (expressed using the
-model-theoretic consequence relation as $\E \models \cv$), we say that the
-execution $\E$ satisfied the contract $\cv$:
+language. If $\E$ is indeed a valid model for $\cv$ (written as $\E \models
+\cv$), we say that the execution $\E$ satisfied the contract $\cv$:
 \begin{definition}
 An axiomatic execution $\E$ is said to satisfy a contract $\cv$ if and
 only if $E \models \cv$.
@@ -198,7 +197,7 @@ language as following:
 \begin{definition}
 A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \le \cv_{st}$ ) if and only if $\Delta \vdash \forall \cureff.
-\cv_{st} \Rightarrow \cv_{op}$.  
+\cv_{st} \Rightarrow \cv_{op}$.
 \end{definition}
 
 The quantifier in the sequent binds $\cureff$ that occurs free in $\cv_{st}$ and
