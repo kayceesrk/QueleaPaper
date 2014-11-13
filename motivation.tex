@@ -27,7 +27,7 @@ withdraw fails if the account has insufficient balance. Every operation in
 type Operation e a r = [e] -> a -> (r, Maybe e)
 \end{codehaskell}
 
-\noindent It takes a list of effects (the \emph{history} of updates to that
+\noindent An operation takes a list of effects (the \emph{history} of updates to that
 object), and an input argument, and returns a result along with an optional
 effect (read-only operations return \cf{Nothing}). The new effect (if emitted)
 is added to the state of the object at the current replica, and asynchronously
@@ -62,12 +62,12 @@ The datatype \cf{Acc} represents the effect type for the bank account. The
 function \cf{sum} returns the sum of elements in the list, and \cf{sel1}
 returns the first element of a tuple. For each operation, \cf{hist} is a
 \emph{snapshot} of the state of the object at some replica. In this sense,
-every operation on the RDT is atomic, and thus permitting sequential reasoning
-for implementing the RDTs. Here, \cf{getBalance} is a read-only operation,
+every operation on the RDT is atomic, and thus amenable to sequential reasoning.
+Here, \cf{getBalance} is a read-only operation,
 \cf{deposit} always emits an effect, and \cf{withdraw} only emits an effect if
 there is sufficient balance in the account. We have implemented a large corpus
 of RDTs for realistic benchmarks including shopping carts, auction and
-micro-blogging sites in few tens of lines of code.
+micro-blogging sites, etc. in a few tens of lines of code, expressed in this style.
 
 \subsubsection{Summarization}
 \label{sec:summarize}
@@ -86,15 +86,21 @@ For example, a last-writer-wins register with multiple updates is equivalent to
 a register with only the last write. Similarly, a set with a collection of add
 and remove operations is equivalent to a set with a series of additions of live
 elements from the original set. Since the notion of observable equivalence is
-specific to each RDT, we expect the programmer to provide a summarization
-function (\cf{summarize}) of type \cf{[e] -> [e]} for each RDT, as a part of
-the RDT specification.
+specific to each RDT, programmers can provide a summarization
+function - (\cf{summarize}) of type \cf{[e] -> [e]} -  as a part of
+the RDT specification. The summarization function for the bank account is:
 
-The summarization function for the bank account is \cf{summarize hist =
-[Deposit \$ sel1 \$ getBalance hist ()]}. Given a bank account history
-\cf{hist}, the \cf{summarize} function returns a new history with a single
-deposit of the current account balance. We utilize the summarization function
-to ensure that the state of an object remains summarized in each replica.
+{\small
+\begin{verbatim}
+ summarize hist = 
+   [Deposit $ sel1 $ getBalance hist ()]
+\end{verbatim}}
+
+\noindent Given a bank account history \cf{hist}, the \cf{summarize}
+function returns a new history with a single deposit of the current
+account balance. Our implementation invokes the summarization function
+associated with an RDT to reduce the size of the effect sets
+maintained by replicas.
 
 \subsection{Anomalies under Eventual Consistency}
 
