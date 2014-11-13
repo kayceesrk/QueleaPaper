@@ -52,13 +52,13 @@ transactions to be discharged if at least one shim layer node is reachable.
 
 We utilize the \cf{summarize} function (\S~\ref{sec:summarize}) to summarize
 the object state both in the shim layer node and the backing store, typically
-when the number of effects on an object crosses a tunable threshold. Shim layer
-summarization is straight-forward; a summarization thread takes the local lock
-on the cached object, and replaces its state with the summarized state. The
-shim layer node only remains unavailable for that particular object during
-summarization (usually a few milliseconds). Performing summarization in the
-backing store is more complicated since the whole process needs to be atomic
-from a client's perspective, but Cassandra does not provide multi-row
+when the number of effects on an object crosses a tunable threshold.
+Shim layer summarization is straight-forward; a summarization thread takes the
+local lock on the cached object, and replaces its state with the summarized
+state. The shim layer node only remains unavailable for that particular object
+during summarization (usually a few milliseconds). Performing summarization in
+the backing store is more complicated since the whole process needs to be
+atomic from a client's perspective, but Cassandra does not provide multi-row
 transactions. We have engineered and implemented a scalable summarization
 mechanism for the backing store that permits concurrent client operations, but
 nonetheless prohibits these operations from witnessing intermediate states of
