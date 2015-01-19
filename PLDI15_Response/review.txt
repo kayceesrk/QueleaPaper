@@ -1,0 +1,341 @@
+===========================================================================
+                           PLDI '15 Review #143A
+                     Updated 10 Dec 2014 2:48:53pm EST
+---------------------------------------------------------------------------
+  Paper #143: Declarative Programming over Eventually Consistent Data
+              Stores
+---------------------------------------------------------------------------
+
+                      Overall merit: 2. Accept
+                         Conviction: 1. High
+
+                         ===== Paper summary =====
+
+The paper presents QUELEA which is a declarative programming model for
+eventually consistent data stores (ECDS). QUELEA allows the programmer to
+declare application-level consistency contracts that axiomatically specify the
+set of legal executions for each important operation. Then these contracts are
+statically analyzed using a theorem prover, and mapped to store-level
+consistency properties using a weaker-than relationship to guarantee
+correctness while only realizing the weakest possible data store consistency
+level for each operation and transaction.
+
+                        ===== Points in favor =====
+
+-Very well written paper with useful examples and graphs addressing complicated
+problem
+-Great solution that reduces the effort of the programmer for choosing the
+right consistency level in a fine grain manner
+
+                        ===== Points against =====
+
+-Some improvement to evaluation can be made
+
+                      ===== Comments for author =====
+
+A great and interesting work providing a complete solution to simplify the
+programmer efforts in choosing the right consistency level in fine grain
+operations
+
+-I think also comparing to a dynamic strategy for enforcing contacts (mentioned
+on page 5 as an alternative), would make the case stronger. Such strategy can
+take advantage from transaction buffer in each replica. Can you comment?
+
+-I believe the compile time can still be a show stopper. Given these
+applications can change a lot, isn't the long compilation time due to the SMT
+solver an issue?
+
+-In your experiments did you consider the shim layer overhead? Did you use the
+same number of nodes in all tests? I mean was it the case that "shim layer
+nodes" + "other nodes" in Q runs was always equal to "all the nodes" in non-Q
+runs? Also, how does the shim layer grow (number of nodes) as the whole system
+grows?
+
+-Comparison against EC and CC in Figure 9a may not make much sense because they
+are not basically correct runs for the bank benchmark.
+
+-Are all the benchmarks written from scratch or did you convert some existing
+one to QUELEA? My impression is the former is correct.
+
+===========================================================================
+                           PLDI '15 Review #143B
+                     Updated 20 Dec 2014 7:57:09am EST
+---------------------------------------------------------------------------
+  Paper #143: Declarative Programming over Eventually Consistent Data
+              Stores
+---------------------------------------------------------------------------
+
+                      Overall merit: 2. Accept
+                         Conviction: 1. High
+
+                         ===== Paper summary =====
+
+This paper presents a new model for writing programs over eventually consistent
+data stores. In this model, programmers use contracts to specify
+application-level consistency requirements and the system automatically maps
+these operations the weakest of three built-in consistency models that
+satisfies the contract. The paper presents a formalization of the contract
+langauge in a simple core calculus, a proof of contract soundness, an
+implementation based on Cassandra, and an evaluation on a set of small
+benchmarks.
+
+                        ===== Points in favor =====
+
+A large number of recent papers have studied mechanisms for obtaining
+coordination-free transactions, fueled by the rise of geo-replicated
+applciations running across multiple data centers. By giving programmers tools
+for specifying just the properties needed for applications, this paper presents
+a novel new approach that is both general and efficient.
+
+Cleanly separates reasoning about transaction isolation levels from the
+consistency model used in the underlying implementation. The paper presents
+formalisms for describing both of these levels of abstraction.
+
+Moreove, unlike much of the other work in this area, this paper presents a
+clean formalization and proofs of soundness. Section 4 is a model of this type
+of work (even modulo the extreme PLDI '15 formatting requirements).
+
+It is rare to see user-defined replicated data types, and rarer still to see
+them in the presence of transactions.  This paper combines both in an elegant
+core system.
+
+The exposition of the paper is extremely clear and easy to follow, with
+numerous examples to illustrate the main points.
+
+The system has been implemented as a Haskell DSL and runs on top of Cassandra,
+a popular key-value store.
+
+                        ===== Points against =====
+
+The paper doesn't provide much discussion of the limitations of the
+approach---either positive or negative. For example, are there notions of
+consistency that fundamentally would not fit into this model?  The end of the
+paper mentions that it doesn't handle notions that depend on wall-clock time as
+distinct from session order. It would be interesting to know whether notions
+such as bounded staleness could be readily accomodated or not.
+
+As the author's acknowledge, the contracts language available to the programmer
+makes for verbose and low-level annotation requirements. Moreover, there is
+scant evidence that writing these annotations is any easier to get right than
+picking a consistency level in the first place.
+
+The system model requires the clients to perform all the actual computation on
+the data-store, including merging and summarizing. In a production setting this
+would likely prove infeasible, as it relies on strong assumptions of the
+clients' relationships, including identical running code and complete trust.
+The possibility that a crashed operation would be durably added to the log,
+only to break when a different client attempts to reduce over the log much
+later, is not friendly.
+
+The main weakness of this paper is the evaluation. There have been decades of
+work on transactions and there are numerous standard benchmarks (e.g. TPC-C)
+that are commonly used to evaluate and compare implementations. Accordingly,
+the standard for evaluation in this area is very high. However, the evaluation
+in this paper is based on hand-written benchmark applications and the
+comparison is only relative to the system itself, instantiated with different
+consistency levels. This would be much more convincing if it used standard
+benchmarks and actually compared against other systems.
+
+                      ===== Comments for author =====
+
+Minor comment: Footnote 3 discusses how you "encode" transitive closure in
+first-order logic. I didn't understand how this could ever be useful. Given the
+constraints
+
+  R(a,b) => R'(a,b)
+
+  R'(a,b) /\ R'(b,c) => R'(a,c)
+
+it seems that R' could be the total relation. How would this ever be useful?
+
+===========================================================================
+                           PLDI '15 Review #143C
+                     Updated 13 Dec 2014 8:56:16pm EST
+---------------------------------------------------------------------------
+  Paper #143: Declarative Programming over Eventually Consistent Data
+              Stores
+---------------------------------------------------------------------------
+
+                      Overall merit: 2. Accept
+                         Conviction: 2. Low
+
+                         ===== Paper summary =====
+
+The paper proposes a declarative language for replicated data types over
+eventual consistency systems.
+
+                        ===== Points in favor =====
+
+-The problem addressed in this paper is relevant.
+-The paper is well-written.
+
+                        ===== Points against =====
+
+-The expression of contracts is still complex.
+
+                      ===== Comments for author =====
+
+The paper discusses how to support various consistency level with declarative
+languages. It is pretty difficult to write code with weak consistency, this
+paper provides a very good solution to the problem.
+
+One of my concern of the paper is the expression of contracts is still complex.
+A example is the getBalance contract Page 4. While the current contract
+language is expressive, it is also a little complex if the purpose is just to
+specify the consistency level of a certain data structure. I am wondering if
+there are more intuitive and succinct ways to provide a higher level
+abstraction to define these contracts? One example is the "atomic" directives
+in Java. Can we have something similar to that to allow easier declaration of
+consistency levels?
+
+Another issue of this paper is the delta between this paper and the POPL paper[
+Burckhardt et al. 2014] on RDT. In the POPL paper, the contract was used as
+languages for verification tool while in this paper it is used to generate
+distributed protocol code. There are certainly differences between these two
+usage model, but the prior work does make this paper a little incremental.
+
+===========================================================================
+                           PLDI '15 Review #143D
+                      Updated 14 Jan 2015 11:09am EST
+---------------------------------------------------------------------------
+  Paper #143: Declarative Programming over Eventually Consistent Data
+              Stores
+---------------------------------------------------------------------------
+
+                      Overall merit: 2. Accept
+                         Conviction: 2. Low
+
+                         ===== Paper summary =====
+
+This paper presents QUELEA, a language extension for specifying the required
+consistency between operations of a distributed (replicated) data structure.
+The specifications of the developer are then automatically translated into the
+consistency and isolation levels that are available on the underlying
+distributed storage. The specifications of these levels must be specified in
+QUELEA as well for the translation to run automatically, using a theorem
+prover. The authors have implemented their language and the translation
+procedure on top of Cassandra, and demonstrated its use on several
+applications.
+
+                        ===== Points in favor =====
+
+- Separating the concerns of the application from the support levels of the
+storage.
+- A language (extension) to formally specify the requirements.
+- Use of theorem prover to determine strengths of practical constraints.
+- Nicely demonstrated and nicely written.
+
+                        ===== Points against =====
+
+- The increment of this work over [Bailis 2013b] is not very large. The
+previous work (and I don’t know if it originates from the same authors) already
+proposed separation of concerns and implemented an initial scheme. The current
+paper seems to extend it with a language and the use of the theorem prover. As
+a non-expert, this seems to me like a nice step but not a very large one.
+
+- Whenever a new language (or language extension) is proposed, developers tend
+to accept it only when the advantage is significant. I am afraid (at least to
+my mind) developers will prefer to directly link their requirements to the
+levels of support that the storage provides rather than specify their
+requirements in a new language and let a theorem prover determine the correct
+level of storage support to be used. So practicality may be limited.
+
+                      ===== Comments for author =====
+
+I think this line of work is interesting. Separating the support levels of the
+underlying distributed storage system from the consistency requirements of the
+algorithm is useful. That has been proposed in previous work. This work
+proposes a simple language extension that allows expressing the requirements of
+the algorithm and also the levels of support provided by the storage system.
+They also propose to automatically determine the strengths of the support
+levels and the algorithm requirements using a theorem prover. This allows
+automatically determining whether a support level matches the required
+consistency level. This paper advances this line of work an interesting step
+further. As a non-expert I am not sure how significant this step is and
+therefore whether it is appropriate for PLDI. I tend to think it is.
+
+One of the problems with new languages or new language extensions is that they
+usually do not get adopted by programmers. A programmer would take the time to
+learn a new language only if he feels the time spent on learning will pay off
+eventually. I am not sure programmers will be willing to adopt this extension.
+Maybe with enough syntactic sugars and if the authors created a library for
+describing the level of support for several popular storage systems this may
+become more enticing. So the impact of this paper may not be as strong as I
+would like it to be. On the other hand, the conference is about programming
+languages and very few papers actually propose new interesting language
+extensions.
+
+I felt that the discussion on the bank account was a bit too lengthy on one
+hand. You do not need so many words and examples to say that missing a
+withdrawal may have bad effects. On the other hand, I felt I needed more
+justification to the claim: “any execution that does not exhibit the anomalies
+described in the previous section is a well-formed execution on the bank
+account object”. Why could there not be additional anomalies? Justifying that
+claim would be more useful to the reader.
+
+Can you say how much time the execution of the theorem prover takes? If the
+consistency constraints become more complex will the theorem prover still be
+able to determine the appropriate levels of support efficiently?
+
+Small comments:
+- You define the “special effect variable (η)” after you already use it in the
+examples earlier.
+- To me Figure 8 did not help. I would either extend it with some explanation
+or elide it.
+
+===========================================================================
+                           PLDI '15 Review #143E
+                    Updated 16 Jan 2015 12:58:38am EST
+---------------------------------------------------------------------------
+  Paper #143: Declarative Programming over Eventually Consistent Data
+              Stores
+---------------------------------------------------------------------------
+
+                      Overall merit: 1. Reject
+                         Conviction: 2. Low
+
+                         ===== Paper summary =====
+
+The paper presents a contract language called QUELEA for specifying consistency
+requirements for methods that use distributed data stores that offer varying
+levels of consistency enforcement at varying cost. They also present a tool
+that maps contracts in QUELEA into appropriate consistency levels in the data
+store that respect the method's requirements while minimizing cost.
+
+                        ===== Points in favor =====
+
+- Consistency in replicated storage is a complicated thing to reason about for
+programmers; anything that can lower the cognitive burden is a good thing.
+
+                        ===== Points against =====
+
+- It isn't clear that the proposed solution is any less complicated than
+reasoning directly about consistency; the evaluation does not actually evaluate
+this hypothesis, which is the main motivation for the paper.
+
+                      ===== Comments for author =====
+
+The contract language is complex and provides an even richer set of choices to
+the user than just choosing an appropriate consistency level---it isn't clear
+to me that this is an improvement for the user (e.g., the example for withdraw
+and getBalance on page 4 seems to require a deep understanding of the
+requirements). If a realistic scenario is just three totally-ordered
+consistency levels (as per this paper's evaluation), then it seems simpler to
+choose the level directly rather than try to specify a contract.
+
+This problem might be mitigated if it is expected than an application might be
+run on multiple different data stores with very different sets of consistency
+levels; is this the case here?
+
+The evaluation shows that using the weakest levels possible while still
+preserving correctness does give a performance improvement, but this isn't a
+surprising result. I would be more interested in seeing whether using QUELEA
+leads to fewer mis-classifications than choosing levels directly, which speaks
+to the main motivation of this work.
+
+This paper finds the correct consistency level by succesively testing the
+levels in order of strength in order to find the weakest one that satisfies the
+contract. Is it expected that most stores would have only a few levels in total
+order? If there are many levels in a partial order, is finding the correct
+level still tractable? If the levels are partially ordered, how is the "best"
+level defined?
