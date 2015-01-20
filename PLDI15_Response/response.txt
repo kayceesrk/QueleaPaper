@@ -17,21 +17,34 @@ well-understood relations -- vis, so and sameobj, along with the usual logical
 and relational operators. Moreover, in the presence of coordination-free
 transactions with weaker isolation levels, the choice of correct consistency
 level is non-trivial. Quelea incorporates transactions with a single additional
-primitive relation sametxn. We believe the apparent complexity of contracts can
+primitive relation (sametxn). We believe the apparent complexity of contracts can
 be further reduced using syntactic sugar, similar to our relational operators.
 
 
 Comparison to previous work
 ---------------------------
 Our work varies significantly from the previous works Bailis2013b and
-Burckhardt2014. While Quelea provides a generic framework to describe new RDTs
+Burckhardt2014. <!-- While Quelea provides a generic framework to describe new RDTs
 and verifiably compile them to existing data stores, Bailis2013b is concerned
 with implementing stronger consistency levels on top of existing stores.
 Bailis2013b is not concerned with language abstractions, but rather an
 implementation strategy. Our implementation, while sharing similarities with
 Bailis2013b, illustrates that the Quelea programming model can be efficiently
 realized on existing data stores. Moreover, Bailis2013b did not incorporate
-transactions, which Quelea does.
+transactions, which Quelea does. -->
+<!-- GK: 1. I think the statement "a generic framework to describe new RDTs and
+verifiably compile them to existing data stores" does not sufficiently
+distinguish Quelea from Bailis2013b. --> 
+
+Bailis2013b describes implement strategies to realize stronger consistency
+levels on top of eventually consistent stores. In contrast, Quelea provides a
+language framework to describe application-level consistency requirements and
+automatically map them to *some* implementation of appropriate store consistency
+level. As such, Quelea's contract classification is independent of how various
+consistency levels are actually implemented in the data store.  Furthermore,
+Bailis2013b did not incorporate transactions, which Quelea does. Nevertheless,
+our own implementation of strong consistency levels on top of Cassandra does
+bear some similarities with Bailis2013b.
 
 Burckhardt2014 describes a formal framework for expressing, verifying and
 comparing different forms of eventual consistency, and is not meant for
@@ -43,14 +56,15 @@ programming with coordination-free transactions.
 Compile Time
 ------------
 Our contract classification through the solver took on average took 11.5 ms
-across the benchmarks. We expect this SMT solver overhead to remain low as the
-application scales. This is because we do not analyze the RDT/transaction
-implementation to obtain the verification conditions but rather simply analyze
-the user provided contracts. The contracts are encoded as SMT formulas. In
-particular, each of our four primitive relations is encoded as an uninterpreted
-function. Hence, the state space for the validity check remains low. Moreover,
-our language is defined carefully such that the validity check is decidable for
-which efficient decision procedures exist.
+across the benchmarks (this statistic is also available on p.11 of the paper).
+We expect this SMT solver overhead to remain low as the application scales. This
+is because we do not analyze the RDT/transaction implementation to obtain the
+verification conditions but rather simply analyze the user provided contracts.
+Further, our contract language is defined carefully such that the validity check
+is decidable for which efficient decision procedures exist. Moreover, our
+contract language artifacts (e.g: primitive relations, effects), are encoded as
+uninterpreted symbols in SMT without the need for expensive theories, such as
+linear arithmetic.  Hence, the state space for the validity check remains low. 
 
 The time to classify a contract is proportional to the number of consistency
 levels in the partially ordered lattice. For example, Doug Terry et al.'s
