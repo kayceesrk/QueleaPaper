@@ -4,22 +4,24 @@ Complexity of contracts  (Reviewers ...)
 -----------------------
 
 We believe the difficulty of writing contracts is substantially simpler than
-choosing the correct store consistency level since developers do not need to
-understand the details of the underlying data store.  
+choosing a correct store consistency level, since developers do not need to
+understand the details of the underlying data store to define consistency
+properties relevant for the application.
 
-Moreover, while it is necessary to translate integrity constraints in the
-application to consistency constraints as contracts, the tremendous
-advantage that accrues is that these contracts are expressed over an
-abstract system model, resulting in generic RDT specifications that can be
-realized on different data stores (as our implementation illustrates) with
-varied consistency lattices (as pointed out by ReviewerE).
+Moreover, while it is necessary to translate application-specific integrity
+constraints to consistency constraints in the form of contracts, the
+tremendous advantage that accrues is that these contracts are expressed over
+an abstract system model, resulting in generic RDT specifications that can
+be realized on different data stores (as our implementation illustrates)
+with varied consistency lattices (as pointed out by ReviewerE).
 
 The Quelea contract language itself is built upon *only* three primitive,
 well-understood relations -- vis, so and sameobj, along with standard
 propositional logical and relational operators.  In the presence of
 coordination-free transactions with weaker isolation levels, the choice of
-correct consistency level is non-trivial. Quelea incorporates transactions
-with a single additional primitive relation (sametxn). 
+choosing the correct consistency level is non-trivial. Note also that Quelea
+incorporates transactions with a single additional primitive relation
+(sametxn).
 
 < provide an example using syntactic sugar >
 
