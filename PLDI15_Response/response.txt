@@ -1,1 +1,117 @@
-TODO
+We would like to thank the reviewers for their insightful comments. We first
+address the concerns raised my multiple reviewers first followed by individual
+concerns.
+
+Complexity of contracts
+-----------------------
+We tend to disagree with the idea that the difficulty of expressing the
+contracts is the same as choosing the correct store consistency level. While
+the programmer does need to translate the integrity constraints in the
+application to consistency constraints, the advantage is that the programmers
+write contracts for the abstract system model. This results in generic RDTs
+that can be realized on different data stores (as our implementation
+illustrates) with varied consistency lattices.
+
+The Quelea contract language itself is built upon three primitive,
+well-understood relations -- vis, so and sameobj, along with the usual logical
+and relational operators. Moreover, in the presence of coordination-free
+transactions with weaker isolation levels, the choice of correct consistency
+level is non-trivial. Quelea incorporates transactions with a single additional
+primitive relation sametxn. We believe the apparent complexity of contracts can
+be further reduced using syntactic sugar, similar to our relational operators.
+
+
+Comparison to previous work
+---------------------------
+Our work varies significantly from the previous works Bailis2013b and
+Burckhardt2014. While Quelea provides a generic framework to describe new RDTs
+and verifiably compile them to existing data stores, Bailis2013b is concerned
+with implementing stronger consistency levels on top of existing stores.
+Bailis2013b is not concerned with language abstractions, but rather an
+implementation strategy. Our implementation, while sharing similarities with
+Bailis2013b, illustrates that the Quelea programming model can be efficiently
+realized on existing data stores. Moreover, Bailis2013b did not incorporate
+transactions, which Quelea does.
+
+Burckhardt2014 describes a formal framework for expressing, verifying and
+comparing different forms of eventual consistency, and is not meant for
+practical programming over ECDS like Quelea. Moreover, unlike Burckhardt2014,
+Quelea focuses on automatic verification of contracts using SMT solver, which
+is essential for practicality. Quelea additionally incorporates support for
+programming with coordination-free transactions.
+
+Compile Time
+------------
+Our contract classification through the solver took on average took 11.5 ms
+across the benchmarks. We expect this SMT solver overhead to remain low as the
+application scales. This is because we do not analyze the RDT/transaction
+implementation to obtain the verification conditions but rather simply analyze
+the user provided contracts. The contracts are encoded as SMT formulas. In
+particular, each of our four primitive relations is encoded as an uninterpreted
+function. Hence, the state space for the validity check remains low. Moreover,
+our language is defined carefully such that the validity check is decidable for
+which efficient decision procedures exist.
+
+The time to classify a contract is proportional to the number of consistency
+levels in the partially ordered lattice. For example, Doug Terry et al.'s
+Session Guarantees for Weakly Consistent Replicated Data introduced 4
+incomparable session guarantees, and the consistency level for an operation is
+any combination of the 4 session guarantees. The classification here, at worst,
+requires 4! = 24 comparisons (SMT validity tests). Since each comparison is
+very cheap, the solution remains scalable.
+
+Review A
+--------
+The challenge with a dynamic strategy for enforcing contracts is the
+translation of contracts, which axiomatically describe correct execution to a
+validity check over the dynamic execution state. Such a translation is
+non-obvious.
+
+We used the same number of shim layer nodes for the results in Figure 9 a,b,c
+-- 5. Shim Layer nodes are soft-state entities and can be elastically scaled on
+demand. All the benchmarks except Twissandra and RUBiS were written from
+scratch.
+
+Review B
+--------
+Bounded staleness could be accommodated into the contract language, but the
+contract classification becomes undecidable since the theory of integer
+arithmetic is undecidable.
+
+RDT specification language does to some extent guards against
+malicious/incorrect code. In particular, RDT operations are side-effect free.
+While it is possible that the reduction can end up not terminating, it cannot
+do any more harm.
+
+A crashed operation does not affect the durable log. An operation is added to
+the log only if it is successful. An operation is considered successful if it
+produces a result.
+
+R+ could be a total relation, but the R+ is still useful because it is not
+required to be a total relation. For example, consider causal
+consistency (CC) contract which is defined as:
+
+    hbo \subseteq vis
+
+where hbo = (soo U vis)+. Because of our lenient encoding of “+", hbo can be
+any superset of  transitive closure of (soo U vis). Nevertheless, all we can
+assume about hbo is that it contains the  transitive closure of (soo U vis);
+there is no proof of membership for other elements in hbo.  Consequently, by
+asserting hbo \subseteq vis, the strongest guarantee that causal consistency 
+contract is offering is that the transitive closure of (soo U vis) is contained
+in vis. An application  contract (\psi) which requires more than the transitive
+closure of (soo U vis) to be contained in vis  cannot be satisfied under CC
+because the following implication is simply not valid even under our lenient
+definition of “+“ :
+
+    \Delta |- (hbo \subseteq vis) => \psi
+
+\Delta, as usual, denotes the conjunction of basic axioms about primitive
+relations.
+
+Review E
+--------
+Our idea is to parameterize the classification procedure for each target data
+store. Hence, if multiple partially ordered levels are appropriate, the
+classification procedure can be encoded to choose the desired consistency
+level based on external knowledge such as price.
