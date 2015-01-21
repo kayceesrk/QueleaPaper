@@ -52,9 +52,9 @@ Our contract classification through the solver took on average took 11.5 ms
 across the benchmarks (this statistic is also available on p.11 of the paper).
 We expect this SMT solver overhead to remain low as the application scales.
 This is because we do not analyze the RDT/transaction implementation to obtain
-the verification conditions but only analyze user-provided contracts.
-Moreover, our contract language artifacts (e.g: primitive relations, effects),
-are encoded as uninterpreted symbols in SMT without the need for expensive
+the verification conditions but only analyze user-provided contracts. Moreover,
+our contract language artifacts (e.g: primitive relations, effects), are
+encoded as uninterpreted symbols in SMT without the need for expensive
 theories, such as linear arithmetic.  Hence, the state space for the validity
 check remains low.
 
@@ -86,13 +86,13 @@ Bounded staleness, which depends on wall clock time, is not incorporated in the
 contract language as integer arithmetic, in general, is undecidable; its
 inclusion would make the classification procedure undecidable.
 
-The standard benchmarks such as TPC-C are designed for traditional
-relational database systems whose specifications dictate relational tables,
-joins and transactions with strong isolation requirements, which are not
-readily supported by NoSQL stores. As such these kinds of benchmarks are not
-used to analyze and compare ECDS performance. On the other hand, since
-Quelea was realized on top of Cassandra, we were able to obtain a point of
-comparison with respect to vanilla Cassnadra (P.10, Column.2, para.3).
+The standard benchmarks such as TPC-C are designed for traditional relational
+database systems whose specifications dictate relational tables, joins and
+transactions with strong isolation requirements, which are not readily
+supported by NoSQL stores. As such these kinds of benchmarks are not used to
+analyze and compare ECDS performance. On the other hand, since Quelea was
+realized on top of Cassandra, we were able to obtain a point of comparison with
+respect to vanilla Cassnadra (P.10, Column.2, para.3).
 
 R+ could be a total relation, but R+ is still useful because it is not
 *required* to be a total relation. For example, consider a causal
