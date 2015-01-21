@@ -1,6 +1,6 @@
-We thank the reviewers for their detailed reviews and comments. 
+We thank the reviewers for their detailed reviews and comments.
 
-Complexity of contracts  (Reviewers ...)
+Complexity of contracts  (Reviews B,C,D,E)
 -----------------------
 
 We believe the difficulty of writing contracts is substantially simpler than
@@ -9,11 +9,11 @@ understand the details of the underlying data store to define consistency
 properties relevant for the application.
 
 Moreover, while it is necessary to translate application-specific integrity
-constraints to consistency constraints in the form of contracts, the
-tremendous advantage that accrues is that these contracts are expressed over
-an abstract system model, resulting in generic RDT specifications that can
-be realized on different data stores (as our implementation illustrates)
-with varied consistency lattices (as pointed out by ReviewerE).
+constraints to consistency constraints in the form of contracts, the tremendous
+advantage that accrues is that these contracts are expressed over an abstract
+system model, resulting in generic RDT specifications that can be realized on
+different data stores (as our implementation illustrates) with varied
+consistency lattices (as pointed out by ReviewerE).
 
 The Quelea contract language itself is built upon *only* three primitive,
 well-understood relations -- vis, so and sameobj, along with standard
@@ -23,53 +23,48 @@ choosing the correct consistency level is non-trivial. Note also that Quelea
 incorporates transactions with a single additional primitive relation
 (sametxn).
 
-< provide an example using syntactic sugar >
-
-
-
-Comparison to previous work (Reviewers ...)
+Comparison to previous work (Reviews C,D)
 ---------------------------
 
 Our work differs significantly from Bailis2013b and Burckhardt2014.
 
 Burckhardt2014 describes a formal framework for expressing, verifying and
 comparing different forms of eventual consistency, and is not meant for
-practical programming over ECDS like Quelea. Moreover, unlike
-Burckhardt2014, Quelea focuses on *automatic* verification of RDT
-specifications, which is essential for practicality, and additionally
-incorporates support for programming with coordination-free transactions.
+practical programming over ECDS like Quelea. Moreover, unlike Burckhardt2014,
+Quelea focuses on *automatic* verification of RDT specifications, which is
+essential for practicality, and additionally incorporates support for
+programming with coordination-free transactions.
 
-Bailis2013b describes strategies to realize stronger consistency levels on
-top of an eventually consistent store, but does not consider
-parameterization of application consistency constraints over arbitrary data
-store implementations.  In contrast, Quelea provides a language framework to
-describe application-level consistency requirements and automatically map
-them to *some* data store implementation. As such, Quelea's contract
-classification is independent of how various consistency levels are actually
-implemented in the data store.  Moreover, Bailis2013b does not incorporate
-transactions, which Quelea does.
+Bailis2013b describes strategies to realize stronger consistency levels on top
+of an eventually consistent store, but does not consider parameterization of
+application consistency constraints over arbitrary data store implementations.
+In contrast, Quelea provides a language framework to describe application-level
+consistency requirements and automatically map them to *some* data store
+implementation. As such, Quelea's contract classification is independent of how
+various consistency levels are actually implemented in the data store.
+Moreover, Bailis2013b does not incorporate transactions, which Quelea does.
 
 
-Compilation Time  (Reviewers ...)
+Compilation Time  (Reviews A,D)
 ----------------
 
 Our contract classification through the solver took on average took 11.5 ms
-across the benchmarks (this statistic is also available on p.11 of the
-paper).  We expect this SMT solver overhead to remain low as the application
-scales. This is because we do not analyze the RDT/transaction implementation
-to obtain the verification conditions but only analyze user-provided
-contracts.  Moreover, our contract language artifacts (e.g: primitive
-relations, effects), are encoded as uninterpreted symbols in SMT without the
-need for expensive theories, such as linear arithmetic.  Hence, the state
-space for the validity check remains low.
+across the benchmarks (this statistic is also available on p.11 of the paper).
+We expect this SMT solver overhead to remain low as the application scales.
+This is because we do not analyze the RDT/transaction implementation to obtain
+the verification conditions but only analyze user-provided contracts.
+Moreover, our contract language artifacts (e.g: primitive relations, effects),
+are encoded as uninterpreted symbols in SMT without the need for expensive
+theories, such as linear arithmetic.  Hence, the state space for the validity
+check remains low.
 
 The time to classify a contract is proportional to the number of consistency
-levels in the partially ordered lattice. For example, Doug Terry et al.'s
-Session Guarantees for Weakly Consistent Replicated Data (cite ...)
-introduced 4 incomparable session guarantees, and the consistency level for
-an operation is any combination of the 4 session guarantees. The
-classification here, at worst, requires 4! = 24 comparisons (SMT validity
-tests). Since each comparison is very cheap, the solution remains scalable.
+levels in the partially ordered lattice. For example, [[Doug Terry et al.'s
+Session Guarantees for Weakly Consistent Replicated Data, PDIS '94]] introduced
+4 incomparable session guarantees, and the consistency level for an operation
+is any combination of the 4 session guarantees. The classification here, at
+worst, requires 4! = 24 comparisons (SMT validity tests). Since each comparison
+is very cheap, the solution remains scalable.
 
 Review A
 --------
@@ -87,45 +82,23 @@ written from scratch.
 Review B
 --------
 
-Bounded staleness could be accommodated into the contract language, but
-contract classification becomes undecidable since the theory of integer
-arithmetic is undecidable.
+Bounded staleness, which depends on wall clock time, is not incorporated in the
+contract language; as integer arithmetic, in general, is undecidable, its
+inclusion would make the classification procedure undecidable.
 
-The RDT specification language does to some extent guard against
-malicious/incorrect code. In particular, RDT operations are side-effect
-free.  While it is possible that the reduction can end up not terminating,
-it cannot corrupt system state.
-
-A crashed operation does not affect the durable log. An operation is added to
-the log only if it is successful. An operation is considered successful if it
-produces a result.
+The standard benchmarks such as TPC-C are designed for traditional relational
+database systems whose specifications dictate relational tables, joins and
+transactions with strong isolation requirements, which are not readily
+supported by NoSQL stores. As such these traditional benchmarks such as TPC are
+not used to analyze and compare ECDS performance. On the other hand, since
+Quelea was realized on top of Cassandra, we were able to obtain a point of
+comparison with respect to vanilla Cassnadra (P.10, Column.2, para.3).
 
 R+ could be a total relation, but R+ is still useful because it is not
-required to be a total relation. For example, consider a causal
-consistency (CC) contract defined as:
-
-    hbo \subseteq vis
-
-where hbo = (soo U vis)+. Because of our lenient encoding of “+", hbo can be
-any superset of the transitive closure of (soo U vis). Nevertheless, all we
-can assume about hbo is that it contains the  transitive closure of (soo U
-vis); there is no proof of membership for other elements in hbo. 
-Consequently, by asserting hbo \subseteq vis, the strongest guarantee that
-causal consistency  contract is offering is that the transitive closure of
-(soo U vis) is contained in vis. An application  contract (\psi) which
-requires more than the transitive closure of (soo U vis) to be contained in
-vis  cannot be satisfied under CC because the following implication is
-simply not valid even under our lenient definition of “+“ :
-
-    \Delta |- (hbo \subseteq vis) => \psi
-
-\Delta, as usual, denotes the conjunction of basic axioms about primitive
-relations.
-
-Review E
---------
-
-Our idea is to parameterize the classification procedure for each target
-data store. Hence, if multiple partially ordered levels are appropriate, the
-classification procedure can be encoded to choose the desired consistency
-level based on external knowledge such as price.
+*required* to be a total relation. For example, consider a causal
+consistency (CC) contract defined as hbo \subseteq vis where hbo = (soo U
+vis)+. Though our definition hbo can be a superset of transitive closure (TC)
+of (soo U vis), we do not have a *proof* of inclusion of elements other than
+the ones in the TC. As such an application contract (\psi) which requires more
+than CC (say total order) would not be satisfied since the implication \Delta
+|- (hbo \subseteq vis) => \psi is not valid.
