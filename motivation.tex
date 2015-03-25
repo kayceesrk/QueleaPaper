@@ -201,15 +201,15 @@ Any execution on a bank account object that preserves the above contract for a
 \cf{withdraw} operation is said to be derived from a correct implementation of
 \cf{withdraw}.
 
-\noindent To prevent \cf{getBalance} from ever showing negative balance, it is
+To prevent \cf{getBalance} from ever showing a negative balance, it is
 necessary to prevent the scenario depicted in
 fig.~\ref{fig:negativeBalanceAnomaly}. Let $\cureff$ stand for the effect
 emitted by the \cf{getBalance} operation. If the effect ($b$) of a withdraw
 operation is visible to $\cureff$, and the effect ($a$) of a deposit operation
 is visible to the effect ($b$) of the withdraw operation, then it must be the
 case that $a$ is also visible to $\cureff$. A contract ($\cv_{gb}^1$) for
-\cf{getBalance} operation precisely captures this application-level consistency
-requirement:
+\cf{getBalance} operation that precisely captures this application-level consistency
+requirement can be written thus:
 
 \vspace{-1em}
 \begin{smathpar}
@@ -223,8 +223,8 @@ requirement:
 fig.~\ref{fig:missingUpdateAnomaly}, it is necessary for a \cf{getBalance}
 operation on a bank account to witness the effects of all previous \cf{deposit}
 and \cf{withdraw} operations performed on the same bank account in the same
-session. We can conceive an alternative contract ($\cv_{gb}^2$) for
-\cf{getBalance} to express this consistency requirement:
+session. We can express an additional contract ($\cv_{gb}^2$) for
+\cf{getBalance} that captures this consistency requirement:
 
 \vspace{-1em}
 \begin{smathpar}
@@ -242,7 +242,7 @@ on the same object as the \cf{getBalance} operation, then it must be the case
 that the \cf{getBalance} operation witnesses the effects of the preceding
 operations.
 
-\noindent To final contract ($\cv_{gb}$) of the \cf{getBalance} operation is
+The final contract ($\cv_{gb}$) of the \cf{getBalance} operation is
 merely a conjunction of the previous two versions ($\cv_{gb}^1$ and
 $\cv_{gb}^2$):
 
