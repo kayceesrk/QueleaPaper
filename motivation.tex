@@ -7,7 +7,7 @@ non-negative. We begin by implementing a bank account replicated data type
 (RDT) in \name, and then describe the mechanisms to obtain the desired
 correctness guarantees.
 
-\subsection{RDT specification}
+\subsection{RDT Specification}
 
 A key novelty in \name is that it allows the addition of new RDTs to the store,
 which obviates the need for coercing the application logic to utilize the store
@@ -54,6 +54,7 @@ withdraw hist v =
   then (True, Just dollar Withdraw v)
 	else (False, Nothing)
 \end{codehaskell}
+\captionsetup{singlelinecheck=off}
 \caption{Definition of a bank account expressed in Quelea.}
 \label{fig:ex}
 \end{figure}
@@ -246,7 +247,7 @@ The final contract ($\cv_{gb}$) of the \cf{getBalance} operation is
 merely a conjunction of the previous two versions ($\cv_{gb}^1$ and
 $\cv_{gb}^2$):
 
-\vspace{-1em}
+\vspace{-0.6em}
 \begin{smathpar}
 \begin{array}{l}
 \forall (a:\rcf{deposit}), (b:\rcf{withdraw}), (c: \rcf{deposit} \vee \rcf{withdraw}). \\

@@ -123,7 +123,7 @@ consistency, with increasing overhead in terms of latency and availability.
 	\emph{causal cut} of the updates. This semantics can be formally captured in
 	terms of the following contract definition:
 
-  \vspace{-1.5em}
+  \vspace{-1em}
   \begin{smathpar}
   \ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{smathpar}
@@ -139,17 +139,17 @@ consistency, with increasing overhead in terms of latency and availability.
 	The corresponding store semantics is captured by the contract $\ccc$ defined
 	below:
 
-  \vspace{-1.5em}
+  \vspace{-1em}
   \begin{smathpar}
   \ccc = \forall a.~\hbo{a}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{smathpar}
 
-\item \textbf{Strong Consistency}: Strongly consistent operations may block
+\item \textbf{Strong consistency}: Strongly consistent operations may block
   indefinitely under network partitions. An example is the total-order
   contract on \cf{withdraw} operation. The corresponding store semantics is
 	captured by the $\scc$ contract definition:
 
-  \vspace{-1.5em}
+  \vspace{-1em}
   \begin{smathpar}
   \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
   \end{smathpar}
@@ -292,7 +292,7 @@ a sequence of pairs composed of replicated data type operations $\mathit{op}$,
 tagged with the consistency class $\tau$ of their contracts (as determined by
 the contract classification scheme). We assume a reduction relation of form:
 
-\vspace{-1.7em}
+\vspace{-1em}
 \begin{smathpar}
   \auxred{} {\E,\langle op,\tau \rangle;\sigma \pll \Sigma} {\eff}
     {\E',\sigma \pll \Sigma}

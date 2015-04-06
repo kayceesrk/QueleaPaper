@@ -34,7 +34,7 @@ unique transaction. While transactions may have varying isolation guarantees,
 we make the standard assumption that all transactions provide atomicity. Hence,
 we include the following axiom in $\Delta$:
 
-\vspace{-1.5em}
+\vspace{-1em}
 \begin{smathpar}
 \forall a,b,c.~\txn{a}{b,c} ~\wedge~ \sameobj{b}{c} ~\wedge~ \vis{b}{a}
 \Rightarrow \vis{c}{a}
@@ -102,7 +102,7 @@ requirement as a contract. Since we would like both the \cf{getBalance}
 operations to witness the same set of \cf{save} transactions, we define the
 constraint on \cf{totalBalance} transaction $\psi_{tb}$ as:
 
-\vspace{-1.2em}
+\vspace{-1em}
 \begin{smathpar}
 \begin{array}{l}
 \cv_{tb} = \forall a:\rcf{getBalance}, b:\rcf{getBalance}, \\
@@ -124,11 +124,20 @@ $\psi_1$ is simply $\small \true$.
 \begin{figure}
 \vspace{-2.3mm}
 \centering
-\subfigure[Atomicity]{\label{fig:txn_atomicity}\includegraphics[width=0.25\columnwidth]{Figures/TxnAtomic}}
+\subfigure[Atomicity]{
+  \label{fig:txn_atomicity}
+  \includegraphics[width=0.25\columnwidth]{Figures/TxnAtomic}
+}
 \hfill
-\subfigure[Monotonic Atomic View]{\label{fig:txn_mav}\includegraphics[width=0.25\columnwidth]{Figures/TxnMAV}}
+\subfigure[Monotonic Atomic View]{
+  \label{fig:txn_mav}
+  \includegraphics[width=0.25\columnwidth] {Figures/TxnMAV}
+}
 \hfill
-\subfigure[Repeatable Read]{\label{fig:txn_rr}\includegraphics[width=0.25\columnwidth]{Figures/TxnRR}}
+\subfigure[Repeatable Read]{
+  \label{fig:txn_rr}
+  \includegraphics[width=0.25\columnwidth]{Figures/TxnRR}
+}
 \caption{Semantics of transaction contracts. $x$ and $y$ are distinct objects.
 The dotted line represents the visibility requested by the contracts.}
 \label{fig:transaction}
@@ -172,7 +181,7 @@ and before performing an operation at some replica, ensure that the replica
 includes all the transactions in $S_t$. Hence, MAV is coordination-free. MAV
 semantics is captured with the following contract:
 
-\vspace{-1em}
+\vspace{-0.6em}
 \begin{smathpar}
 \begin{array}{l}
 \mavc = \forall a,b,c,d.~\txn{a,b}{c,d} ~\wedge~ \so{a}{b} ~\wedge~ \vis{c}{a} \\
@@ -188,7 +197,7 @@ hence RR is coordination-free. An example for such a transaction is the
 \cf{totalBalance} transaction. The semantics of RR is captured by the following
 contract:
 
-\vspace{-1.2em}
+\vspace{-0.6em}
 \begin{smathpar}
 \begin{array}{l}
 \rrc = \forall a,b,c,d.~\txn{a,b}{c,d} ~\wedge~ \vis{c}{a} \\
