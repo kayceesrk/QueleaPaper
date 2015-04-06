@@ -54,7 +54,6 @@ transfers \cf{amt} from current to savings, and \cf{totalBalance}, which
 returns the sum of the balances of individual accounts. Our goal is to ensure
 that \cf{totalBalance} returns the result obtained from a consistent snapshot
 of the object states. The \name code for the transactions is given below:
-\vspace{-1em}
 
 \noindent \begin{minipage}[t]{0.53\columnwidth}
 \begin{codehaskell}
@@ -122,7 +121,6 @@ $\psi_1$ is simply $\small \true$.
 \subsection{Coordination-free Transactions}
 
 \begin{figure}
-\vspace{-2.3mm}
 \centering
 \subfigure[Atomicity]{
   \label{fig:txn_atomicity}
@@ -159,7 +157,6 @@ Importantly, RC does not entail any other guarantees. As a result, a store
 implementing RC does not require inter-replica coordination. We can express RC
 as follows:
 
-\vspace{-1em}
 \begin{smathpar}
 \begin{array}{l}
 \rcc = \forall a,b,c.~\txn{a}{b,c} \wedge \sameobj{b}{c} \\

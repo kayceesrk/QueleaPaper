@@ -213,8 +213,6 @@
       \csname lst@setfirstlabel\endcsname}
     { %\centering
       \csname lst@savefirstlabel\endcsname}
-% known bug: http://tex.stackexchange.com/questions/1522/pdfendlink-ended-up-in-different-nesting-level-than-pdfstartlink
-\newcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
 
 \include{mydefs}
 
@@ -229,16 +227,29 @@
 \conferenceinfo{PLDI'15}{, June 13--17, 2015, Portland, OR, USA}
 \CopyrightYear{2015}
 \crdata{978-1-4503-3468-6/15/06}
+\doi{nnnnnnn.nnnnnn}
 %
 % any author declaration will be ignored  when using 'pldi' option (for double blind review)
 %
 \title{Declarative Programming over Eventually Consistent Data Stores }
 
-\authorinfo{KC Sivaramakrishnan}{University of Cambridge, UK}{sk826@cl.cam.ac.uk}
-\authorinfo{Gowtham Kaki}{Purdue University, USA}{gkaki@cs.purdue.edu}
-\authorinfo{Suresh Jagannathan}{Purdue University, USA}{suresh@cs.purdue.edu}
+\authorinfo{KC Sivaramakrishnan\thanks{This work was done at Purdue University, USA.}}
+           {University of Cambridge, UK}
+           {sk826@cl.cam.ac.uk}
+
+\authorinfo{Gowtham Kaki}
+           {Purdue University, USA}
+           {gkaki@cs.purdue.edu}
+
+\authorinfo{Suresh Jagannathan}
+           {Purdue University, USA}
+           {suresh@cs.purdue.edu}
+
+
+\title{Declarative Programming over Eventually Consistent Data Stores }
 
 \maketitle
+
 \begin{abstract}
 User-facing online services utilize geo-distributed data stores to minimize
 latency and tolerate partial failures, with the intention to provide a fast,

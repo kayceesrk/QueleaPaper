@@ -2,7 +2,6 @@
 \label{sec:lang}
 
 \begin{figure}
-\vspace{-7pt}
 \begin{smathpar}
 \begin{array}{rclcl}
 \multicolumn{5}{c}{
@@ -60,7 +59,6 @@ happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 \subsection{Semantics}
 
 \begin{figure}
-\vspace{-7pt}
 \begin{smathpar}
 \begin{array}{lclcl}
 \multicolumn{5}{l}{
@@ -154,14 +152,12 @@ consistency, with increasing overhead in terms of latency and availability.
   \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
   \end{smathpar}
 \end{itemize}
-\vspace{-1em}
 
 \subsection{Contract Classification}
 \label{sec:classify}
 
 \newcommand{\DDe}[1]{#1}
 \begin{figure}
-\vspace{-10pt}
 \begin{smathpar}
 \begin{array}{cc}
 \RuleTwo
@@ -183,7 +179,6 @@ consistency, with increasing overhead in terms of latency and availability.
 {{\sf StronglyConsistent}(\cv)}
 \end{array}
 \end{smathpar}
-\vspace{-3mm}
 \caption{Contract classification.}
 \label{sem:classify}
 \end{figure}
@@ -274,7 +269,6 @@ classification-based contract enforcement. To help us state the result, we
 define an operational semantics of the system described informally in
 \S~\ref{sec:sysmod}:
 
-\vspace{-1em}
 \begin{smathpar}
 \begin{array}{lclcl}
 {\it op} 	& \in & \mathtt{Operation} \\

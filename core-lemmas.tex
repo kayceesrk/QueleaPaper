@@ -5,7 +5,7 @@
   \end{theorem}
 \begin{proof}
   Let $\E = (\EffSoup,\visZ,\soZ)$ and $\E'=(\EffSoup',\Rvis',\Rso')$.
-  We prove by case analysis on the derivation $\E; \Theta; \Sigma 
+  We prove by case analysis on the derivation $\E; \Theta; \Sigma
     \goesto \E'; \Theta'; \Sigma'$. Cases:
     \begin{itemize}
       \item Case \rulelabel{Comm}: The rule does not change the
@@ -25,8 +25,8 @@
       \begin{smathpar}
       \begin{array}{cr}
         {\sf HighlyAvailable}(\cv) & H\npp \\
-        \E;\Theta;\tuplee{s,op(v); \sigma} 
-          \;\xhookrightarrow{\eff,r}\; 
+        \E;\Theta;\tuplee{s,op(v); \sigma}
+          \;\xhookrightarrow{\eff,r}\;
         \E';\Theta';\tuplee{s,\sigma} & H\npp\\
       \end{array}
       \end{smathpar}
@@ -59,7 +59,7 @@
       \end{smathpar}
       Applying (\emph{eapply}) lemma~\ref{lem:1} using $H6$ with
       $E:=E'$, we deduce that to prove $G0$, it is sufficient to
-      prove: 
+      prove:
       \begin{smathpar}
       \begin{array}{cr}
         \msentails{E'}{\De{\cvc}} & G\mpp\\
@@ -68,7 +68,7 @@
       $G1$ becomes our new goal. Expanding the definition of $\cvc$:
       \begin{smathpar}
       \begin{array}{cr}
-        \msentails{E'}{\De{\forall a,b. \hbo{a}{b} \wedge \vis{b}{\eff} \Rightarrow 
+        \msentails{E'}{\De{\forall a,b. \hbo{a}{b} \wedge \vis{b}{\eff} \Rightarrow
           \vis{a}{\eff}}} & \\
       \end{array}
       \end{smathpar}
@@ -81,7 +81,7 @@
       \begin{array}{cr}
         \forall (a,b\in\EffSoup').
         \msentails{E'}{\De{\hbo{a}{b} \wedge
-        \vis{b}{\eff}} \Rightarrow 
+        \vis{b}{\eff}} \Rightarrow
           \De{\vis{a}{\eff}}} & G\mpp\\
       \end{array}
       \end{smathpar}
@@ -96,7 +96,7 @@
       \begin{smathpar}
       \begin{array}{cr}
         \msentails{E'}{\De{\hbo{a}{b} \wedge
-        \vis{b}{\eff}} \Rightarrow 
+        \vis{b}{\eff}} \Rightarrow
           \De{\vis{a}{\eff}}} & G\mpp\\
       \end{array}
       \end{smathpar}
@@ -175,8 +175,8 @@
       \begin{smathpar}
       \begin{array}{cr}
         {\sf StickyAvailable}(\cv) & H\npp \\
-        \E;\Theta;\tuplee{s,op(v); \sigma} 
-          \;\xhookrightarrow{\eff,r}\; 
+        \E;\Theta;\tuplee{s,op(v); \sigma}
+          \;\xhookrightarrow{\eff,r}\;
         \E';\Theta';\tuplee{s,\sigma} & H\npp\\
         \E'.\soZ^{-1}(\eff) \subseteq \Theta(r) & H\npp\\
       \end{array}
@@ -217,7 +217,7 @@
       \end{smathpar}
       Applying (\emph{eapply}) lemma~\ref{lem:1} using $H24$ with
       $E:=E'$, we deduce that to prove $G0$, it is sufficient to
-      prove: 
+      prove:
       \begin{smathpar}
       \begin{array}{cr}
         \msentails{E'}{\De{\ccc}} & G\mpp\\
@@ -238,7 +238,7 @@
       \begin{smathpar}
       \begin{array}{cr}
         \forall (a,b\in\EffSoup').
-        \msentails{E'}{\De{\hbo{a}{\eff}} \Rightarrow 
+        \msentails{E'}{\De{\hbo{a}{\eff}} \Rightarrow
           \De{\vis{a}{\eff}}} & G\mpp\\
       \end{array}
       \end{smathpar}
@@ -251,7 +251,7 @@
       And new goal:
       \begin{smathpar}
       \begin{array}{cr}
-        \msentails{E'}{\De{\hbo{a}{\eff}} \Rightarrow 
+        \msentails{E'}{\De{\hbo{a}{\eff}} \Rightarrow
           \De{\vis{a}{\eff}}} & G\mpp\\
       \end{array}
       \end{smathpar}
@@ -384,8 +384,8 @@
       \begin{smathpar}
       \begin{array}{cr}
         {\sf Unavailable}(\cv) & H\npp \\
-        \E;\Theta;\tuplee{s,op(v); \sigma} 
-          \;\xhookrightarrow{\eff,r}\; 
+        \E;\Theta;\tuplee{s,op(v); \sigma}
+          \;\xhookrightarrow{\eff,r}\;
         \E';\Theta_0;\tuplee{s,\sigma} & H\npp\\
         \E.A \subseteq \Theta(r) & H\npp\\
         \forall r'\in \dom(\Theta_0). \Theta'(r') = \Theta_0(r') \cup
@@ -420,7 +420,7 @@
       \end{smathpar}
       Applying (\emph{eapply}) lemma~\ref{lem:1} using $H6$ with
       $E:=E'$, we deduce that to prove $G0$, it is sufficient to
-      prove: 
+      prove:
       \begin{smathpar}
       \begin{array}{cr}
         \msentails{E'}{\De{\scc}} & G\mpp\\
@@ -464,7 +464,7 @@
       \end{array}
       \end{smathpar}
       Substituting definitions of $\phi_1$, $\phi_2$ and $\phi_3$ in
-      $G16-18$ and expanding: 
+      $G16-18$ and expanding:
       \begin{smathpar}
       \begin{array}{cr}
          {\sf hbo'}(a,\eff) \vee {\sf hbo'}(\eff,a)  \vee a = \eff & G\mpp\\
@@ -510,7 +510,7 @@
         \end{smathpar}
         Now, since ${\sf hbo'} = (\Rvis' \cup \Rso')^{+}$, proof
         follows from $H54$.
-          
+
         %% AXIOMS ON VIS, SO & HBO NEED TO BE PROVEN FOR VIS', SO' &
         %% HBO'.
         \item From previous case, we know that ${\sf hbo'}(a,\eff)$.
@@ -543,9 +543,9 @@
   \label{lem:local-state-is-cc}
   In a replicated data store $\E; \Theta; \Sigma$, local state of
   every replica $r$ in the store (i.e., $\Theta(r)$) is causally
-  consistent. That is:\vspace*{0.04in}\\
+  consistent. That is:\\
   $\forall (r\in{\sf dom}(\Theta)). \forall (\eff \in \Theta(r)). \\
-  \hspace*{0.8in}\forall (a\in\E.A). \hbo{a}{\eff} \Rightarrow a \in \Theta(r)$\vspace*{0.04in}\\
+  \hspace*{0.8in}\forall (a\in\E.A). \hbo{a}{\eff} \Rightarrow a \in \Theta(r)$\\
   where ${\sf hbo} = (\E.\Rvis \cup \E.\Rso)^{+}$
 \end{lemma}
 \begin{proof}
@@ -598,7 +598,7 @@
       \end{array}
       \end{smathpar}
       From $H3$ and $H8$, we conclude that $a \in \Theta(r)$.
-      
+
       \item SCase \emph{$a$ transitively precedes $\eff$}: Hypothesis:
       \begin{smathpar}
       \begin{array}{cr}
@@ -633,8 +633,8 @@
     \begin{array}{cr}
       r \in {\sf ReplID} & H\npp \\
       {\sf Unavailable}(\cv) & H\npp \\
-      \E_1;\Theta_1;\tuplee{s,op(v); \sigma} 
-        \;\xhookrightarrow{\eff,r}\; 
+      \E_1;\Theta_1;\tuplee{s,op(v); \sigma}
+        \;\xhookrightarrow{\eff,r}\;
       \E;\Theta_2;\tuplee{s,\sigma} & H\npp\\
       \E_1.A \subseteq \Theta_1(r) & H\npp\\
       \dom(\Theta) = \dom(\Theta_2) & H\npp\\
@@ -680,7 +680,7 @@
     Using $H25$ and $IH20$, we can reduce the goal ($G2$) to:
     \begin{smathpar}
     \begin{array}{cr}
-      \forall (r'\in{\sf dom}(\Theta)). 
+      \forall (r'\in{\sf dom}(\Theta)).
       \forall (a\in\E.\EffSoup). \hbo{a}{\eff} \Rightarrow a
         \in \Theta(r') & G\mpp \\
     \end{array}
@@ -711,7 +711,7 @@
       $false$ since {\sf hbo} is irreflexive.
       \emph{ex\_falso\_quodlibet}.
     \end{itemize}
-  % End of main cases  
+  % End of main cases
   \end{itemize}
 \qed
 \end{proof}
