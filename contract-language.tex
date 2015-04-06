@@ -2,7 +2,6 @@
 \label{sec:lang}
 
 \begin{figure}
-\vspace{-7pt}
 \begin{smathpar}
 \begin{array}{rclcl}
 \multicolumn{5}{c}{
@@ -60,7 +59,6 @@ happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 \subsection{Semantics}
 
 \begin{figure}
-\vspace{-7pt}
 \begin{smathpar}
 \begin{array}{lclcl}
 \multicolumn{5}{l}{
@@ -123,7 +121,6 @@ consistency, with increasing overhead in terms of latency and availability.
 	\emph{causal cut} of the updates. This semantics can be formally captured in
 	terms of the following contract definition:
 
-  \vspace{-1.5em}
   \begin{smathpar}
   \ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{smathpar}
@@ -139,7 +136,6 @@ consistency, with increasing overhead in terms of latency and availability.
 	The corresponding store semantics is captured by the contract $\ccc$ defined
 	below:
 
-  \vspace{-1.5em}
   \begin{smathpar}
   \ccc = \forall a.~\hbo{a}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{smathpar}
@@ -149,19 +145,16 @@ consistency, with increasing overhead in terms of latency and availability.
   contract on \cf{withdraw} operation. The corresponding store semantics is
 	captured by the $\scc$ contract definition:
 
-  \vspace{-1.5em}
   \begin{smathpar}
   \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
   \end{smathpar}
 \end{itemize}
-\vspace{-1em}
 
 \subsection{Contract Classification}
 \label{sec:classify}
 
 \newcommand{\DDe}[1]{#1}
 \begin{figure}
-\vspace{-10pt}
 \begin{smathpar}
 \begin{array}{cc}
 \RuleTwo
@@ -183,7 +176,6 @@ consistency, with increasing overhead in terms of latency and availability.
 {{\sf StronglyConsistent}(\cv)}
 \end{array}
 \end{smathpar}
-\vspace{-3mm}
 \caption{Contract classification.}
 \label{sem:classify}
 \end{figure}
@@ -274,7 +266,6 @@ classification-based contract enforcement. To help us state the result, we
 define an operational semantics of the system described informally in
 \S~\ref{sec:sysmod}:
 
-\vspace{-1em}
 \begin{smathpar}
 \begin{array}{lclcl}
 {\it op} 	& \in & \mathtt{Operation} \\
@@ -292,7 +283,6 @@ a sequence of pairs composed of replicated data type operations $\mathit{op}$,
 tagged with the consistency class $\tau$ of their contracts (as determined by
 the contract classification scheme). We assume a reduction relation of form:
 
-\vspace{-1.7em}
 \begin{smathpar}
   \auxred{} {\E,\langle op,\tau \rangle;\sigma \pll \Sigma} {\eff}
     {\E',\sigma \pll \Sigma}

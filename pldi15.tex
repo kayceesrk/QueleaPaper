@@ -3,7 +3,7 @@
 %
 % Requires sigplanconf style file provided on PLDI'15 web site
 %
-\documentclass[pldi,nocopyrightspace]{sigplanconf}
+\documentclass{sigplanconf}
 
 %
 % the following standard packages may be helpful, but are not required
@@ -205,8 +205,6 @@
       \csname lst@setfirstlabel\endcsname}
     { %\centering
       \csname lst@savefirstlabel\endcsname}
-% known bug: http://tex.stackexchange.com/questions/1522/pdfendlink-ended-up-in-different-nesting-level-than-pdfstartlink
-\newcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
 
 \include{mydefs}
 
@@ -214,13 +212,27 @@
 
 \begin{document}
 
-%
-% any author declaration will be ignored  when using 'plid' option (for double blind review)
-%
+%\special{papersize=8.5in,11in}
+%\setlength{\pdfpageheight}{\paperheight}
+%\setlength{\pdfpagewidth}{\paperwidth}
+
+\conferenceinfo{PLDI'15}{, June 13--17, 2015, Portland, OR, USA}
+\CopyrightYear{2015}
+\crdata{978-1-4503-3468-6/15/06}
+\doi{nnnnnnn.nnnnnn}
 
 \title{Declarative Programming over Eventually Consistent Data Stores }
 
+\authorinfo{KC Sivaramakrishnan\thanks{This work was done at Purdue University, USA.}}
+           {University of Cambridge, UK}
+           {sk826@cl.cam.ac.uk}
+
+\authorinfo{Gowtham Kaki \and Suresh Jagannathan}
+           {Purdue University, USA}
+           {\{gkaki,suresh\}@cs.purdue.edu}
+
 \maketitle
+
 \begin{abstract}
 User-facing online services utilize geo-distributed data stores to minimize
 latency and tolerate partial failures, with the intention to provide a fast,
@@ -244,6 +256,9 @@ contract. We describe an implementation of \name\ on top of an off-the-shelf
 benchmarks including two large web applications, illustrate the effectiveness
 of our approach.
 \end{abstract}
+
+% known bug: http://tex.stackexchange.com/questions/1522/pdfendlink-ended-up-in-different-nesting-level-than-pdfstartlink
+\renewcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
 
 \input{intro}
 

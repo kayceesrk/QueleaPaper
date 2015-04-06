@@ -35,7 +35,6 @@ sent to other replicas. The implementation of the bank account operations in
 \name is given in Figure~\ref{fig:ex}.
 
 \begin{figure}
-\vspace{-2.3mm}
 \begin{codehaskell}
 data Acc = Deposit Int | Withdraw Int | GetBal
 
@@ -92,7 +91,7 @@ the RDT specification. The summarization function for the bank account is:
 
 {\small
 \begin{verbatim}
- summarize hist = 
+ summarize hist =
    [Deposit $ sel1 $ getBalance hist ()]
 \end{verbatim}}
 
@@ -109,7 +108,6 @@ account operations such that (1) the balance remains non-negative and (2) the
 \cf{getBalance} operation never incorrectly returns a negative balance.
 
 \begin{figure}[ht]
-\vspace{-2mm}
 \centering
 \subfigure[Unsafe withdraw]{\label{fig:unsafeWithdrawAnomaly}\includegraphics[width=0.34\columnwidth]{Figures/Motivation4}}
 \hfill
@@ -184,7 +182,6 @@ given two \cf{withdraw} operations $a$ and $b$, either $a$ is visible to $b$ or
 vice-versa. We express this application-level consistency requirement as a
 contract ($\cv_w$) over \cf{withdraw}:
 
-\vspace{-1em}
 \begin{smathpar}
 \begin{array}{l}
 \forall (a : \rcf{withdraw}).~\sameobj{a}{\cureff} \Rightarrow a = \cureff \vee \vis{a}{\cureff} \vee \vis{\cureff}{a}
@@ -211,7 +208,6 @@ case that $a$ is also visible to $\cureff$. A contract ($\cv_{gb}^1$) for
 \cf{getBalance} operation that precisely captures this application-level consistency
 requirement can be written thus:
 
-\vspace{-1em}
 \begin{smathpar}
 \begin{array}{l}
 \forall (a:\rcf{deposit}), (b:\rcf{withdraw}). \\
@@ -226,7 +222,6 @@ and \cf{withdraw} operations performed on the same bank account in the same
 session. We can express an additional contract ($\cv_{gb}^2$) for
 \cf{getBalance} that captures this consistency requirement:
 
-\vspace{-1em}
 \begin{smathpar}
 \begin{array}{l}
 \forall (c: \rcf{deposit} \vee \rcf{withdraw}). \\
@@ -246,7 +241,6 @@ The final contract ($\cv_{gb}$) of the \cf{getBalance} operation is
 merely a conjunction of the previous two versions ($\cv_{gb}^1$ and
 $\cv_{gb}^2$):
 
-\vspace{-1em}
 \begin{smathpar}
 \begin{array}{l}
 \forall (a:\rcf{deposit}), (b:\rcf{withdraw}), (c: \rcf{deposit} \vee \rcf{withdraw}). \\
