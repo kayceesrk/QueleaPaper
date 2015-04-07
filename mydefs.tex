@@ -125,6 +125,12 @@
 \begin{nop}\small\begin{mathpar}}{
 \end{mathpar}\end{nop}\ignorespacesafterend}
 
+\newenvironment{cmathpar}{
+\vspace{-2mm}
+\renewcommand{\arraystretch}{1.2}
+\begin{nop}\begin{mathpar}}{
+\end{mathpar}\end{nop}\ignorespacesafterend}
+
 \newcommand{\rsf}[1]{\R{\sf #1}}
 \newcommand{\trans}[4]{\N{\textsf{trans}}\{#1,#2\}\{#3,#4\}}
 

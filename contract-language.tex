@@ -3,6 +3,7 @@
 
 \begin{figure}
 \begin{smathpar}
+\renewcommand{\arraystretch}{1.2}
 \begin{array}{rclcl}
 \multicolumn{5}{c}{
   {x,y,\cureff} \in \mathtt{EffVar} \qquad \qquad
@@ -60,6 +61,7 @@ happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 
 \begin{figure}
 \begin{smathpar}
+\renewcommand{\arraystretch}{1.2}
 \begin{array}{lclcl}
 \multicolumn{5}{l}{
   {\eff} \in \mathtt{Effect} \qquad
@@ -110,7 +112,7 @@ purposes, we identify three particular consistency levels -- eventual, causal,
 and strong, commonly offered by many distributed stores with tunable
 consistency, with increasing overhead in terms of latency and availability.
 
-\begin{itemize}[noitemsep]
+\begin{itemize}
 
 \item \textbf{Eventual consistency}: Eventually consistent operations can
 	be satisfied as long as the client can reach at least one replica. In the
@@ -121,10 +123,9 @@ consistency, with increasing overhead in terms of latency and availability.
 	\emph{causal cut} of the updates. This semantics can be formally captured in
 	terms of the following contract definition:
 
-  \vspace{-1em}
-  \begin{smathpar}
+  \begin{cmathpar}
   \ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
-  \end{smathpar}
+  \end{cmathpar}
 
 \item \textbf{Causal consistency}: Causally consistent operations are required
 	to see a causally consistent snapshot of the object state, including the
@@ -137,20 +138,18 @@ consistency, with increasing overhead in terms of latency and availability.
 	The corresponding store semantics is captured by the contract $\ccc$ defined
 	below:
 
-  \vspace{-1em}
-  \begin{smathpar}
+  \begin{cmathpar}
   \ccc = \forall a.~\hbo{a}{\cureff} \Rightarrow \vis{a}{\cureff}
-  \end{smathpar}
+  \end{cmathpar}
 
 \item \textbf{Strong consistency}: Strongly consistent operations may block
   indefinitely under network partitions. An example is the total-order
   contract on \cf{withdraw} operation. The corresponding store semantics is
 	captured by the $\scc$ contract definition:
 
-  \vspace{-1em}
-  \begin{smathpar}
+  \begin{cmathpar}
   \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
-  \end{smathpar}
+  \end{cmathpar}
 \end{itemize}
 
 \subsection{Contract Classification}
@@ -159,6 +158,7 @@ consistency, with increasing overhead in terms of latency and availability.
 \newcommand{\DDe}[1]{#1}
 \begin{figure}
 \begin{smathpar}
+\renewcommand{\arraystretch}{1.2}
 \begin{array}{cc}
 \RuleTwo
 {\DDe{\cv} \le \DDe{\scc}}
@@ -208,7 +208,7 @@ axiomatic execution ($\E$) is expected to satisfy these assumptions (i.e., $\E
 An axiomatic execution $\small \E = \Exec$ is well-formed if the
 following axioms ($\Delta$) hold:
 
-\begin{itemize}[noitemsep]
+\begin{itemize}
 \item The happens-before relation is acyclic: $\small \forall a.~\neg\hb{a}{a}$.
 \item Visibility only relates actions on the same object:
 	\begin{itemize}
@@ -286,7 +286,6 @@ a sequence of pairs composed of replicated data type operations $\mathit{op}$,
 tagged with the consistency class $\tau$ of their contracts (as determined by
 the contract classification scheme). We assume a reduction relation of form:
 
-\vspace{-1em}
 \begin{smathpar}
   \auxred{} {\E,\langle op,\tau \rangle;\sigma \pll \Sigma} {\eff}
     {\E',\sigma \pll \Sigma}

@@ -3,7 +3,7 @@
 %
 % Requires sigplanconf style file provided on PLDI'15 web site
 %
-\documentclass[9pt]{sigplanconf}
+\documentclass{sigplanconf}
 
 %
 % the following standard packages may be helpful, but are not required
@@ -14,7 +14,7 @@
 \usepackage{url}                  % format URLs
 \usepackage{listings}          % format code
 \usepackage{enumitem}      % adjust spacing in enums
-% Links should be black and should'nt be underlined. 
+% Links should be black and should'nt be underlined.
 \usepackage[breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
 \usepackage[tight,hang]{subfigure}
 \usepackage{xspace}
@@ -174,6 +174,7 @@
       commentstyle=\color{darkgreen}\itshape,
       % ugh, it keywords map/sort/zipwith.  should do this for
       % consistency or figure out how to disable those other keywords:
+			xleftmargin=.05\columnwidth,
       morekeywords={foldl,fold,Quelea},
 			classoffset=1,
 			upquote=true,
@@ -217,6 +218,11 @@
 \include{mydefs}
 
 \newcommand{\ecds}{ECDS\xspace}
+
+%formatting for captioning figures
+\DeclareCaptionFormat{figformat}{\hrulefill\\#1#2#3}
+\captionsetup[figure]{format=figformat}
+\setlength{\abovecaptionskip}{2pt}
 
 % To eliminate orphans
 \clubpenalty = 10000
@@ -279,12 +285,12 @@ of our approach.
 \category{F.3.1}{Logics and Meanings of Programs}{Specifying and Verifying and Reasoning about Programs}
 
 \terms
-Languages, Performance 
+Languages, Performance
 
 \keywords
 Eventual Consistency, Availability, CRDTs, Axiomatic Contracts,
 Contract Classification, Distributed Transactions, SMT solvers,
-Decidable Logic, Quelea, Cassandra, Haskell 
+Decidable Logic, Quelea, Cassandra, Haskell
 
 \input{intro}
 
