@@ -101,8 +101,8 @@ corresponds to the default 50:50 read:write mix in YCSB. We increased the
 number of clients from 128 to 1024, and each experiment ran for 180 seconds.
 
 The lines marked EC and CC correspond to all operations (including
-\cf{withdraw}) being assigned EC and CC consistency levels. These levels
-compromise correctness as \cf{withdraw} has to be an SC operation. The SC line
+\rcf{withdraw}) being assigned EC and CC consistency levels. These levels
+compromise correctness as \rcf{withdraw} has to be an SC operation. The SC line
 corresponds to a configuration where all operations are strongly consistent;
 this ensures application correctness, at the cost of performance. \name
 corresponds to our implementation, which classifies operations based on their
@@ -114,8 +114,8 @@ throughput decreases; these correspond to points where the store becomes
 saturated with client requests. In a \cf{2DC} configuration (not shown here),
 the average latency of SC operations with 512 clients increased by 9.4$\times$
 due to the cost of geo-distributed coordination, whereas \name operations were
-only 2.2$\times$ slower, mainly due to the increased cost of \cf{withdraw}
-operations. Importantly, the latency of \cf{getBalance} and \cf{deposit}
+only 2.2$\times$ slower, mainly due to the increased cost of \rcf{withdraw}
+operations. Importantly, the latency of \rcf{getBalance} and \rcf{deposit}
 remained almost the same, illustrating the benefit of fine-grained contract
 classification.
 

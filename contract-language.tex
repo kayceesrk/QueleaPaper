@@ -35,7 +35,7 @@ We use a special effect variable ($\cureff$) to denote the effect of
 \emph{current operation} - the operation for which a contract is being written.
 Notice that $\cureff$ occurs free in the contract. We will fix its scope when
 classifying the contracts (\S~\ref{sec:classify}). The type of an effect is
-simply the name of the operation (eg: \cf{withdraw}) that induced the effect.
+simply the name of the operation (eg: \rcf{withdraw}) that induced the effect.
 We admit disjunction in types to let an effect variable range over multiple
 operation names. The contract $\small \forall (a : \tau_1 \vee \tau_2).~\psi$
 is just syntactic sugar for $\small \forall a. (\oper{a}{\tau_1} \vee
@@ -116,7 +116,7 @@ consistency, with increasing overhead in terms of latency and availability.
 
 \item \textbf{Eventual consistency}: Eventually consistent operations can
 	be satisfied as long as the client can reach at least one replica. In the
-	bank account example, \cf{deposit} is an eventually consistent operation.
+	bank account example, \rcf{deposit} is an eventually consistent operation.
 	While an \ecds typically offer \emph{basic} eventual consistency with all
 	possible anomalies, we assume that our store provides stronger semantics that
 	remain highly-available~\cite{BailisHAT,COPS}; the store always exposes a
@@ -133,7 +133,7 @@ consistency, with increasing overhead in terms of latency and availability.
 	actions performed on the same session.  The latter requirement implies that
 	if two operations $o_1$ and $o_2$ from the same session are applied to two
 	different replicas $r_1$ and $r_2$, the second operation cannot be discharged
-	until the effect of $o_1$ is included in $r_2$. The \cf{getBalance} operation
+	until the effect of $o_1$ is included in $r_2$. The \rcf{getBalance} operation
 	requires causal consistency, as it requires the operations from the same
 	session to be visible, which cannot be guaranteed under eventual consistency.
 	The corresponding store semantics is captured by the contract $\ccc$ defined
@@ -146,7 +146,7 @@ consistency, with increasing overhead in terms of latency and availability.
 
 \item \textbf{Strong consistency}: Strongly consistent operations may block
   indefinitely under network partitions. An example is the total-order
-  contract on \cf{withdraw} operation. The corresponding store semantics is
+  contract on \rcf{withdraw} operation. The corresponding store semantics is
 	captured by the $\scc$ contract definition:
 
   \vspace{-1mm}
@@ -249,7 +249,7 @@ contract.
 
 The classification scheme, presented formally in Figure~\ref{sem:classify},
 defines rules to judge the consistency class of a contact. For example, the
-scheme classifies the \cf{getBalance} contract ($\cv_{gb}$) from
+scheme classifies the \rcf{getBalance} contract ($\cv_{gb}$) from
 \S~\ref{sec:motivation} as a {\sf\small CausallyConsistent} contract, because
 the sequent $\Delta \vdash \ccc \Rightarrow \cv_{gb}$ is valid in first-order
 logic (therefore, $\cv_{gb} \le \ccc$), whereas the sequent $\Delta \vdash \ecc
@@ -295,9 +295,9 @@ of the above guarantees. It is easy to see that there are 24 (4!) combinations,
 which form a partially ordered consistency lattice with a height of 4.
 Classifying a contract under this scheme amounts to determining the weakest
 combination under which the contract will hold, and entails 24 comparisons at
-worst. Under this scheme, \cf{deposit} operations does not need any guarantees,
-\cf{getBalance} needs RYW and WFR ($\Delta \vdash \R{RYW} \wedge \R{WFR}
-\Rightarrow \cv_{gb}$), and \cf{withdraw} cannot be satisfied ($\Delta \vdash
+worst. Under this scheme, \rcf{deposit} operations does not need any guarantees,
+\rcf{getBalance} needs RYW and WFR ($\Delta \vdash \R{RYW} \wedge \R{WFR}
+\Rightarrow \cv_{gb}$), and \rcf{withdraw} cannot be satisfied ($\Delta \vdash
 \R{RYW} \wedge \R{MW} \wedge \R{MR} \wedge \R{WFR} \not\Rightarrow \cv_{w}$).
 
 \subsection{Soundness of Contract Classification}

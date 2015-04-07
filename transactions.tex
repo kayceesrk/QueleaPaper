@@ -47,7 +47,7 @@ Figure~\ref{fig:txn_atomicity}.
 In order to illustrate the utility of declarative reasoning for transactions,
 consider an extension of our running example to use two accounts (objects) --
 current ($c$) and savings ($s$). Each account provides operations
-\cf{withdraw}, \cf{deposit} and \cf{getBalance}, with the same contracts as
+\rcf{withdraw}, \rcf{deposit} and \rcf{getBalance}, with the same contracts as
 defined previously. We consider two transactions -- \cf{save(amt)}, which
 transfers \cf{amt} from current to savings, and \cf{totalBalance}, which
 returns the sum of the balances of individual accounts. Our goal is to ensure
@@ -87,16 +87,16 @@ distributed stores rarely offer serializable transactions since it is
 unavailable and hinders scalability~\cite{BailisHAT}. As we will see, these
 transactions can be satisfied with much weaker isolation guarantees. Despite
 the atomicity offered by the transaction, anomalies are still possible. For
-example, the two \cf{getBalance} operations in \cf{totalBalance} transactions
+example, the two \rcf{getBalance} operations in \cf{totalBalance} transactions
 might be served by different replicas with distinct set of committed \cf{save}
-transactions. If the first(second) \cf{getBalance} operation witness a
+transactions. If the first(second) \rcf{getBalance} operation witness a
 \cf{save} transaction that is not witnessed by the second(first)
-\cf{getBalance} operation, then the balance returned will be less(greater) than
+\rcf{getBalance} operation, then the balance returned will be less(greater) than
 the actual balance. It is not immediately apparent which weakest isolation
 guarantee will be sufficient to prevent the anomaly.
 
 Instead, \name requires the programmer to simply state the consistency
-requirement as a contract. Since we would like both the \cf{getBalance}
+requirement as a contract. Since we would like both the \rcf{getBalance}
 operations to witness the same set of \cf{save} transactions, we define the
 constraint on \cf{totalBalance} transaction $\psi_{tb}$ as:
 
