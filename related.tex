@@ -32,22 +32,20 @@ real (i.e., wall-clock) time. Hence, it cannot describe store semantics such as
 recency or bounded-staleness guarantees offered by certain
 stores~\cite{Pileus}.
 
-Several conditions have been proposed to judge whether an operation on
-a replicated data object needs coordination or not. ~\cite{Calm}
-defines \emph{logical monotonicity} as a sufficient condition for
-coordination freedom, and proposes a consistency analysis that marks
-code regions performing non-monotonic reasoning (eg: aggregations,
-such as \cf{COUNT}) as potential coordination points.
-~\cite{IConfluence} and ~\cite{Sieve} define \emph{invariant
-confluence} and \emph{invariant safety}, respectively, as conditions
-for safely executing an operation without coordination. ~\cite{Sieve}
-also proposes a program analysis that conservatively marks certain
-operations as \emph{blue} (coordination not required), while marking
-the remaining as \emph{red} (coordination required). Unlike \name,
-these works focus on a coarse-grained classification of consistency as
-eventual or strong, and do not focus on finer-grained transaction
-isolation levels. However, the analyses they propose relieve
-programmers of the burden to tag operations with consistency levels.
-Indeed, we do consider automatic inference of consistency contracts
-from application-specific integrity constraints as the next step for
+Several conditions have been proposed to judge whether an operation on a
+replicated data object needs coordination or not. ~\cite{Calm} defines
+\emph{logical monotonicity} as a sufficient condition for coordination freedom,
+and proposes a consistency analysis that marks code regions performing
+non-monotonic reasoning (eg: aggregations, such as \cf{COUNT}) as potential
+coordination points. ~\cite{IConfluence} and ~\cite{Sieve} define
+\emph{invariant confluence} and \emph{invariant safety}, respectively, as
+conditions for safely executing an operation without coordination.
+~\cite{Sieve} also proposes a program analysis that conservatively marks
+certain operations as \emph{blue} (coordination not required), while marking
+the remaining as \emph{red} (coordination required). Unlike \name, these works
+focus on a coarse-grained classification of consistency as eventual or strong,
+and do not focus on finer-grained transaction isolation levels. However, the
+analyses they propose relieve programmers of the burden to tag operations with
+consistency levels. Indeed, we do consider automatic inference of consistency
+contracts from application-specific integrity constraints as the next step for
 \name.

@@ -123,6 +123,7 @@ consistency, with increasing overhead in terms of latency and availability.
 	\emph{causal cut} of the updates. This semantics can be formally captured in
 	terms of the following contract definition:
 
+  \vspace{-1mm}
   \begin{cmathpar}
   \ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{cmathpar}
@@ -138,6 +139,7 @@ consistency, with increasing overhead in terms of latency and availability.
 	The corresponding store semantics is captured by the contract $\ccc$ defined
 	below:
 
+  \vspace{-1mm}
   \begin{cmathpar}
   \ccc = \forall a.~\hbo{a}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{cmathpar}
@@ -147,6 +149,7 @@ consistency, with increasing overhead in terms of latency and availability.
   contract on \cf{withdraw} operation. The corresponding store semantics is
 	captured by the $\scc$ contract definition:
 
+  \vspace{-1mm}
   \begin{cmathpar}
   \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
   \end{cmathpar}
@@ -262,6 +265,41 @@ satisfiable under $\scc$ - the strongest possible consistency guarantee that
 the store can provide. Otherwise, it is considered ill-formed, and rejected
 statically.
 
+\subsection{Generality of Contracts}
+
+It is important to note that our contract language provides a generic way to
+capture application-level consistency properties and is not tied to a
+particular store semantics. In particular, the same application-level contracts
+can easily be mapped to a different store with a varied consistency lattice. To
+illustrate this, let us consider the consistency lattice proposed by Terry et
+al.~\cite{Session} based on session guarantees. Terry et al. propose the
+following four incomparable session guarantees, whose semantics is captured in
+the contracts below:
+
+\vspace{-2mm}
+\begin{smathpar}
+\renewcommand{\arraystretch}{1.2}
+\begin{array}{rcl}
+\R{Read Your Writes (RYW)} & \coloneqq & \forall a,b. ~\soo{a}{b} \Rightarrow \vis{a}{b} \\
+\R{Monotonic Reads (MR)} & \coloneqq & \forall a,b,c. ~\vis{a}{b} \wedge \soo{b}{c} \\
+ & & \quad \Rightarrow \vis{a}{c} \\
+\R{Monotonic Writes (MW)} & \coloneqq & \forall a,b,c. ~\soo{a}{b} \wedge \vis{b}{c} \\
+ & & \quad \Rightarrow \vis{a}{c} \\
+\R{Writes Follow Reads (WFR)} & \coloneqq & \forall a,b,c,d. ~\vis{a}{b} \wedge \vis{c}{d} \\
+ & & \wedge (\sooZ ~\cup =)(b,c) \Rightarrow \vis{a}{d}
+\end{array}
+\end{smathpar}
+
+Here, the consistency level for an operation in this scheme is any combination
+of the above guarantees. It is easy to see that there are 24 (4!) combinations,
+which form a partially ordered consistency lattice with a height of 4.
+Classifying a contract under this scheme amounts to determining the weakest
+combination under which the contract will hold, and entails 24 comparisons at
+worst. Under this scheme, \cf{deposit} operations does not need any guarantees,
+\cf{getBalance} needs RYW and WFR ($\Delta \vdash \R{RYW} \wedge \R{WFR}
+\Rightarrow \cv_{gb}$), and \cf{withdraw} cannot be satisfied ($\Delta \vdash
+\R{RYW} \wedge \R{MW} \wedge \R{MR} \wedge \R{WFR} \not\Rightarrow \cv_{w}$).
+
 \subsection{Soundness of Contract Classification}
 
 We now present a meta-theoretic result that certifies the soundness of
@@ -270,6 +308,7 @@ define an operational semantics of the system described informally in
 \S~\ref{sec:sysmod}:
 
 \begin{smathpar}
+\renewcommand{\arraystretch}{1.2}
 \begin{array}{lclcl}
 {\it op} 	& \in & \mathtt{Operation} \\
 {\tau}		& \in & \mathtt{Consistency Class} 	& \coloneqq & {\sf ec},{\sf cc},{\sf sc} \\
