@@ -15,7 +15,7 @@ overheads. As with operation-level consistency, the onus is on the programmer
 to pick the correct transaction kind. This choice is further complicated by
 consistency semantics of individual operations.
 
-\subsection{Syntax and Semantics Extension}
+\subsection{Syntax and Semantics Extensions}
 \label{sec:syn_sem_ext}
 
 \name automates the choice of assigning the correct and most efficient
@@ -51,8 +51,9 @@ current ($c$) and savings ($s$). Each account provides operations
 \cf{withdraw}, \cf{deposit} and \cf{getBalance}, with the same contracts as
 defined previously. We consider two transactions -- \cf{save(amt)}, which
 transfers \cf{amt} from current to savings, and \cf{totalBalance}, which
-returns the sum of the balances of individual accounts. The \name code for the
-transactions is given below:
+returns the sum of the balances of individual accounts. Our goal is to ensure
+that \cf{totalBalance} returns the result obtained from a consistent snapshot
+of the object states. The \name code for the transactions is given below:
 \vspace{-1em}
 
 \noindent \begin{minipage}[t]{0.53\columnwidth}
@@ -69,20 +70,19 @@ save amt =
 totalBalance =
   x <- dollar(classify $\cv_{tb}$)
   atomically x dollar do
-    b1 <- getBalance s
+    b1 <- getBalance c
     b2 <- getBalance s
     return b1 + b2
 \end{codehaskell}
 \end{minipage}
 
-\noindent $\cv_{sv}$ and $\cv_{tb}$ are the contracts on the corresponding
+$\cv_{sv}$ and $\cv_{tb}$ are the contracts on the corresponding
 transactions. The function \cf{classify} assigns the contracts
 \emph{statically} to one of the transaction isolation levels offered by the
 store; \cf{\$()} is meta-programming syntax for splicing the result into the
 program. The \cf{atomically} construct invokes the enclosing operations at the
 given isolation level $x$, ensuring that the effects of the operations are made
-visible atomically. Our goal is to ensure that \cf{totalBalance} returns the
-result obtained from a consistent snapshot of the object states.
+visible atomically.
 
 While making both transactions serializable would ensure correctness,
 distributed stores rarely offer serializable transactions since it is
@@ -112,15 +112,17 @@ constraint on \cf{totalBalance} transaction $\psi_{tb}$ as:
 \end{smathpar}
 
 \noindent The key idea in the above definition is that the $\small \txnZ$ primitive
-allows us to relate operations on different objects. The \cf{save} transaction
-only needs to ensure that the two writes it performs are made visible
-atomically. Since this is ensured by combining them in a transaction, \cf{save}
-does not require any additional constraints, and $\psi_1$ is simply $\small
-\true$.
+allows us to relate operations on different objects.
+
+The \cf{save} transaction only needs to ensure that the two writes it performs
+are made visible atomically. Since this is ensured by combining them in a
+transaction, \cf{save} does not require any additional constraints, and
+$\psi_1$ is simply $\small \true$.
 
 \subsection{Coordination-free Transactions}
 
 \begin{figure}
+\vspace{-2.3mm}
 \centering
 \subfigure[Atomicity]{\label{fig:txn_atomicity}\includegraphics[width=0.25\columnwidth]{Figures/TxnAtomic}}
 \hfill
@@ -140,10 +142,11 @@ strategy. Our technique can indeed be applied to a different isolation level
 lattice.
 
 A transaction with ANSI RC semantics only witnesses committed operations. Let
-us assume that the store buffers updates until all the updates from the
-transaction are available at a replica. If the transaction commits, the
-buffered updates are made visible. Otherwise, the buffered updates are
-discarded. RC does not entail any further isolation guarantees. Hence, a store
+us assume that a replica will buffer transactional updates until all the
+updates from the same transaction are available at that replica. Once all the
+updates from a transaction are available, the buffered updates are made visible
+to subsequent client requests. This ensure atomicity of transactions.
+Importantly, RC does not entail any other guarantees. As a result, a store
 implementing RC does not require inter-replica coordination. We can express RC
 as follows:
 
@@ -161,11 +164,11 @@ is an example for RC transaction.
 
 MAV semantics ensures that if some operation in a transaction $T_1$ witnesses
 the effects of another transaction $T_2$, then subsequent operations in $T_1$
-will also witness the effects of $T_2$. MAV semantics is useful for
-maintaining the integrity of foreign key constraints, materialized views and
-secondary updates. In order to implement MAV, a store only needs to keep track
-of the set of transactions $S_t$ witnessed by the running transaction, and
-before performing an operation at some replica, ensure that the replica
+will also witness the effects of $T_2$. MAV semantics is useful for maintaining
+the integrity of foreign key constraints, materialized views and secondary
+updates~\cite{BailisHAT}. In order to implement MAV, a store only needs to keep
+track of the set of transactions $S_t$ witnessed by the running transaction,
+and before performing an operation at some replica, ensure that the replica
 includes all the transactions in $S_t$. Hence, MAV is coordination-free. MAV
 semantics is captured with the following contract:
 

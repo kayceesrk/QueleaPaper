@@ -6,13 +6,13 @@ across multiple \emph{replicas} within and across data centers. Replication is
 intended not only to improve application throughput and reduce user-perceived
 latency, but also to tolerate partial failures without compromising overall
 service availability. Traditionally programmers have relied on \emph{strong
-consistency} guarantees such as linerarizability~\cite{Herlihy1990} or
+consistency} guarantees such as linearizability~\cite{Herlihy1990} or
 serializability~\cite{Serializability} in order to build correct applications.
 While strong consistency is an easily stated property, it masks the reality
 underlying large-scale distributed systems with respect to non-uniform latency,
 availability and network partitions~\cite{Brewer2000,Gilbert2002}. Indeed,
-modern web services, which aim to provide an "always on" experience,
-overwhelmingly favour availability and partition tolerance over strong
+modern web services, which aim to provide an "always-on" experience,
+overwhelmingly favor availability and partition tolerance over strong
 consistency. To this end, several \emph{weak consistency} models such as
 eventual consistency, causal consistency, session guarantees, and timeline
 consistency have been proposed.
@@ -21,7 +21,7 @@ Under weak consistency, the developer needs to be aware of concurrent
 conflicting updates, and has to pay careful attention to avoid unwanted
 inconsistencies (e.g., negative balances in a bank account, or having an item
 appear in a shopping cart after it has been removed~\cite{Dynamo}). Oftentimes,
-the inconsistency leaks from the application and is witnessed by the user.
+these inconsistencies leak from the application and is witnessed by the user.
 Ultimately, the developer must decide the consistency level appropriate for a
 particular operation; this is understandably an error-prone process requiring
 intricate knowledge of both the application as well as the semantics and
@@ -30,21 +30,21 @@ descriptions. Nonetheless, picking the correct consistency level is critical
 not only for correctness but also for scalability of the application. While
 choosing a weaker consistency level than required may introduce program errors
 and anomalies, choosing a stronger one than necessary can negatively impact
-program scalability.
+program scalability and performance.
 
-Weak consistency also hinders compositional reasoning about programs.  While
-an application might be naturally expressed in terms of well-understood and
-expressive data types such as maps, trees, queues, or graphs,
-geo-distributed stores typically only provide a minimal set of data types
-with in-built conflict resolution strategies such as last-writer-wins (LWW)
-registers, counters, and sets~\cite{Cassandra,DynamoDB}.  Furthermore, while
-traditional database systems enable composability through transactions,
-geo-distributed stores typically lack unrestricted transactional access to
-the data.  Working in this environment thus requires application state to be
+Weak consistency also hinders compositional reasoning about programs.  Although an
+application might be naturally expressed in terms of well-understood and
+expressive data types such as maps, trees, queues, or graphs, geo-distributed
+stores typically only provide a minimal set of data types with in-built
+conflict resolution strategies such as last-writer-wins (LWW) registers,
+counters, and sets~\cite{Cassandra,DynamoDB}.  Furthermore, while traditional
+database systems enable composability through transactions, geo-distributed
+stores typically lack unrestricted serializable transactional access to the
+data. Working in this environment thus requires application state to be
 suitably coerced to function using only the capabilities of the store.
 
 To address these issues, we describe \name, a declarative programming model and
-implementation for eventually consistent geo-distributed data stores. The key
+implementation for \ecds. The key
 novelty of \name is an expressive \emph{contract language} to declare and
 verify fine-grained application-level consistency properties. The programmer
 uses the contract language to axiomatically specify the set of legal executions
@@ -54,20 +54,18 @@ order} along with standard logical and relational operators. A \emph{contract
 enforcement system} statically maps operations over the datatype to a
 particular consistency level available on the store, and provably validates the
 correctness of the mapping. The paper makes the following contributions:
-
-\begin{itemize}
-\setlength{\itemsep}{2pt}
+\vspace*{-.4em}
+\begin{itemize}[noitemsep]
 \item We introduce \name, a shallow extension of Haskell that supports the
-	description and validation of replicated data types found on eventually
-	consistent stores. Contracts are used to specify fine-grained
-	application-level consistency properties, and are statically analyzed to
-	assign the most efficient and sound store consistency level to the
-	corresponding operation.
+	description and validation of replicated data types found on \ecds. Contracts
+	are used to specify fine-grained application-level consistency properties,
+	and are statically analyzed to assign the most efficient and sound store
+	consistency level to the corresponding operation.
 \item \name supports coordination-free transactions over arbitrary datatypes.
 	We extend our contract language to express fine-grained transaction isolation
 	guarantees, and utilize the contract enforcement system to automatically
 	assign the correct isolation level for a transaction.
-\item We provide metatheory that certifies the soundness of our contract
+\item We provide meta-theory that certifies the soundness of our contract
 	enforcement system, and ensures that an operation is only executed if the
 	required conditions on consistency are met.
 \item An implementation of \name as a transparent shim layer over
@@ -77,14 +75,13 @@ correctness of the mapping. The paper makes the following contributions:
 	the practicality of our approach.
 \end{itemize}
 
-The rest of the paper is organized as follows. The next section describes the
-system model.  We describe the challenges in programming with eventually
-consistent data stores, and introduces \name\ contracts as a proposed solution
-to overcome these issues in \S~\ref{sec:motivation}. \S~\ref{sec:lang} provides
-more details the contract language, and its mapping to the store consistency
-levels, along with metatheory for certifying the correctness of the mapping.
-\S~\ref{sec:txns} introduces transaction contracts and classification.
-\S~\ref{sec:impl} describes the implementation and provides details about the
-optimizations needed to make the system practical. \S~\ref{sec:results}
-discusses experimental evaluation. \S~\ref{sec:related} and~\ref{sec:concl}
-present related work and conclusions.
+\noindent The rest of the paper is organized as follows. The next section
+describes the system model.  We describe the challenges in programming under
+eventual consistency, and introduce \name\ contracts as a proposed solution to
+overcome these issues in \S~\ref{sec:motivation}. \S~\ref{sec:lang} provides
+more details on the contract language, and its mapping to the store consistency
+levels, along with meta-theory for certifying the correctness of the mapping.
+\S~\ref{sec:txns} introduces transaction contracts and their classification.
+\S~\ref{sec:impl} describes the implementation of \name on top of Cassandra.
+\S~\ref{sec:results} discusses experimental evaluation. \S~\ref{sec:related}
+and~\ref{sec:concl} present related work and conclusions.
