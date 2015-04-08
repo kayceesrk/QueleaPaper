@@ -21,33 +21,7 @@ systems~\cite{Berenson95} and their replicated variants~\cite{BailisHAT}
 propose weaker isolation levels for performance. In these systems, the onus is
 on the developer to choose the correct consistency(isolation) level for
 operations(transactions). \name relieves the developer of this burden, and
-instead expects programmers to declare application-specific consistency
-requirements as first-order formulas. In this regard, \name is similar to Indigo
-\cite{indigo}, which requires programmers to declare application-specific
-invariants that are expected to be met, along with pre- and post-conditions on
-operations as formulas in first-order logic. Indigo then performs a static
-analysis on formulas to identify $I$-offender sets - sets of operations,
-which, when performed concurrently, result in violation of one or more of the
-stated invariants. For each offending set of operation, if programmer chooses
-invariant-violation avoidance over violation repair, the system employs various
-techniques, such as escrow reservation, to ensure that the offending set of
-operations are never run concurrently.
-
-While serializing operations is sufficient to ensure that the application state
-never violates invariants (e.g: \cf{balance $\ge$ 0}), there exist a range of
-desirable application-level properties, which cannot be captured in Indigo's
-specification language, or for which serialization is an overkill. For instance,
-it is neither efficient nor straightforward in Indigo to declare and enforce a
-condition to prevent the missing update anomaly
-(Figure~\ref{fig:missingUpdateAnomaly}) in the bank account application. The
-only way is to encode specifications of bank account operations such that pairs
-of \cf{getBalance} and \cf{withdraw}, and \cf{getBalance} and \cf{deposit}
-operations are identified as $I$-offending, resulting in them being serialized.
-In contrast, \name's contract language allows for precise encoding of the
-desired property, and the contract classification scheme ensures that the it can
-be enforced without the need to serialize operations.  Furthermore, Indigo also
-does not distinguish between various transaction isolation guarantees, which
-\name does.
+instead expects  contracts expressing declarative visibility requirements.
 
 Our contract language is inspired by the axiomatic description of RDT semantics
 proposed by~\cite{Burckhardt2014}. While they use axioms for formal
@@ -66,12 +40,20 @@ non-monotonic reasoning (eg: aggregations, such as \cf{COUNT}) as potential
 coordination points. ~\cite{IConfluence} and ~\cite{Sieve} define
 \emph{invariant confluence} and \emph{invariant safety}, respectively, as
 conditions for safely executing an operation without coordination.
-~\cite{Sieve} also proposes a program analysis that conservatively marks
-certain operations as \emph{blue} (coordination not required), while marking
-the remaining as \emph{red} (coordination required). Unlike \name, these works
-focus on a coarse-grained classification of consistency as eventual or strong,
-and do not focus on finer-grained transaction isolation levels. However, the
-analyses they propose relieve programmers of the burden to tag operations with
-consistency levels. Indeed, we do consider automatic inference of consistency
-contracts from application-specific integrity constraints as the next step for
-\name.
+~\cite{Sieve} also proposes a program analysis that conservatively marks certain
+operations as \emph{blue} (coordination not required), while marking the
+remaining as \emph{red} (coordination required). ~\cite{indigo} requires
+programmers to declare application semantics, and the desired
+application-specific invariants as formulas in first-order logic. It performs
+static analysis on these formulas to determine $I$-offender sets - sets of
+operations, which, when performed concurrently, result in violation of one or
+more of the stated invariants. For each offending set of operation, if
+programmer chooses invariant-violation avoidance over violation repair, the
+system employs various techniques, such as escrow reservation, to ensure that
+the offending set of operations are effectively serialized. Unlike \name, these
+works focus on a coarse-grained classification of consistency as eventual or
+strong, and do not focus on finer-grained transaction isolation levels. However,
+the analyses that some of them propose relieve programmers of the burden to tag
+operations with consistency levels. Indeed, we do consider automatic inference
+of consistency contracts from application-specific integrity constraints as the
+next step for \name.
