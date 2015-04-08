@@ -40,13 +40,14 @@ specification language, or for which serialization is an overkill. For instance,
 it is neither efficient nor straightforward in Indigo to declare and enforce a
 condition to prevent the missing update anomaly
 (Figure~\ref{fig:missingUpdateAnomaly}) in the bank account application. The
-only way is to encode specifications of all bank account operations such that
-every pair of operations are identified as $I$-offending, for some invariant
-($I$), resulting in them being serialized. In contrast, \name's contract
-language allows for precise encoding of the desired property, and the contract
-classification scheme ensures that the it can be enforced without the need to
-serialize operations. Furthermore, Indigo also does not distinguish between
-various transaction isolation guarantees, which \name does.
+only way is to encode specifications of bank account operations such that pairs
+of \cf{getBalance} and \cf{withdraw}, and \cf{getBalance} and \cf{deposit}
+operations are identified as $I$-offending, resulting in them being serialized.
+In contrast, \name's contract language allows for precise encoding of the
+desired property, and the contract classification scheme ensures that the it can
+be enforced without the need to serialize operations.  Furthermore, Indigo also
+does not distinguish between various transaction isolation guarantees, which
+\name does.
 
 Our contract language is inspired by the axiomatic description of RDT semantics
 proposed by~\cite{Burckhardt2014}. While they use axioms for formal
