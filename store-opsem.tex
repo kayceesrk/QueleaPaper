@@ -19,7 +19,7 @@ with $\Theta$, a representation of the store as a map from replicas to
 their local states. The local state of a replica $r$ (i.e.,
 $\Theta(r)$) is a set of effects that are currently visible at $r$.
 An operation $op$ performed at replica $r$ can only witness the set of
-effects ($\Theta(r)$) visible at $r$. To avoid too many paranthesis in
+effects ($\Theta(r)$) visible at $r$. To avoid too many parentheses in
 our formal presentation, we represent operation $op$, whose contract
 is in consistency class $\tau$, as $op_\tau$ instead of the usual
 $\langle op,\tau \rangle$. For the sake of clarity, we only
@@ -62,7 +62,7 @@ we write $R(\eff)$ to denote the set of all $\eff'$ such that
 $(\eff,\eff') \in R$.  Conversely, we write $R^{-1}(\eff)$ to denote
 the set of all $\eff'$ such that $(\eff',\eff) \in R$.
 
-Basic gurantee provided by the store is causal visibility, which is
+Basic guarantee provided by the store is causal visibility, which is
 captured by the rule $\rulelabel{EffVis}$ as a condition for an effect
 to be visible at a replica. The rule makes an effect ($\eff$) visible
 at a replica $r$ only after all the effects that causally precede
@@ -71,7 +71,7 @@ enforcing causal visibility does not require any inter-replica
 coordination. Any eventually consistent store can provide causal
 visibility while being eventually consistent.  Therefore, we do not
 lose any generality by assuming that the store provides causal
-visiblity.
+visibility.
 
 Rule $\rulelabel{Oper}$ is an auxiliary reduction of the
 form:\vspace{-1.7mm}
