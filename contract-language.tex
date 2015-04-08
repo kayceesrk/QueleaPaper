@@ -301,9 +301,9 @@ the contracts below:
 In this scheme, the consistency level of an operation is any combination of the
 above guarantees, which form a partially ordered consistency lattice show in
 Figure~\ref{fig:lattice}. Each element in this lattice corresponds to a
-store-consistency level, and is represented by its contract. An edge from a
-lower level element to an upper level element corresponds to logical
-implication between their corresponding contracts. Classifying a contract under
+store-consistency level, and is represented by its contract. An edge from an
+upper level element to a lower level element corresponds to weaker than
+relation between their corresponding contracts. Classifying a contract under
 this scheme is a directed search in the lattice, starting from the bottom, and
 determining the weakest consistency level under which the contract can be
 satisfied. Under this scheme, \rcf{deposit} operations does not need any
