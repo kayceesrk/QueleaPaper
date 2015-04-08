@@ -23,14 +23,26 @@ on the developer to choose the correct consistency(isolation) level for
 operations(transactions). \name relieves the developer of this burden, and
 instead expects  contracts expressing declarative visibility requirements.
 
-Our contract language is inspired by the axiomatic description of RDT semantics
-proposed by~\cite{Burckhardt2014}. While they use axioms for formal
-verification of correctness of an RDT implementation, we utilize them as a
-means for the user to express the desired consistency guarantees in the
-application. Similar to their work, our contract language does not incorporate
-real (i.e., wall-clock) time. Hence, it cannot describe store semantics such as
-recency or bounded-staleness guarantees offered by certain
-stores~\cite{Pileus}.
+Our contract language and system model is inspired by the axiomatic description
+of RDT semantics proposed by~\cite{Burckhardt2014}. While they use axioms for
+formal verification of correctness of an RDT implementation, we utilize them as
+a means for the user to express the desired consistency guarantees in the
+application. Operational semantics of \name (described in the accompanying tech
+report~\cite{techrep}) describe an operational manifestation of our system
+model.  ~\cite{Burckhardt2015} also presents an operational model of a
+replicated data store that is based on the abstract system model presented in
+~\cite{Burckhardt2014}. Their claims about the expressivity and practicality of
+the system model vindicate ours.  However, both differ in the way they aim to
+empower the application programmer. In~\cite{Burckhardt2015}, they expose their
+operational model to the application programmer, along with primitives, such as
+\cf{push}, \cf{pull} and \cf{fetch}, that make it easy to \emph{implement} the
+required consistency and isolation guarantees. In contrast, \name completely
+abstracts its operational model, and instead relies on contract classification
+to \emph{choose} appropriate consistency and isolation levels.  Similar
+to~\cite{Burckhardt2014} and~\cite{Burckhardt2015}, our system model does not
+incorporate real (i.e., wall-clock) time. Hence, our contract language cannot
+describe store semantics such as recency or bounded-staleness guarantees offered
+by certain stores~\cite{Pileus}.
 
 Several conditions have been proposed to judge whether an operation on a
 replicated data object needs coordination or not. ~\cite{Calm} defines
