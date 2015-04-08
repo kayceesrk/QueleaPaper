@@ -21,7 +21,32 @@ systems~\cite{Berenson95} and their replicated variants~\cite{BailisHAT}
 propose weaker isolation levels for performance. In these systems, the onus is
 on the developer to choose the correct consistency(isolation) level for
 operations(transactions). \name relieves the developer of this burden, and
-instead expects contracts expressing declarative visibility requirements.
+instead expects programmers to declare application-specific consistency
+requirements as first-order formulas. In this regard, \name is similar to Indigo
+\cite{indigo}, which requires programmers to declare application-specific
+invariants that are expected to be met, along with pre- and post-conditions on
+operations as formulas in first-order logic. Indigo then performs a static
+analysis on formulas to identify $I$-offender sets - sets of operations,
+which, when performed concurrently, result in violation of one or more of the
+stated invariants. For each offending set of operation, if programmer chooses
+invariant-violation avoidance over violation repair, the system employs various
+techniques, such as escrow reservation, to ensure that the offending set of
+operations are never run concurrently.
+
+While serializing operations is sufficient to ensure that the application state
+never violates invariants (e.g: \cf{balance $\ge$ 0}), there exist a range of
+desirable application-level properties, which cannot be captured in Indigo's
+specification language, or for which serialization is an overkill. For instance,
+it is neither efficient nor straightforward in Indigo to declare and enforce a
+condition to prevent the missing update anomaly
+(Figure~\ref{fig:missingUpdateAnomaly}) in the bank account application. The
+only way is to encode specifications of all bank account operations such that
+every pair of operations are identified as $I$-offending, for some invariant
+($I$), resulting in them being serialized. In contrast, \name's contract
+language allows for precise encoding of the desired property, and the contract
+classification scheme ensures that the it can be enforced without the need to
+serialize operations. Furthermore, Indigo also does not distinguish between
+various transaction isolation guarantees, which \name does.
 
 Our contract language is inspired by the axiomatic description of RDT semantics
 proposed by~\cite{Burckhardt2014}. While they use axioms for formal
