@@ -1,0 +1,52 @@
+graph G {
+  graph [ranksep=0.75];
+  node [shape=box, style=rounded, fixedsize = true, width=1];
+  subgraph l0 {
+    rank = "min";
+    l0n0 [label="true"];
+  }
+  l0n0 -- {l1n0 l1n1 l1n2 l1n3};
+  subgraph l1 {
+    rank = "same";
+    l1n0 [label="RYW"];
+    l1n1 [label="MW"];
+    l1n2 [label="MR"];
+    l1n3 [label="WFR"];
+  }
+  subgraph l2 {
+    rank = "same";
+    node [fixedsize=true,width=1.15];
+    l2n0 [label="RYW &and; MW"];
+    l2n1 [label="RYW &and; MR"];
+    l2n2 [label="RYW &and; WFR"];
+    l2n3 [label="MW &and; MR"];
+    l2n4 [label="MW &and; WFR"];
+    l2n5 [label="MR &and; WFR"];
+  }
+  l1n0 -- {l2n0 l2n1 l2n2};
+  l1n1 -- {l2n0 l2n3 l2n4};
+  l1n2 -- {l2n1 l2n3 l2n5};
+  l1n3 -- {l2n2 l2n4 l2n5};
+
+  subgraph l3 {
+    node [fixedsize=true,width=1.5];
+    rank = "same"
+    l3n0 [label=<RYW &and; MW<br/> &and; MR>];
+    l3n1 [label=<RYW &and; MW<br/> &and; WFR>];
+    l3n2 [label=<RYW &and; MR<br/> &and; WFR>];
+    l3n3 [label=<MW &and; MR<br/> &and; WFR>];
+  }
+  l2n0 -- {l3n0 l3n1};
+  l2n1 -- {l3n0 l3n2};
+  l2n2 -- {l3n1 l3n2};
+  l2n3 -- {l3n0 l3n3};
+  l2n4 -- {l3n1 l3n3};
+  l2n5 -- {l3n2 l3n3};
+
+  subgraph l4 {
+    node [fixedsize=true,width=2.3];
+    rank = "max";
+    l4n0 [label="RYW &and; MW &and; MR &and; WFR"];
+  }
+  {l3n0 l3n1 l3n2 l3n3} -- l4n0;
+}

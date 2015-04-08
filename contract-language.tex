@@ -17,8 +17,8 @@
         \ALT \pi \vee \pi \\
 			  & 		&	 &  \ALT & \pi \wedge \pi \ALT \pi \Rightarrow \pi \\
 R				& \in & \mathtt{Relation}	& \coloneqq & \visZ \ALT \soZ
-        \ALT \sameobjZ \ALT R^+ \\
-				&			&	 &  \ALT & R \cup R \ALT R \cap R \\
+        \ALT \sameobjZ \ALT = \\
+				&			&	 &  \ALT & R \cup R \ALT R \cap R \ALT R^+ \\
 \end{array}
 \end{smathpar}
 \caption{Contract language.}
@@ -290,15 +290,27 @@ the contracts below:
 \end{array}
 \end{smathpar}
 
-Here, the consistency level for an operation in this scheme is any combination
-of the above guarantees. It is easy to see that there are 24 (4!) combinations,
-which form a partially ordered consistency lattice with a height of 4.
-Classifying a contract under this scheme amounts to determining the weakest
-combination under which the contract will hold, and entails 24 comparisons at
-worst. Under this scheme, \rcf{deposit} operations does not need any guarantees,
-\rcf{getBalance} needs RYW and WFR ($\Delta \vdash \R{RYW} \wedge \R{WFR}
-\Rightarrow \cv_{gb}$), and \rcf{withdraw} cannot be satisfied ($\Delta \vdash
-\R{RYW} \wedge \R{MW} \wedge \R{MR} \wedge \R{WFR} \not\Rightarrow \cv_{w}$).
+\begin{figure}
+\begin{center}
+\includegraphics[width=\columnwidth]{Figures/lattice}
+\end{center}
+\caption{Lattice of consistency levels under session guarantees.}
+\label{fig:lattice}
+\end{figure}
+
+In this scheme, the consistency level of an operation is any combination of the
+above guarantees, which form a partially ordered consistency lattice show in
+Figure~\ref{fig:lattice}. Each element in this lattice corresponds to a
+store-consistency level, and is represented by its contract. An edge from a
+lower level element to an upper level element corresponds to logical
+implication between their corresponding contracts. Classifying a contract under
+this scheme is a directed search in the lattice, starting from the bottom, and
+determining the weakest consistency level under which the contract can be
+satisfied. Under this scheme, \rcf{deposit} operations does not need any
+guarantees, \rcf{getBalance} needs RYW and WFR ($\Delta \vdash \R{RYW} \wedge
+\R{WFR} \Rightarrow \cv_{gb}$), and \rcf{withdraw} cannot be satisfied ($\Delta
+\vdash \R{RYW} \wedge \R{MW} \wedge \R{MR} \wedge \R{WFR} \not\Rightarrow
+\cv_{w}$).
 
 \subsection{Soundness of Contract Classification}
 
