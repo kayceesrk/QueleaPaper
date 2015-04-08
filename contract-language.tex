@@ -318,8 +318,7 @@ We now present a meta-theoretic result that certifies the soundness of
 classification-based contract enforcement. To help us state the result, we
 define an operational semantics of the system described informally in
 \S~\ref{sec:sysmod}:
-
-\begin{smathpar}
+\begin{mathpar}
 \renewcommand{\arraystretch}{1.2}
 \begin{array}{lclcl}
 {\it op} 	& \in & \mathtt{Operation} \\
@@ -328,7 +327,7 @@ define an operational semantics of the system described informally in
 \Sigma 		& \in & \mathtt{Session\;Soup}   	 	& \coloneqq & \sigma \pll \Sigma \ALT \emptyset \\
 					&			&	\mathtt{Config}		  			 	& \coloneqq & \E,\Sigma \\
 \end{array}
-\end{smathpar}
+\end{mathpar}
 
 We model the system as a tuple $\E,\Sigma$, where the axiomatic execution $\E$
 captures the data store's current state, and session soup $\Sigma$ is the set
@@ -336,11 +335,10 @@ of concurrent client sessions interacting with the store. A session $\sigma$ is
 a sequence of pairs composed of replicated data type operations $\mathit{op}$,
 tagged with the consistency class $\tau$ of their contracts (as determined by
 the contract classification scheme). We assume a reduction relation of form:
-
-\begin{smathpar}
+\begin{mathpar}
   \auxred{} {\E,\langle op,\tau \rangle;\sigma \pll \Sigma} {\eff}
     {\E',\sigma \pll \Sigma}
-\end{smathpar}
+\end{mathpar}
 
 \noindent on the system state. The relation captures the progress of the
 execution (from $\E$ to $\E'$)  due to the successful completion of a client
