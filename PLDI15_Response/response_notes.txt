@@ -1,0 +1,223 @@
+==============================================================================
+Common Concerns
+==============================================================================
+
+Most important : Complexity of Contracts
+—————————————————————————————————————————
+
+(Reviewer 5; main reason for rejection) - It isn't clear that the proposed
+solution is any less complicated than reasoning directly about consistency; the
+evaluation does not actually evaluate this hypothesis, which is the main
+motivation for the paper.
+
+(Reviewer 5) The contract language is complex and provides an even richer set
+of choices to the user than just choosing an appropriate consistency level---it
+isn't clear to me that this is an improvement for the user (e.g., the example
+for withdraw and getBalance on page 4 seems to require a deep understanding of
+the requirements). If a realistic scenario is just three totally-ordered
+consistency levels (as per this paper's evaluation), then it seems simpler to
+choose the level directly rather than try to specify a contract. This problem
+might be mitigated if it is expected than an application might be run on
+multiple different data stores with very different sets of consistency levels;
+is this the case here?
+
+(Reviewer 2) "As the author's acknowledge, the contracts language available to
+the programmer makes for verbose and low-level annotation requirements.
+Moreover, there is scant evidence that writing these annotations is any easier
+to get right than picking a consistency level in the first place."
+
+(Reviewer 3) “One of my concern of the paper is the expression of contracts is
+still complex. A example is the getBalance contract Page 4. While the current
+contract language is expressive, it is also a little complex if the purpose is
+just to specify the consistency level of a certain data structure."
+
+(Reviewer 4) “One of the problems with new languages or new language extensions
+is that they usually do not get adopted by programmers. A programmer would take
+the time to learn a new language only if he feels the time spent on learning
+will pay off eventually. I am not sure programmers will be willing to adopt
+this extension."
+
+** Start Response **
+
+— Programmers write contracts for the given abstract system model, which admits
+all the inconsistencies associated with eventual consistency. However, the
+programmer only needs to reason about inconsistencies in this abstract model
+not the intricacies of the actual store model, which are often left
+unspecified. The advantage of Quelea contract is that programmer-written
+contracts are automatically mapped onto the store consistency level.
+
+** End Response **
+
+Delta
+—————
+
+(Reviewer 3) Another issue of this paper is the delta between this paper and
+the POPL paper[ Burckhardt et al. 2014] on RDT. In the POPL paper, the contract
+was used as languages for verification tool while in this paper it is used to
+generate distributed protocol code. There are certainly differences between
+these two usage model, but the prior work does make this paper a little
+incremental.
+
+(Reviewer 4) The increment of this work over [Bailis 2013b] is not very large.
+The previous work (and I don’t know if it originates from the same authors)
+already proposed separation of concerns and implemented an initial scheme. The
+current paper seems to extend it with a language and the use of the theorem
+prover. As a non-expert, this seems to me like a nice step but not a very large
+one.
+
+Execution Time
+——————————————
+
+(Reviewer 4) Can you say how much time the execution of the theorem prover
+takes? If the consistency constraints become more complex will the theorem
+prover still be able to determine the appropriate levels of support
+efficiently?
+
+(Reviewer 1) I believe the compile time can still be a show stopper. Given
+these applications can change a lot, isn't the long compilation time due to the
+SMT solver an issue?
+
+===============================================================================
+Reviewer specific concerns
+===============================================================================
+
+
+Reviewer 1
+——————————
+
+I think also comparing to a dynamic strategy for enforcing contacts (mentioned
+on page 5 as an alternative), would make the case stronger. Such strategy can
+take advantage from transaction buffer in each replica. Can you comment?
+
+-I believe the compile time can still be a show stopper. Given these
+applications can change a lot, isn't the long compilation time due to the SMT
+solver an issue?
+
+-In your experiments did you consider the shim layer overhead? Did you use the
+same number of nodes in all tests? I mean was it the case that "shim layer
+nodes" + "other nodes" in Q runs was always equal to "all the nodes" in non-Q
+runs? Also, how does the shim layer grow (number of nodes) as the whole system
+grows?
+
+-Are all the benchmarks written from scratch or did you convert some existing
+one to QUELEA? My impression is the former is correct.
+
+Reviewer 2
+——————————
+
+The paper doesn't provide much discussion of the limitations of the
+approach---either positive or negative. For example, are there notions of
+consistency that fundamentally would not fit into this model?  The end of the
+paper mentions that it doesn't handle notions that depend on wall-clock time as
+distinct from session order. It would be interesting to know whether notions
+such as bounded staleness could be readily accomodated or not.
+
+As the author's acknowledge, the contracts language available to the programmer
+makes for verbose and low-level annotation requirements. Moreover, there is
+scant evidence that writing these annotations is any easier to get right than
+picking a consistency level in the first place.
+
+The system model requires the clients to perform all the actual computation on
+the data-store, including merging and summarizing. In a production setting this
+would likely prove infeasible, as it relies on strong assumptions of the
+clients' relationships, including identical running code and complete trust.
+The possibility that a crashed operation would be durably added to the log,
+only to break when a different client attempts to reduce over the log much
+later, is not friendly.
+
+** Start Response **
+
+The RDT specification language that we have described does to some extent gaurd
+against malicious/incorrect code. In particular, the operations on RDT are
+described as reductions over the history, and in particular is side-efffect
+free (which is ensured by the type of the operation -- section 3.1). While it
+is possible that the reduction can end up not terminating, it cannot do any
+more harm.
+
+Crashed operation durably added to log?? By definition, an operation is added
+to log only if it is successful; if the operation procudes a result, then it
+has succeeded. Hence a crashed operation will not be added to log.
+
+Summarization operation checks whether the summarized history is smaller than
+the input history. Otherwise, the summarization operation is considered
+incorrect and rejected.
+
+** End Response **
+
+Minor comment: Footnote 3 discusses how you "encode" transitive closure in
+first-order logic. I didn't understand how this could ever be useful. Given the
+constraints
+
+	R(a,b) => R'(a,b)
+
+	R'(a,b) /\ R'(b,c) => R'(a,c)
+
+it seems that R' could be the total relation. How would this ever be useful?
+
+** Start Response **
+
+R+ could be a total relation, but the R+ is still useful because it is not
+required to be a total relation. For example, consider causal
+consistency (CC) contract which is defined as:
+
+    hbo \subseteq vis
+
+where hbo = (soo U vis)+. Because of our lenient encoding of “+", hbo can be
+any superset of  transitive closure of (soo U vis). Nevertheless, all we can
+assume about hbo is that it contains the  transitive closure of (soo U vis);
+there is no proof of membership for other elements in hbo.  Consequently, by
+asserting hbo \subseteq vis, the strongest guarantee that causal consistency 
+contract is offering is that the transitive closure of (soo U vis) is contained
+in vis. An application  contract (\psi) which requires more than the transitive
+closure of (soo U vis) to be contained in vis  cannot be satisfied under CC
+because the following implication is simply not valid even under our lenient
+definition of “+“ :
+
+    \Delta |- (hbo \subseteq vis) => \psi
+
+\Delta, as usual, denotes the conjunction of basic axioms about primitive
+relations.
+
+** End Response **
+
+Reviewer 3
+——————————
+
+I am wondering if there are more intuitive and succinct ways to provide a
+higher level abstraction to define these contracts? One example is the "atomic"
+directives in Java. Can we have something similar to that to allow easier
+declaration of consistency levels?
+
+Reviewer 5
+——————————
+
+The evaluation shows that using the weakest levels possible while still
+preserving correctness does give a performance improvement, but this isn't a
+surprising result. I would be more interested in seeing whether using QUELEA
+leads to fewer mis-classifications than choosing levels directly, which speaks
+to the main motivation of this work.
+
+This paper finds the correct consistency level by succesively testing the
+levels in order of strength in order to find the weakest one that satisfies the
+contract. Is it expected that most stores would have only a few levels in total
+order? If there are many levels in a partial order, is finding the correct
+level still tractable? If the levels are partially ordered, how is the "best"
+level defined?
+
+** Start Response **
+
+Most stores that are available only tend to expose a few levels, which can
+indeed be partially ordered. An example is classification from [[Doug Terry’s
+Session guarantees for weakly cons]stent replicated data]] which introduced 4
+(incomparable) session guarantees, and the consistency level for an operation
+is any combination of the 4 session guarantees. The classification here, at
+worst, requires 4! = 24 comparisons (SMT validity tests). However, each
+comparison is very cheap; on average, in our evaluation, each comparison took
+11.5 ms. Hence, the solution remains scalable.
+
+“Best Level?” Since the classification is parameterised, when different
+incomparable consistency levels fit the bill, the RDT implementor can either
+choose one of the levels, or perhaps choose a stronger level that encapsulates
+both. This decision is left to the RDT implementor.
+
+** End Response **

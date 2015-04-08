@@ -2,8 +2,8 @@
 \label{sec:lang}
 
 \begin{figure}
-\vspace{-7pt}
 \begin{smathpar}
+\renewcommand{\arraystretch}{1.2}
 \begin{array}{rclcl}
 \multicolumn{5}{c}{
   {x,y,\cureff} \in \mathtt{EffVar} \qquad \qquad
@@ -17,8 +17,8 @@
         \ALT \pi \vee \pi \\
 			  & 		&	 &  \ALT & \pi \wedge \pi \ALT \pi \Rightarrow \pi \\
 R				& \in & \mathtt{Relation}	& \coloneqq & \visZ \ALT \soZ
-        \ALT \sameobjZ \ALT R^+ \\
-				&			&	 &  \ALT & R \cup R \ALT R \cap R \\
+        \ALT \sameobjZ \ALT = \\
+				&			&	 &  \ALT & R \cup R \ALT R \cap R \ALT R^+ \\
 \end{array}
 \end{smathpar}
 \caption{Contract language.}
@@ -35,7 +35,7 @@ We use a special effect variable ($\cureff$) to denote the effect of
 \emph{current operation} - the operation for which a contract is being written.
 Notice that $\cureff$ occurs free in the contract. We will fix its scope when
 classifying the contracts (\S~\ref{sec:classify}). The type of an effect is
-simply the name of the operation (eg: \cf{withdraw}) that induced the effect.
+simply the name of the operation (eg: \rcf{withdraw}) that induced the effect.
 We admit disjunction in types to let an effect variable range over multiple
 operation names. The contract $\small \forall (a : \tau_1 \vee \tau_2).~\psi$
 is just syntactic sugar for $\small \forall a. (\oper{a}{\tau_1} \vee
@@ -60,8 +60,8 @@ happens-before order} ($\small \hboZ = (\sooZ ~\cup~ \visZ)^+$).
 \subsection{Semantics}
 
 \begin{figure}
-\vspace{-7pt}
 \begin{smathpar}
+\renewcommand{\arraystretch}{1.2}
 \begin{array}{lclcl}
 \multicolumn{5}{l}{
   {\eff} \in \mathtt{Effect} \qquad
@@ -112,57 +112,56 @@ purposes, we identify three particular consistency levels -- eventual, causal,
 and strong, commonly offered by many distributed stores with tunable
 consistency, with increasing overhead in terms of latency and availability.
 
-\begin{itemize}[noitemsep]
+\begin{itemize}
 
 \item \textbf{Eventual consistency}: Eventually consistent operations can
 	be satisfied as long as the client can reach at least one replica. In the
-	bank account example, \cf{deposit} is an eventually consistent operation.
+	bank account example, \rcf{deposit} is an eventually consistent operation.
 	While an \ecds typically offer \emph{basic} eventual consistency with all
 	possible anomalies, we assume that our store provides stronger semantics that
 	remain highly-available~\cite{BailisHAT,COPS}; the store always exposes a
 	\emph{causal cut} of the updates. This semantics can be formally captured in
 	terms of the following contract definition:
 
-  \vspace{-1.5em}
-  \begin{smathpar}
+  \vspace{-1mm}
+  \begin{cmathpar}
   \ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
-  \end{smathpar}
+  \end{cmathpar}
 
 \item \textbf{Causal consistency}: Causally consistent operations are required
 	to see a causally consistent snapshot of the object state, including the
 	actions performed on the same session.  The latter requirement implies that
 	if two operations $o_1$ and $o_2$ from the same session are applied to two
 	different replicas $r_1$ and $r_2$, the second operation cannot be discharged
-	until the effect of $o_1$ is included in $r_2$. The \cf{getBalance} operation
+	until the effect of $o_1$ is included in $r_2$. The \rcf{getBalance} operation
 	requires causal consistency, as it requires the operations from the same
 	session to be visible, which cannot be guaranteed under eventual consistency.
 	The corresponding store semantics is captured by the contract $\ccc$ defined
 	below:
 
-  \vspace{-1.5em}
-  \begin{smathpar}
+  \vspace{-1mm}
+  \begin{cmathpar}
   \ccc = \forall a.~\hbo{a}{\cureff} \Rightarrow \vis{a}{\cureff}
-  \end{smathpar}
+  \end{cmathpar}
 
-\item \textbf{Strong Consistency}: Strongly consistent operations may block
+\item \textbf{Strong consistency}: Strongly consistent operations may block
   indefinitely under network partitions. An example is the total-order
-  contract on \cf{withdraw} operation. The corresponding store semantics is
+  contract on \rcf{withdraw} operation. The corresponding store semantics is
 	captured by the $\scc$ contract definition:
 
-  \vspace{-1.5em}
-  \begin{smathpar}
+  \vspace{-1mm}
+  \begin{cmathpar}
   \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
-  \end{smathpar}
+  \end{cmathpar}
 \end{itemize}
-\vspace{-1em}
 
 \subsection{Contract Classification}
 \label{sec:classify}
 
 \newcommand{\DDe}[1]{#1}
 \begin{figure}
-\vspace{-10pt}
 \begin{smathpar}
+\renewcommand{\arraystretch}{1.2}
 \begin{array}{cc}
 \RuleTwo
 {\DDe{\cv} \le \DDe{\scc}}
@@ -183,7 +182,6 @@ consistency, with increasing overhead in terms of latency and availability.
 {{\sf StronglyConsistent}(\cv)}
 \end{array}
 \end{smathpar}
-\vspace{-3mm}
 \caption{Contract classification.}
 \label{sem:classify}
 \end{figure}
@@ -213,7 +211,7 @@ axiomatic execution ($\E$) is expected to satisfy these assumptions (i.e., $\E
 An axiomatic execution $\small \E = \Exec$ is well-formed if the
 following axioms ($\Delta$) hold:
 
-\begin{itemize}[noitemsep]
+\begin{itemize}
 \item The happens-before relation is acyclic: $\small \forall a.~\neg\hb{a}{a}$.
 \item Visibility only relates actions on the same object:
 	\begin{itemize}
@@ -251,7 +249,7 @@ contract.
 
 The classification scheme, presented formally in Figure~\ref{sem:classify},
 defines rules to judge the consistency class of a contact. For example, the
-scheme classifies the \cf{getBalance} contract ($\cv_{gb}$) from
+scheme classifies the \rcf{getBalance} contract ($\cv_{gb}$) from
 \S~\ref{sec:motivation} as a {\sf\small CausallyConsistent} contract, because
 the sequent $\Delta \vdash \ccc \Rightarrow \cv_{gb}$ is valid in first-order
 logic (therefore, $\cv_{gb} \le \ccc$), whereas the sequent $\Delta \vdash \ecc
@@ -267,6 +265,53 @@ satisfiable under $\scc$ - the strongest possible consistency guarantee that
 the store can provide. Otherwise, it is considered ill-formed, and rejected
 statically.
 
+\subsection{Generality of Contracts}
+
+It is important to note that our contract language provides a generic way to
+capture application-level consistency properties and is not tied to a
+particular store semantics. In particular, the same application-level contracts
+can easily be mapped to a different store with a varied consistency lattice. To
+illustrate this, let us consider the consistency lattice proposed by Terry et
+al.~\cite{Session} based on session guarantees. Terry et al. propose the
+following four incomparable session guarantees, whose semantics is captured in
+the contracts below:
+
+\vspace{-2mm}
+\begin{smathpar}
+\renewcommand{\arraystretch}{1.2}
+\begin{array}{rcl}
+\R{Read Your Writes (RYW)} & \coloneqq & \forall a,b. ~\soo{a}{b} \Rightarrow \vis{a}{b} \\
+\R{Monotonic Reads (MR)} & \coloneqq & \forall a,b,c. ~\vis{a}{b} \wedge \soo{b}{c} \\
+ & & \quad \Rightarrow \vis{a}{c} \\
+\R{Monotonic Writes (MW)} & \coloneqq & \forall a,b,c. ~\soo{a}{b} \wedge \vis{b}{c} \\
+ & & \quad \Rightarrow \vis{a}{c} \\
+\R{Writes Follow Reads (WFR)} & \coloneqq & \forall a,b,c,d. ~\vis{a}{b} \wedge \vis{c}{d} \\
+ & & \wedge (\sooZ ~\cup =)(b,c) \Rightarrow \vis{a}{d}
+\end{array}
+\end{smathpar}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=\columnwidth]{Figures/lattice}
+\end{center}
+\caption{Lattice of consistency levels under session guarantees.}
+\label{fig:lattice}
+\end{figure}
+
+In this scheme, the consistency level of an operation is any combination of the
+above guarantees, which form a partially ordered consistency lattice show in
+Figure~\ref{fig:lattice}. Each element in this lattice corresponds to a
+store-consistency level, and is represented by its contract. An edge from an
+upper level element to a lower level element corresponds to weaker than
+relation between their corresponding contracts. Classifying a contract under
+this scheme is a directed search in the lattice, starting from the bottom, and
+determining the weakest consistency level under which the contract can be
+satisfied. Under this scheme, \rcf{deposit} operations does not need any
+guarantees, \rcf{getBalance} needs RYW and WFR ($\Delta \vdash \R{RYW} \wedge
+\R{WFR} \Rightarrow \cv_{gb}$), and \rcf{withdraw} cannot be satisfied ($\Delta
+\vdash \R{RYW} \wedge \R{MW} \wedge \R{MR} \wedge \R{WFR} \not\Rightarrow
+\cv_{w}$).
+
 \subsection{Soundness of Contract Classification}
 
 We now present a meta-theoretic result that certifies the soundness of
@@ -274,8 +319,8 @@ classification-based contract enforcement. To help us state the result, we
 define an operational semantics of the system described informally in
 \S~\ref{sec:sysmod}:
 
-\vspace{-1em}
 \begin{smathpar}
+\renewcommand{\arraystretch}{1.2}
 \begin{array}{lclcl}
 {\it op} 	& \in & \mathtt{Operation} \\
 {\tau}		& \in & \mathtt{Consistency Class} 	& \coloneqq & {\sf ec},{\sf cc},{\sf sc} \\
@@ -292,7 +337,6 @@ a sequence of pairs composed of replicated data type operations $\mathit{op}$,
 tagged with the consistency class $\tau$ of their contracts (as determined by
 the contract classification scheme). We assume a reduction relation of form:
 
-\vspace{-1.7em}
 \begin{smathpar}
   \auxred{} {\E,\langle op,\tau \rangle;\sigma \pll \Sigma} {\eff}
     {\E',\sigma \pll \Sigma}

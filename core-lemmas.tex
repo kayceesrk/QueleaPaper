@@ -543,9 +543,9 @@
   \label{lem:local-state-is-cc}
   In a replicated data store $\E; \Theta; \Sigma$, local state of
   every replica $r$ in the store (i.e., $\Theta(r)$) is causally
-  consistent. That is:\vspace*{0.04in}\\
+  consistent. That is:\\
   $\forall (r\in{\sf dom}(\Theta)). \forall (\eff \in \Theta(r)). \\
-  \hspace*{0.8in}\forall (a\in\E.A). \hbo{a}{\eff} \Rightarrow a \in \Theta(r)$\vspace*{0.04in}\\
+  \hspace*{0.8in}\forall (a\in\E.A). \hbo{a}{\eff} \Rightarrow a \in \Theta(r)$\\
   where ${\sf hbo} = (\E.\Rvis \cup \E.\Rso)^{+}$
 \end{lemma}
 \begin{proof}

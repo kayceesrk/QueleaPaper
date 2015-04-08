@@ -34,11 +34,10 @@ unique transaction. While transactions may have varying isolation guarantees,
 we make the standard assumption that all transactions provide atomicity. Hence,
 we include the following axiom in $\Delta$:
 
-\vspace{-1.5em}
-\begin{smathpar}
+\begin{cmathpar}
 \forall a,b,c.~\txn{a}{b,c} ~\wedge~ \sameobj{b}{c} ~\wedge~ \vis{b}{a}
 \Rightarrow \vis{c}{a}
-\end{smathpar}
+\end{cmathpar}
 
 \noindent The semantics of this contract is illustrated in
 Figure~\ref{fig:txn_atomicity}.
@@ -48,13 +47,12 @@ Figure~\ref{fig:txn_atomicity}.
 In order to illustrate the utility of declarative reasoning for transactions,
 consider an extension of our running example to use two accounts (objects) --
 current ($c$) and savings ($s$). Each account provides operations
-\cf{withdraw}, \cf{deposit} and \cf{getBalance}, with the same contracts as
+\rcf{withdraw}, \rcf{deposit} and \rcf{getBalance}, with the same contracts as
 defined previously. We consider two transactions -- \cf{save(amt)}, which
 transfers \cf{amt} from current to savings, and \cf{totalBalance}, which
 returns the sum of the balances of individual accounts. Our goal is to ensure
 that \cf{totalBalance} returns the result obtained from a consistent snapshot
 of the object states. The \name code for the transactions is given below:
-\vspace{-1em}
 
 \noindent \begin{minipage}[t]{0.53\columnwidth}
 \begin{codehaskell}
@@ -89,27 +87,26 @@ distributed stores rarely offer serializable transactions since it is
 unavailable and hinders scalability~\cite{BailisHAT}. As we will see, these
 transactions can be satisfied with much weaker isolation guarantees. Despite
 the atomicity offered by the transaction, anomalies are still possible. For
-example, the two \cf{getBalance} operations in \cf{totalBalance} transactions
+example, the two \rcf{getBalance} operations in \cf{totalBalance} transactions
 might be served by different replicas with distinct set of committed \cf{save}
-transactions. If the first(second) \cf{getBalance} operation witness a
+transactions. If the first(second) \rcf{getBalance} operation witness a
 \cf{save} transaction that is not witnessed by the second(first)
-\cf{getBalance} operation, then the balance returned will be less(greater) than
+\rcf{getBalance} operation, then the balance returned will be less(greater) than
 the actual balance. It is not immediately apparent which weakest isolation
 guarantee will be sufficient to prevent the anomaly.
 
 Instead, \name requires the programmer to simply state the consistency
-requirement as a contract. Since we would like both the \cf{getBalance}
+requirement as a contract. Since we would like both the \rcf{getBalance}
 operations to witness the same set of \cf{save} transactions, we define the
 constraint on \cf{totalBalance} transaction $\psi_{tb}$ as:
 
-\vspace{-1.2em}
-\begin{smathpar}
+\begin{cmathpar}
 \begin{array}{l}
 \cv_{tb} = \forall a:\rcf{getBalance}, b:\rcf{getBalance}, \\
 \qquad (c:\rcf{withdraw} \vee \rcf{deposit}), (d:\rcf{withdraw} \vee \rcf{deposit}). \\
 \qquad \txn{a,b}{c,d} ~\wedge~ \vis{c}{a} ~\wedge~ \sameobj{d}{b} \Rightarrow \vis{d}{b}
 \end{array}
-\end{smathpar}
+\end{cmathpar}
 
 \noindent The key idea in the above definition is that the $\small \txnZ$ primitive
 allows us to relate operations on different objects.
@@ -122,13 +119,21 @@ $\psi_1$ is simply $\small \true$.
 \subsection{Coordination-free Transactions}
 
 \begin{figure}
-\vspace{-2.3mm}
 \centering
-\subfigure[Atomicity]{\label{fig:txn_atomicity}\includegraphics[width=0.25\columnwidth]{Figures/TxnAtomic}}
+\subfigure[Atomicity]{
+  \label{fig:txn_atomicity}
+  \includegraphics[width=0.25\columnwidth]{Figures/TxnAtomic}
+}
 \hfill
-\subfigure[Monotonic Atomic View]{\label{fig:txn_mav}\includegraphics[width=0.25\columnwidth]{Figures/TxnMAV}}
+\subfigure[Monotonic Atomic View]{
+  \label{fig:txn_mav}
+  \includegraphics[width=0.25\columnwidth] {Figures/TxnMAV}
+}
 \hfill
-\subfigure[Repeatable Read]{\label{fig:txn_rr}\includegraphics[width=0.25\columnwidth]{Figures/TxnRR}}
+\subfigure[Repeatable Read]{
+  \label{fig:txn_rr}
+  \includegraphics[width=0.25\columnwidth]{Figures/TxnRR}
+}
 \caption{Semantics of transaction contracts. $x$ and $y$ are distinct objects.
 The dotted line represents the visibility requested by the contracts.}
 \label{fig:transaction}
@@ -150,13 +155,12 @@ Importantly, RC does not entail any other guarantees. As a result, a store
 implementing RC does not require inter-replica coordination. We can express RC
 as follows:
 
-\vspace{-1em}
-\begin{smathpar}
+\begin{cmathpar}
 \begin{array}{l}
 \rcc = \forall a,b,c.~\txn{a}{b,c} \wedge \sameobj{b}{c} \\
 \qquad \qquad \qquad \wedge~ \vis{b}{a} \Rightarrow \vis{c}{a}
 \end{array}
-\end{smathpar}
+\end{cmathpar}
 
 \noindent Notice that the above definition is the same as the atomicity
 guarantee of transaction described in \S~\ref{sec:syn_sem_ext}. The \cf{save}
@@ -172,13 +176,12 @@ and before performing an operation at some replica, ensure that the replica
 includes all the transactions in $S_t$. Hence, MAV is coordination-free. MAV
 semantics is captured with the following contract:
 
-\vspace{-1em}
-\begin{smathpar}
+\begin{cmathpar}
 \begin{array}{l}
 \mavc = \forall a,b,c,d.~\txn{a,b}{c,d} ~\wedge~ \so{a}{b} ~\wedge~ \vis{c}{a} \\
 \qquad\qquad\qquad\qquad ~\wedge~ \sameobj{d}{b} \Rightarrow \vis{d}{b}
 \end{array}
-\end{smathpar}
+\end{cmathpar}
 
 \noindent whose semantics is illustrated in the Figure~\ref{fig:txn_mav}.
 
@@ -188,13 +191,12 @@ hence RR is coordination-free. An example for such a transaction is the
 \cf{totalBalance} transaction. The semantics of RR is captured by the following
 contract:
 
-\vspace{-1.2em}
-\begin{smathpar}
+\begin{cmathpar}
 \begin{array}{l}
 \rrc = \forall a,b,c,d.~\txn{a,b}{c,d} ~\wedge~ \vis{c}{a} \\
 \qquad\qquad\qquad\quad ~\wedge~ \sameobj{d}{b} \Rightarrow \vis{d}{b}
 \end{array}
-\end{smathpar}
+\end{cmathpar}
 
 \noindent whose semantics is illustrated in the Figure~\ref{fig:txn_rr}.
 

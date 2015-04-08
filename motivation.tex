@@ -7,7 +7,7 @@ non-negative. We begin by implementing a bank account replicated data type
 (RDT) in \name, and then describe the mechanisms to obtain the desired
 correctness guarantees.
 
-\subsection{RDT specification}
+\subsection{RDT Specification}
 
 A key novelty in \name is that it allows the addition of new RDTs to the store,
 which obviates the need for coercing the application logic to utilize the store
@@ -19,7 +19,7 @@ resolution, and \emph{declarative} reasoning for consistency. The combination
 of these techniques enhances the programmability of the store.
 
 Let us assume that the bank account object provides three operations:
-\cf{deposit}, \cf{withdraw} and \cf{getBalance}, with the assumption that the
+\rcf{deposit}, \rcf{withdraw} and \rcf{getBalance}, with the assumption that the
 withdraw fails if the account has insufficient balance. Every operation in
 \name is of the following type, written in Haskell syntax:
 
@@ -35,7 +35,6 @@ sent to other replicas. The implementation of the bank account operations in
 \name is given in Figure~\ref{fig:ex}.
 
 \begin{figure}
-\vspace{-2.3mm}
 \begin{codehaskell}
 data Acc = Deposit Int | Withdraw Int | GetBal
 
@@ -54,6 +53,7 @@ withdraw hist v =
   then (True, Just dollar Withdraw v)
 	else (False, Nothing)
 \end{codehaskell}
+%\captionsetup{singlelinecheck=off}
 \caption{Definition of a bank account expressed in Quelea.}
 \label{fig:ex}
 \end{figure}
@@ -63,8 +63,8 @@ function \cf{sum} returns the sum of elements in the list, and \cf{sel1}
 returns the first element of a tuple. For each operation, \cf{hist} is a
 \emph{snapshot} of the state of the object at some replica. In this sense,
 every operation on the RDT is atomic, and thus amenable to sequential reasoning.
-Here, \cf{getBalance} is a read-only operation,
-\cf{deposit} always emits an effect, and \cf{withdraw} only emits an effect if
+Here, \rcf{getBalance} is a read-only operation,
+\rcf{deposit} always emits an effect, and \rcf{withdraw} only emits an effect if
 there is sufficient balance in the account. We have implemented a large corpus
 of RDTs for realistic benchmarks including shopping carts, auction and
 micro-blogging sites, etc. in a few tens of lines of code, expressed in this style.
@@ -72,7 +72,7 @@ micro-blogging sites, etc. in a few tens of lines of code, expressed in this sty
 \subsubsection{Summarization}
 \label{sec:summarize}
 
-Observe that the definition of \cf{getBalance} reduces over the \emph{entire
+Observe that the definition of \rcf{getBalance} reduces over the \emph{entire
 history} of updates to an account. If we are to realize an efficient
 implementation of this bank account RDT, we need a \emph{summary} of the
 account history. Intuitively, the current account balance summarizes the state
@@ -90,11 +90,10 @@ specific to each RDT, programmers can provide a summarization
 function - (\cf{summarize}) of type \cf{[e] -> [e]} -  as a part of
 the RDT specification. The summarization function for the bank account is:
 
-{\small
-\begin{verbatim}
+\begin{codehaskell}
  summarize hist =
-   [Deposit $ sel1 $ getBalance hist ()]
-\end{verbatim}}
+   [Deposit dollar sel1 dollar getBalance hist ()]
+\end{codehaskell}
 
 \noindent Given a bank account history \cf{hist}, the \cf{summarize}
 function returns a new history with a single deposit of the current
@@ -106,10 +105,9 @@ maintained by replicas.
 
 Our goal is to choose the correct consistency level for each of the bank
 account operations such that (1) the balance remains non-negative and (2) the
-\cf{getBalance} operation never incorrectly returns a negative balance.
+\rcf{getBalance} operation never incorrectly returns a negative balance.
 
 \begin{figure}[ht]
-\vspace{-2mm}
 \centering
 \subfigure[Unsafe withdraw]{\label{fig:unsafeWithdrawAnomaly}\includegraphics[width=0.34\columnwidth]{Figures/Motivation4}}
 \hfill
@@ -122,43 +120,43 @@ account operations such that (1) the balance remains non-negative and (2) the
 
 Consider the execution shown in Figure~\ref{fig:unsafeWithdrawAnomaly}. Assume
 that all operations in the figure are on the same bank account object with the
-initial balance being zero. Session 1 performs a \cf{deposit} of 100, followed
-by a \cf{withdraw} of 80 in the same session. The \cf{withdraw} operation
+initial balance being zero. Session 1 performs a \rcf{deposit} of 100, followed
+by a \rcf{withdraw} of 80 in the same session. The \rcf{withdraw} operation
 witnesses the deposit and succeeds\footnote{Although visibility and session
 order relations relate effects, we have abused the notation in these examples
 to relate operations, with the idea that the relations relate the effect
-emitted by those operations}. Subsequently, session 2 perform a \cf{withdraw}
+emitted by those operations}. Subsequently, session 2 perform a \rcf{withdraw}
 operation, but importantly, due to eventual consistency, only witnesses the
-\cf{deposit} from session 1, but not the subsequent withdraw. Hence, this
-\cf{withdraw} also \emph{incorrectly} succeeds, violating the integrity
-constraint. A subsequent \cf{getBalance} operation, that happens to witness all
+\rcf{deposit} from session 1, but not the subsequent withdraw. Hence, this
+\rcf{withdraw} also \emph{incorrectly} succeeds, violating the integrity
+constraint. A subsequent \rcf{getBalance} operation, that happens to witness all
 the previous operations, would report a negative balance.
 
-It is easy to see that preventing concurrent \cf{withdraw} operations
-eliminates this anomaly. This can be done by insisting that \cf{withdraw} be
-executed as a strongly consistent operation. Despite this strengthening, the
-\cf{getBalance} operation may still incorrectly report a negative balance to
+It is easy to see that preventing concurrent \rcf{withdraw} operations
+eliminates this anomaly. This can be done by insisting that \rcf{withdraw} be
+executed as a strongly consistent operation. Despite this strengthening,
+the \rcf{getBalance} operation may still incorrectly report a negative balance to
 the user. Consider the execution shown in
 fig.~\ref{fig:negativeBalanceAnomaly}, which consists of three concurrent
-sessions performing a \cf{deposit}, a \cf{withdraw}, and a \cf{getBalance}
+sessions performing a \rcf{deposit}, a \rcf{withdraw}, and a \rcf{getBalance}
 operation, respectively, on the same bank account object. As the {\sf vis} edge
-indicates, operation \cf{withdraw(50)} in session 2 witnesses the effects of
-\cf{deposit(100)} from session 1, concludes that there is sufficient balance,
-and completes successfully. However, the \cf{getBalance} operation may only
-witness this successful withdraw, but not the causally preceding \cf{deposit},
+indicates, operation \rcf{withdraw(50)} in session 2 witnesses the effects of
+\rcf{deposit(100)} from session 1, concludes that there is sufficient balance,
+and completes successfully. However, the \rcf{getBalance} operation may only
+witness this successful withdraw, but not the causally preceding \rcf{deposit},
 and reports the balance of negative 50 to the user.
 
 Under eventual consistency, the users may also be exposed to other forms of
 inconsistencies. Figure~\ref{fig:missingUpdateAnomaly} shows an execution where
-the \cf{getBalance} operation in a session does not witness the effects of an
-earlier \cf{withdraw} operation performed in the same session, possibly because
-it was served by a replica that has not yet merged the \cf{withdraw} effect.
-This anomaly leads the user to incorrectly conclude that the \cf{withdraw}
+the \rcf{getBalance} operation in a session does not witness the effects of an
+earlier \rcf{withdraw} operation performed in the same session, possibly because
+it was served by a replica that has not yet merged the \rcf{withdraw} effect.
+This anomaly leads the user to incorrectly conclude that the \rcf{withdraw}
 operation failed to go through.
 
 Although it is easy to understand the reasons behind the occurrence of the
 aforementioned anomalies, finding the appropriate fixes is not readily
-apparent. Making \cf{getBalance} a strongly consistent operation is definitely
+apparent. Making \rcf{getBalance} a strongly consistent operation is definitely
 sufficient to avert anomalies, but is it really necessary? Given the cost of
 enforcing strong consistency~\cite{DynamoDB, Pileus}, it is preferable to avoid
 it unless there are no viable alternatives. Exploring the space of these
@@ -179,57 +177,89 @@ for each data type in terms of a trace of operation invocations on that type,
 \name\ ensures that all executions over that type are well-formed.
 
 In our running example, it is clear that in order to preserve the integrity
-constraint, the \cf{withdraw} operation must be strongly consistent.  That is,
-given two \cf{withdraw} operations $a$ and $b$, either $a$ is visible to $b$ or
+constraint, the \rcf{withdraw} operation must be strongly consistent.  That is,
+given two \rcf{withdraw} operations $a$ and $b$, either $a$ is visible to $b$ or
 vice-versa. We express this application-level consistency requirement as a
-contract ($\cv_w$) over \cf{withdraw}:
+contract ($\cv_w$) over \rcf{withdraw}:
 
-\vspace{-1em}
-\begin{smathpar}
+\begin{cmathpar}
 \begin{array}{l}
-\forall (a : \rcf{withdraw}).~\sameobj{a}{\cureff} \Rightarrow a = \cureff \vee \vis{a}{\cureff} \vee \vis{\cureff}{a}
+\forall (a : \rcf{withdraw}).\\
+\qquad \sameobj{a}{\cureff} \Rightarrow a = \cureff \vee \vis{a}{\cureff} \vee \vis{\cureff}{a}
 \end{array}
-\end{smathpar}
+\end{cmathpar}
 
-\noindent Here, $\cureff$ stands for the effect emitted by the \cf{withdraw} operation.
+\noindent Here, $\cureff$ stands for the effect emitted by the \rcf{withdraw} operation.
 The syntax $a:\rcf{withdraw}$ states that $a$ is an effect  emitted
-by a \cf{withdraw} operation i.e., $\oper{a}{\rcf{withdraw}}$ holds.  The
+by a \rcf{withdraw} operation i.e., $\oper{a}{\rcf{withdraw}}$ holds.  The
 contract specifies that if the current operation emits an effect $\cureff$,
-then for any operation $a$ which was emitted by a \cf{withdraw} operation, it
+then for any operation $a$ which was emitted by a \rcf{withdraw} operation, it
 is the case that $a = \cureff$ or $a$ is visible to $\cureff$, or vice versa.
 Any execution on a bank account object that preserves the above contract for a
-\cf{withdraw} operation is said to be derived from a correct implementation of
-\cf{withdraw}.
+\rcf{withdraw} operation is said to be derived from a correct implementation of
+\rcf{withdraw}.
 
-\noindent For \cf{getBalance}, we construct the following contract ($\cv_{gb}$):
+To prevent \rcf{getBalance} from ever showing a negative balance, it is
+necessary to prevent the scenario depicted in
+fig.~\ref{fig:negativeBalanceAnomaly}. Let $\cureff$ stand for the effect
+emitted by the \rcf{getBalance} operation. If the effect ($b$) of a withdraw
+operation is visible to $\cureff$, and the effect ($a$) of a deposit operation
+is visible to the effect ($b$) of the withdraw operation, then it must be the
+case that $a$ is also visible to $\cureff$. A contract ($\cv_{gb}^1$) for
+\rcf{getBalance} operation that precisely captures this application-level consistency
+requirement can be written thus:
 
-\vspace{-1em}
-\begin{smathpar}
+\begin{cmathpar}
+\begin{array}{l}
+\forall (a:\rcf{deposit}), (b:\rcf{withdraw}). \\
+\qquad (\vis{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff})
+\end{array}
+\end{cmathpar}
+
+\noindent To prevent the missing update anomaly described in
+fig.~\ref{fig:missingUpdateAnomaly}, it is necessary for a \rcf{getBalance}
+operation on a bank account to witness the effects of all previous \rcf{deposit}
+and \rcf{withdraw} operations performed on the same bank account in the same
+session. We can express an additional contract ($\cv_{gb}^2$) for
+\rcf{getBalance} that captures this consistency requirement:
+
+\begin{cmathpar}
+\begin{array}{l}
+\forall (c: \rcf{deposit} \vee \rcf{withdraw}). \\
+\qquad((\soZ \cap \sameobjZ) (c,\cureff) \Rightarrow \vis{c}{\cureff})
+\end{array}
+\end{cmathpar}
+
+\noindent Our contract language provides operators to compose relations. The
+syntax $(R_1 \cap R_2)(a,b)$ is equivalent to $R_1(a,b) \wedge R_2(a,b)$. The
+above contract ($\cv_{gb}^2$) says that if a \rcf{deposit} or a \rcf{withdraw}
+operation precedes a \rcf{getBalance} operation in session order, and is applied
+on the same object as the \rcf{getBalance} operation, then it must be the case
+that the \rcf{getBalance} operation witnesses the effects of the preceding
+operations.
+
+The final contract ($\cv_{gb}$) of the \rcf{getBalance} operation is
+merely a conjunction of the previous two versions ($\cv_{gb}^1$ and
+$\cv_{gb}^2$):
+
+\begin{cmathpar}
 \begin{array}{l}
 \forall (a:\rcf{deposit}), (b:\rcf{withdraw}), (c: \rcf{deposit} \vee \rcf{withdraw}). \\
 \qquad (\vis{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}) \\
 \qquad \wedge~ ((\soZ \cap \sameobjZ) (c,\cureff) \Rightarrow \vis{c}{\cureff})
 \end{array}
-\end{smathpar}
+\end{cmathpar}
 
-\noindent The expression $c:\rcf{deposit} \vee \rcf{withdraw}$ states that $c$
-is an effect that was emitted either by a \cf{deposit} or a \cf{withdraw}
-operation. If a \cf{withdraw} $b$ is visible to \cf{getBalance} $\cureff$, then
-all \cf{deposit} operations $a$ visible to $b$ should also be visible to
-$\cureff$. Intuitively, this prevents negative balance anomalies. Our contract
-language provides operators to compose relations. The syntax $(R_1 \cap
-R_2)(a,b)$ is equivalent to $R_1(a,b) \wedge R_2(a,b)$. The last line of the
-above contract says that if a \cf{deposit} or a \cf{withdraw} operation
-precedes a \cf{getBalance} operation in session order, and is applied on the
-same object as the \cf{getBalance} operation, then it must be the case that the
-\cf{getBalance} operation witnesses the effects of the preceding operations.
+\noindent Intuitively, this prevents both the \rcf{getBalance} anomalies
+described in figs.~\ref{fig:negativeBalanceAnomaly} and
+\ref{fig:missingUpdateAnomaly} from ever occurring.
 
-Finally, since there are no restrictions on when or how a \cf{deposit}
+Finally, since there are no restrictions on when or how a \rcf{deposit}
 operation can execute, its contract is simply $\small \true$.
 
 \subsection{From Contracts to Implementation}
 
-Notice that the contracts for \cf{withdraw} and \cf{getBalance} only express
+Notice that the contracts for \rcf{withdraw} and \rcf{getBalance} only express
 application-level consistency requirements, and make no reference to the
 semantics of the underlying store. To write contracts, a programmer only needs
 to reason about the semantics of the application under the \name system model.
