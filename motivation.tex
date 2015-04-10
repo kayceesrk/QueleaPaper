@@ -9,14 +9,15 @@ correctness guarantees.
 
 \subsection{RDT Specification}
 
-A key novelty in \name is that it allows the addition of new RDTs to the store,
-which obviates the need for coercing the application logic to utilize the store
-provided data types. In addition, \name treats the convergence semantics (i.e.,
-\emph{how} conflicting updates are resolved) of the data type separately from
-its consistency properties (i.e., \emph{when} updates become visible). This
-separation of concerns permits \emph{operational} reasoning for conflict
-resolution, and \emph{declarative} reasoning for consistency. The combination
-of these techniques enhances the programmability of the store.
+A key novelty in \name is that it allows the addition of new RDTs to the
+store, which obviates the need for coercing application logic to utilize
+store-provided data types. In addition, \name treats the convergence
+semantics (i.e., \emph{how} conflicting updates are resolved) of the data
+type separately from its consistency properties (i.e., \emph{when} updates
+become visible). This separation of concerns permits \emph{operational}
+reasoning for conflict resolution, and \emph{declarative} reasoning for
+consistency. The combination of these techniques enhances the
+programmability of the store.
 
 Let us assume that the bank account object provides three operations:
 \rcf{deposit}, \rcf{withdraw} and \rcf{getBalance}, with the assumption that the
@@ -40,8 +41,8 @@ data Acc = Deposit Int | Withdraw Int | GetBal
 
 getBalance :: [Acc] -> () -> (Int, Maybe Acc)
 getBalance hist _ =
-  let res = sum [x | Deposit x <- hist]
-						- sum [x | Withdraw x <- hist]
+  let res = sum [x | Deposit x <- hist] -
+            sum [x | Withdraw x <- hist]
 	in (res, Nothing)
 
 deposit :: [Acc] -> Int -> ((), Maybe Acc)
@@ -87,7 +88,7 @@ a register with only the last write. Similarly, a set with a collection of add
 and remove operations is equivalent to a set with a series of additions of live
 elements from the original set. Since the notion of observable equivalence is
 specific to each RDT, programmers can provide a summarization
-function - (\cf{summarize}) of type \cf{[e] -> [e]} -  as a part of
+function - of type \cf{[e] -> [e]} -  as a part of
 the RDT specification. The summarization function for the bank account is:
 
 \begin{codehaskell}
@@ -125,7 +126,7 @@ by a \rcf{withdraw} of 80 in the same session. The \rcf{withdraw} operation
 witnesses the deposit and succeeds\footnote{Although visibility and session
 order relations relate effects, we have abused the notation in these examples
 to relate operations, with the idea that the relations relate the effect
-emitted by those operations}. Subsequently, session 2 perform a \rcf{withdraw}
+emitted by those operations.}. Subsequently, session 2 perform a \rcf{withdraw}
 operation, but importantly, due to eventual consistency, only witnesses the
 \rcf{deposit} from session 1, but not the subsequent withdraw. Hence, this
 \rcf{withdraw} also \emph{incorrectly} succeeds, violating the integrity
@@ -156,12 +157,13 @@ operation failed to go through.
 
 Although it is easy to understand the reasons behind the occurrence of the
 aforementioned anomalies, finding the appropriate fixes is not readily
-apparent. Making \rcf{getBalance} a strongly consistent operation is definitely
-sufficient to avert anomalies, but is it really necessary? Given the cost of
-enforcing strong consistency~\cite{DynamoDB, Pileus}, it is preferable to avoid
-it unless there are no viable alternatives. Exploring the space of these
-alternatives requires understanding the subtle differences in semantics of
-various kinds of weak consistency alternatives.
+apparent. Making \rcf{getBalance} a strongly consistent operation is
+definitely sufficient to avert anomalies, but is it really necessary? Given
+the cost of enforcing strong consistency~\cite{DynamoDB, Pileus}, it is
+preferable to avoid imposing such stringent conditions unless there are no
+viable alternatives. Exploring the space of these alternatives requires
+understanding the subtle differences in semantics of various kinds of weak
+consistency alternatives.
 
 \subsection{Contracts}
 
@@ -176,11 +178,12 @@ execution on the bank account object. By specifying the set of legal executions
 for each data type in terms of a trace of operation invocations on that type,
 \name\ ensures that all executions over that type are well-formed.
 
-In our running example, it is clear that in order to preserve the integrity
-constraint, the \rcf{withdraw} operation must be strongly consistent.  That is,
-given two \rcf{withdraw} operations $a$ and $b$, either $a$ is visible to $b$ or
-vice-versa. We express this application-level consistency requirement as a
-contract ($\cv_w$) over \rcf{withdraw}:
+In our running example, it is clear that in order to preserve the critical
+integrity constraint, the \rcf{withdraw} operation must be strongly
+consistent.  That is, given two \rcf{withdraw} operations $a$ and $b$,
+either $a$ is visible to $b$ or vice-versa. We express this
+application-level consistency requirement as a contract ($\cv_w$) over
+\rcf{withdraw}:
 
 \begin{cmathpar}
 \begin{array}{l}
@@ -201,12 +204,12 @@ Any execution on a bank account object that preserves the above contract for a
 
 To prevent \rcf{getBalance} from ever showing a negative balance, it is
 necessary to prevent the scenario depicted in
-fig.~\ref{fig:negativeBalanceAnomaly}. Let $\cureff$ stand for the effect
+Figure~\ref{fig:negativeBalanceAnomaly}. Let $\cureff$ stand for the effect
 emitted by the \rcf{getBalance} operation. If the effect ($b$) of a withdraw
 operation is visible to $\cureff$, and the effect ($a$) of a deposit operation
 is visible to the effect ($b$) of the withdraw operation, then it must be the
 case that $a$ is also visible to $\cureff$. A contract ($\cv_{gb}^1$) for
-\rcf{getBalance} operation that precisely captures this application-level consistency
+\rcf{getBalance}  that precisely captures this application-level consistency
 requirement can be written thus:
 
 \begin{cmathpar}
@@ -217,7 +220,7 @@ requirement can be written thus:
 \end{cmathpar}
 
 \noindent To prevent the missing update anomaly described in
-fig.~\ref{fig:missingUpdateAnomaly}, it is necessary for a \rcf{getBalance}
+Figure~\ref{fig:missingUpdateAnomaly}, it is necessary for a \rcf{getBalance}
 operation on a bank account to witness the effects of all previous \rcf{deposit}
 and \rcf{withdraw} operations performed on the same bank account in the same
 session. We can express an additional contract ($\cv_{gb}^2$) for
@@ -250,9 +253,10 @@ $\cv_{gb}^2$):
 \end{array}
 \end{cmathpar}
 
-\noindent Intuitively, this prevents both the \rcf{getBalance} anomalies
-described in figs.~\ref{fig:negativeBalanceAnomaly} and
-\ref{fig:missingUpdateAnomaly} from ever occurring.
+\noindent Intuitively, this specification prohibits both the
+\rcf{getBalance} anomalies described in
+Figures.~\ref{fig:negativeBalanceAnomaly} and \ref{fig:missingUpdateAnomaly}
+from  occurring.
 
 Finally, since there are no restrictions on when or how a \rcf{deposit}
 operation can execute, its contract is simply $\small \true$.

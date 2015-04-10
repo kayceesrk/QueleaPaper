@@ -66,8 +66,8 @@ are classified as eventually consistent and RC, respectively. Operation
 contracts are used to enforce integrity and visibility constraints on
 individual fields in the tables. Transactions are mainly used to consistently
 modify and access related fields across tables. In \name, the contract
-classification process is completely performed at compile time and has no
-overheads at runtime. The proof obligations associated with contract
+classification process is completely performed at compile time and incurs no
+runtime overhead. The proof obligations associated with contract
 classification is discharged through the Z3 SMT Solver. Across our benchmarks,
 classifying a contract took 11.5 milliseconds on average.
 
@@ -76,7 +76,7 @@ For our performance evaluation, we deploy \name applications in
 Cassandra replicas within the same datacenter. We instantiate one shim layer
 node co-located on the same VM as a Cassandra replica. Clients are instantiated
 within the same data center as the store, and run transactions. We deploy each
-cluster and client node on an \cf{c3.4xlarge} Amazon EC2 instance. We call this
+cluster and client node on a \cf{c3.4xlarge} Amazon EC2 instance. We call this
 a \cf{1DC} configuration. For our geo-distributed experiments (\cf{2DC}), we
 instantiate 2 clusters, each with five nodes, and place the clusters on US-east
 (Virginia) and US-west (Oregon) locations. The average inter-region latency was

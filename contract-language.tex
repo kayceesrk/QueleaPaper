@@ -33,8 +33,8 @@ The syntax of our core contract language is shown in Figure
 admits prenex universal quantification over typed and untyped effect variables.
 We use a special effect variable ($\cureff$) to denote the effect of
 \emph{current operation} - the operation for which a contract is being written.
-Notice that $\cureff$ occurs free in the contract. We will fix its scope when
-classifying the contracts (\S~\ref{sec:classify}). The type of an effect is
+Notice that $\cureff$ occurs free in the contract. We fix its scope when
+classifying contracts (\S~\ref{sec:classify}). The type of an effect is
 simply the name of the operation (eg: \rcf{withdraw}) that induced the effect.
 We admit disjunction in types to let an effect variable range over multiple
 operation names. The contract $\small \forall (a : \tau_1 \vee \tau_2).~\psi$
@@ -51,7 +51,7 @@ closure\footnote{Strictly speaking, $R^{+}$ is not the transitive closure of
 $R$, as transitive closure is not expressible in FOL.  Instead, $R^{+}$ in our
 language denotes \emph{a} superset of transitive closure of $R$. Formally,
 $R^{+}$ is any relation $R'$ such that forall $x$, $y$, and $z$, a) $R(x,y)
-\Rightarrow R'(x,y)$, and b) $R'(x,y) \conj R'(y,z) \Rightarrow R'(x,z)$} of
+\Rightarrow R'(x,y)$, and b) $R'(x,y) \conj R'(y,z) \Rightarrow R'(x,z)$.} of
 primitive relations.  Commonly used derived relations are the \emph{same object
 session order} ($\small \sooZ = \soZ ~\cap~ \sameobjZ$), \emph{happens-before
 order} ($\small \hbZ = (\soZ ~\cup~ \visZ)^+$) and the \emph{same object
@@ -134,7 +134,7 @@ consistency, with increasing overhead in terms of latency and availability.
 	if two operations $o_1$ and $o_2$ from the same session are applied to two
 	different replicas $r_1$ and $r_2$, the second operation cannot be discharged
 	until the effect of $o_1$ is included in $r_2$. The \rcf{getBalance} operation
-	requires causal consistency, as it requires the operations from the same
+	requires causal consistency, as it requires operations from the same
 	session to be visible, which cannot be guaranteed under eventual consistency.
 	The corresponding store semantics is captured by the contract $\ccc$ defined
 	below:
@@ -202,7 +202,7 @@ A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \end{definition}
 
 The quantifier in the sequent binds $\cureff$ that occurs free in $\cv_{st}$
-and $\cv_{op}$. Context ($\Delta$) of the sequent is a conjunction of
+and $\cv_{op}$. The context ($\Delta$) of the sequent is a conjunction of
 assumptions about the nature of primitive relations. A \emph{well-formed}
 axiomatic execution ($\E$) is expected to satisfy these assumptions (i.e., $\E
 \models \Delta$).
@@ -212,7 +212,7 @@ An axiomatic execution $\small \E = \Exec$ is well-formed if the
 following axioms ($\Delta$) hold:
 
 \begin{itemize}
-\item The happens-before relation is acyclic: $\small \forall a.~\neg\hb{a}{a}$.
+\item The happens-before relation is acyclic: $\small \forall a.~\neg\hbo{a}{a}$.
 \item Visibility only relates actions on the same object:
 	\begin{itemize}
 	\item $\small \forall a,b.~\vis{a}{b} \Rightarrow \sameobj{a}{b}$.
@@ -302,11 +302,11 @@ In this scheme, the consistency level of an operation is any combination of the
 above guarantees, which form a partially ordered consistency lattice show in
 Figure~\ref{fig:lattice}. Each element in this lattice corresponds to a
 store-consistency level, and is represented by its contract. An edge from an
-upper level element to a lower level element corresponds to weaker than
-relation between their corresponding contracts. Classifying a contract under
+upper level element to a lower level element corresponds to a weaker-than
+relation between the corresponding contracts. Classifying a contract under
 this scheme is a directed search in the lattice, starting from the bottom, and
 determining the weakest consistency level under which the contract can be
-satisfied. Under this scheme, \rcf{deposit} operations does not need any
+satisfied. Under this scheme, \rcf{deposit} operations do not need any
 guarantees, \rcf{getBalance} needs RYW and WFR ($\Delta \vdash \R{RYW} \wedge
 \R{WFR} \Rightarrow \cv_{gb}$), and \rcf{withdraw} cannot be satisfied ($\Delta
 \vdash \R{RYW} \wedge \R{MW} \wedge \R{MR} \wedge \R{WFR} \not\Rightarrow

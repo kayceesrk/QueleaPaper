@@ -75,25 +75,25 @@ yet inserted into the backing store.}
 \label{fig:atomicity_impl}
 \end{figure}
 
-\name implements atomic visibility by exploiting shim layer causality guarantee
+\name implements atomic visibility by exploiting shim layer causality guarantees
 -- an effect is included only if all the effects if depends on are also
 included. Consider the example given in Figure~\ref{fig:atomicity_impl}. For
 every transaction in \name, we instantiate a special transaction marker
-effect $m$. But importantly, do not insert into the backing store. $m$ is
+effect $m$ that is importantly not inserted into the backing store. Marker $m$ is
 included as a dependence to every effect generated in the transaction. In the
-figure, the graph on the left shows the state of the store in the middle of a
+figure, the top graph on the left shows the state of the store in the middle of a
 transaction. Each circle represents an effect. The dotted circle indicates that
 the effect has been instantiated, but has not yet been inserted into the store.
 Since the causally preceding effect $m$ has not yet been written to the store,
 no operation will witness $e1$ and $e2$ while the transaction in progress.
 After the transaction has finished execution, we insert $m$ into the backing
 store, marking all the effects from the transactions as a dependence for $m$.
-Now any replica which includes one of the effects from the transaction must
+Now, any replica which includes one of the effects from the transaction must
 include $m$, and transitively must include every effect from the transaction.
 This ensures atomicity and satisfies the RC requirement.
 
 The above scheme prevents a transaction from witnessing its own effects. This
-might conflict with the causality requirement on the operations. Hence,
+might conflict with causality requirements on the operations. Hence,
 transactions piggy-back the previous effects from the same transaction for each
 request. MAV semantics is implemented by keeping track of the set of
 transaction markers $M$ witnessed by the transaction, and before performing an
