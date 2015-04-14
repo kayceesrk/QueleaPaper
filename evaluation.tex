@@ -125,10 +125,10 @@ under a 1DC configuration. The YCSB workload was modified to issue 10
 operations per transaction, with a default 50:50 read:write mix. Each operation
 is assumed to be eventually consistent. NoTxn corresponds to a configuration
 that does not use transactions. Compared to this, RC is only 12\% shower in
-terms of latency with 512 clients, whereas RR is 2.3X slower. The difference
-between RC and NoTxn is due to the meta-data overhead of recording transaction
-information in the object state. For RR transactions, the cost of capturing and
-maintaining a snapshot is the biggest source of overhead.
+terms of latency with 512 clients, whereas RR is 2.3$\times$ slower. The
+difference between RC and NoTxn is due to the meta-data overhead of recording
+transaction information in the object state. For RR transactions, the cost of
+capturing and maintaining a snapshot is the biggest source of overhead.
 
 We also compared (not shown) the performance of EC LWW operations directly
 against Cassandra, which uses last-writer-wins as the only convergence
