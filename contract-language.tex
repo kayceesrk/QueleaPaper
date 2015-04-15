@@ -128,6 +128,13 @@ consistency, with increasing overhead in terms of latency and availability.
   \ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{cmathpar}
 
+%  The above contract mandates that an effect $a$ must be visible to the current
+%effect $\cureff$ if some effect $b$ that causally succeeds $a$ is also visible
+%to $\cureff$. Thus, if every store replica always maintains and exposes a
+%causal cut of updates to the client, then such a store will satisfy this
+%contract. In such a system, an eventually consistent operation, such as
+%\rcf{deposit}, can be satisfied as long as some replica is reachable.
+
 \item \textbf{Causal consistency}: Causally consistent operations are required
 	to see a causally consistent snapshot of the object state, including the
 	actions performed on the same session.  The latter requirement implies that
@@ -251,12 +258,12 @@ The classification scheme, presented formally in Figure~\ref{sem:classify},
 defines rules to judge the consistency class of a contact. For example, the
 scheme classifies the \rcf{getBalance} contract ($\cv_{gb}$) from
 \S~\ref{sec:motivation} as a {\sf\small CausallyConsistent} contract, because
-the sequent $\Delta \vdash \ccc \Rightarrow \cv_{gb}$ is valid in first-order
-logic (therefore, $\cv_{gb} \le \ccc$), whereas the sequent $\Delta \vdash \ecc
-\Rightarrow \cv_{gb}$ is invalid (therefore, $\cv_{gb} \not\le \ecc$). Since we
-confine our contract language to a decidable subset of the logic, validity
-of such sequents can be decided mechanically allowing us to automate the
-classification scheme in \name.
+the sequent $\Delta \vdash \forall \cureff. \ccc \Rightarrow \cv_{gb}$ is valid
+in first-order logic (therefore, $\cv_{gb} \le \ccc$), whereas the sequent
+$\Delta \vdash \forall \cureff. \ecc \Rightarrow \cv_{gb}$ is invalid
+(therefore, $\cv_{gb} \not\le \ecc$). Since we confine our contract language to
+a decidable subset of the logic, validity of such sequents can be decided
+mechanically allowing us to automate the classification scheme in \name.
 
 Along with three straightforward rules that classify contracts into consistency
 classes, the classification scheme also presents a rule that judges
@@ -280,13 +287,13 @@ the contracts below:
 \begin{smathpar}
 \renewcommand{\arraystretch}{1.2}
 \begin{array}{rcl}
-\R{Read Your Writes (RYW)} & \coloneqq & \forall a,b. ~\soo{a}{b} \Rightarrow \vis{a}{b} \\
-\R{Monotonic Reads (MR)} & \coloneqq & \forall a,b,c. ~\vis{a}{b} \wedge \soo{b}{c} \\
- & & \quad \Rightarrow \vis{a}{c} \\
-\R{Monotonic Writes (MW)} & \coloneqq & \forall a,b,c. ~\soo{a}{b} \wedge \vis{b}{c} \\
- & & \quad \Rightarrow \vis{a}{c} \\
-\R{Writes Follow Reads (WFR)} & \coloneqq & \forall a,b,c,d. ~\vis{a}{b} \wedge \vis{c}{d} \\
- & & \wedge (\sooZ ~\cup =)(b,c) \Rightarrow \vis{a}{d}
+\R{Read Your Writes (RYW)} & \coloneqq & \forall a. ~\soo{a}{\cureff} \Rightarrow \vis{a}{\cureff} \\
+\R{Monotonic Reads (MR)} & \coloneqq & \forall a,b. ~\vis{a}{b} \wedge \soo{b}{\cureff} \\
+ & & \quad \Rightarrow \vis{a}{\cureff} \\
+\R{Monotonic Writes (MW)} & \coloneqq & \forall a,b. ~\soo{a}{b} \wedge \vis{b}{\cureff} \\
+ & & \quad \Rightarrow \vis{a}{\cureff} \\
+\R{Writes Follow Reads (WFR)} & \coloneqq & \forall a,b,c. ~\vis{a}{b} \wedge \vis{c}{\cureff} \\
+ & & \wedge (\sooZ ~\cup =)(b,c) \Rightarrow \vis{a}{\cureff}
 \end{array}
 \end{smathpar}
 
@@ -303,14 +310,13 @@ above guarantees, which form a partially ordered consistency lattice show in
 Figure~\ref{fig:lattice}. Each element in this lattice corresponds to a
 store-consistency level, and is represented by its contract. An edge from an
 upper level element to a lower level element corresponds to a weaker-than
-relation between the corresponding contracts. Classifying a contract under
-this scheme is a directed search in the lattice, starting from the bottom, and
+relation between the corresponding contracts. Classifying a contract under this
+scheme is a directed search in the lattice, starting from the bottom, and
 determining the weakest consistency level under which the contract can be
 satisfied. Under this scheme, \rcf{deposit} operations do not need any
-guarantees, \rcf{getBalance} needs RYW and WFR ($\Delta \vdash \R{RYW} \wedge
-\R{WFR} \Rightarrow \cv_{gb}$), and \rcf{withdraw} cannot be satisfied ($\Delta
-\vdash \R{RYW} \wedge \R{MW} \wedge \R{MR} \wedge \R{WFR} \not\Rightarrow
-\cv_{w}$).
+guarantees, \rcf{getBalance} needs RYW and WFR ($\cv_{gb} \le \R{RYW} \wedge
+\R{WFR}$), and \rcf{withdraw} cannot be satisfied ($\cv_{w} \not\le \R{RYW}
+\wedge \R{MW} \wedge \R{MR} \wedge \R{WFR} $).
 
 \subsection{Soundness of Contract Classification}
 

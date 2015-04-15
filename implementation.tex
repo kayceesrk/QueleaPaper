@@ -68,31 +68,30 @@ layer node is reachable.
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=\columnwidth]{Figures/AtomicityImpl}
+\includegraphics[width=0.8\columnwidth]{Figures/AtomicityImpl}
 \end{center}
-\caption{Implementing atomicity semantics: The arrows represent the state of
-the store after executing the correponding operation. The dotted circle
-represents effects that are not yet inserted into the backing store.}
+\caption{Implementing atomicity semantics.}
 \label{fig:atomicity_impl}
 \end{figure}
 
-\name implements atomic visibility by exploiting shim layer causality guarantees
--- an effect is included only if all the effects if depends on are also
-included. Consider the example given in Figure~\ref{fig:atomicity_impl}. For
-every transaction in \name, we instantiate a special transaction marker effect
-$m$ that is importantly not inserted into the backing store. Marker $m$ is
-included as a dependence to every effect generated in the transaction. In the
-figure, the top graph on the left shows the state of the store in the middle of
-a transaction. Each circle represents an effect. The dotted circle indicates
-that the effect has been instantiated, but has not yet been inserted into the
-store. Since the causally preceding effect $m$ has not yet been written to the
-store, no operation will witness $e1$ and $e2$ while the transaction in
-progress. After the transaction has finished execution, we insert $m$ into the
-backing store, marking all the effects from the transactions as a dependence
-for $m$, as show in the bottom graph. Now, any replica which includes one of
-the effects from the transaction must include $m$, and transitively must
-include every effect from the transaction. This ensures atomicity and satisfies
-the RC requirement.
+\name implements atomic visibility by exploiting shim layer causality
+guarantees -- an effect is included only if all the effects if depends on are
+also included. Consider the example given in Figure~\ref{fig:atomicity_impl}.
+In the figure, the graphs represent the state of the store, where the circles
+represent effects and the edges represent the dependence between effects. The
+dotted circle represents effects that are not yet inserted into the store.
+The graph on the left shows that state of the store after executing \cf{oper2}.
+For every transaction in \name, we instantiate a special transaction marker
+effect $m$ that is importantly not inserted into the backing store. Marker $m$
+is included as a dependence to every effect generated in the transaction. Since
+the causally preceding effect $m$ has not yet been written to the store, no
+operation will witness $e1$ and $e2$ while the transaction in progress. After
+the transaction has finished execution, we insert $m$ into the backing store,
+marking all the effects from the transactions as a dependence for $m$, as shown
+in the graph on the right. Now, any replica which includes one of the effects
+from the transaction must include $m$, and transitively must include every
+effect from the transaction. This ensures atomicity and satisfies the RC
+requirement.
 
 The above scheme prevents a transaction from witnessing its own effects. This
 might conflict with causality requirements on the operations. Hence,
@@ -127,8 +126,7 @@ summarization process.
 \begin{center}
 \includegraphics[width=\columnwidth]{Figures/SumDisk}
 \end{center}
-\caption{Summarization in the backing store. Dotted circle represents effects
-not yet inserted into the backing store.}
+\caption{Summarization in the backing store.}
 \label{fig:impl_sum_disk}
 \end{figure}
 
