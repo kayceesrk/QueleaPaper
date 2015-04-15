@@ -117,7 +117,7 @@ consistency, with increasing overhead in terms of latency and availability.
 \item \textbf{Eventual consistency}: Eventually consistent operations can
 	be satisfied as long as the client can reach at least one replica. In the
 	bank account example, \rcf{deposit} is an eventually consistent operation.
-	While an \ecds typically offer \emph{basic} eventual consistency with all
+	While an \ecds typically offers \emph{basic} eventual consistency with all
 	possible anomalies, we assume that our store provides stronger semantics that
 	remain highly-available~\cite{BailisHAT,COPS}; the store always exposes a
 	\emph{causal cut} of the updates. This semantics can be formally captured in
