@@ -33,8 +33,8 @@ The syntax of our core contract language is shown in Figure
 admits prenex universal quantification over typed and untyped effect variables.
 We use a special effect variable ($\cureff$) to denote the effect of
 \emph{current operation} - the operation for which a contract is being written.
-Notice that $\cureff$ occurs free in the contract. We will fix its scope when
-classifying the contracts (\S~\ref{sec:classify}). The type of an effect is
+Notice that $\cureff$ occurs free in the contract. We fix its scope when
+classifying contracts (\S~\ref{sec:classify}). The type of an effect is
 simply the name of the operation (eg: \rcf{withdraw}) that induced the effect.
 We admit disjunction in types to let an effect variable range over multiple
 operation names. The contract $\small \forall (a : \tau_1 \vee \tau_2).~\psi$
@@ -51,7 +51,7 @@ closure\footnote{Strictly speaking, $R^{+}$ is not the transitive closure of
 $R$, as transitive closure is not expressible in FOL.  Instead, $R^{+}$ in our
 language denotes \emph{a} superset of transitive closure of $R$. Formally,
 $R^{+}$ is any relation $R'$ such that forall $x$, $y$, and $z$, a) $R(x,y)
-\Rightarrow R'(x,y)$, and b) $R'(x,y) \conj R'(y,z) \Rightarrow R'(x,z)$} of
+\Rightarrow R'(x,y)$, and b) $R'(x,y) \conj R'(y,z) \Rightarrow R'(x,z)$.} of
 primitive relations.  Commonly used derived relations are the \emph{same object
 session order} ($\small \sooZ = \soZ ~\cap~ \sameobjZ$), \emph{happens-before
 order} ($\small \hbZ = (\soZ ~\cup~ \visZ)^+$) and the \emph{same object
@@ -117,7 +117,7 @@ consistency, with increasing overhead in terms of latency and availability.
 \item \textbf{Eventual consistency}: Eventually consistent operations can
 	be satisfied as long as the client can reach at least one replica. In the
 	bank account example, \rcf{deposit} is an eventually consistent operation.
-	While an \ecds typically offer \emph{basic} eventual consistency with all
+	While an \ecds typically offers \emph{basic} eventual consistency with all
 	possible anomalies, we assume that our store provides stronger semantics that
 	remain highly-available~\cite{BailisHAT,COPS}; the store always exposes a
 	\emph{causal cut} of the updates. This semantics can be formally captured in
@@ -128,13 +128,21 @@ consistency, with increasing overhead in terms of latency and availability.
   \ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{cmathpar}
 
+  The above contract mandates that an effect $a$ must be visible to the current
+  effect $\cureff$ if some effect $b$ that causally succeeds $a$ is also visible
+  to $\cureff$. Thus, if every store replica always maintains and exposes a
+  causal cut of updates to the client, then such a store will satisfy this
+  contract. In such a system, an eventually consistent operation, such as
+  \rcf{deposit}, which requires weaker guarantees than offered by the store, can
+  be satisfied as long as some replica is reachable.
+
 \item \textbf{Causal consistency}: Causally consistent operations are required
 	to see a causally consistent snapshot of the object state, including the
 	actions performed on the same session.  The latter requirement implies that
 	if two operations $o_1$ and $o_2$ from the same session are applied to two
 	different replicas $r_1$ and $r_2$, the second operation cannot be discharged
 	until the effect of $o_1$ is included in $r_2$. The \rcf{getBalance} operation
-	requires causal consistency, as it requires the operations from the same
+	requires causal consistency, as it requires operations from the same
 	session to be visible, which cannot be guaranteed under eventual consistency.
 	The corresponding store semantics is captured by the contract $\ccc$ defined
 	below:
@@ -153,6 +161,7 @@ consistency, with increasing overhead in terms of latency and availability.
   \begin{cmathpar}
   \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
   \end{cmathpar}
+
 \end{itemize}
 
 \subsection{Contract Classification}
@@ -202,7 +211,7 @@ A contract $\cv_{op}$ is said to be weaker than $\cv_{st}$ (written $\cv_{op}
 \end{definition}
 
 The quantifier in the sequent binds $\cureff$ that occurs free in $\cv_{st}$
-and $\cv_{op}$. Context ($\Delta$) of the sequent is a conjunction of
+and $\cv_{op}$. The context ($\Delta$) of the sequent is a conjunction of
 assumptions about the nature of primitive relations. A \emph{well-formed}
 axiomatic execution ($\E$) is expected to satisfy these assumptions (i.e., $\E
 \models \Delta$).
@@ -212,7 +221,7 @@ An axiomatic execution $\small \E = \Exec$ is well-formed if the
 following axioms ($\Delta$) hold:
 
 \begin{itemize}
-\item The happens-before relation is acyclic: $\small \forall a.~\neg\hb{a}{a}$.
+\item The happens-before relation is acyclic: $\small \forall a.~\neg\hbo{a}{a}$.
 \item Visibility only relates actions on the same object:
 	\begin{itemize}
 	\item $\small \forall a,b.~\vis{a}{b} \Rightarrow \sameobj{a}{b}$.
@@ -251,12 +260,12 @@ The classification scheme, presented formally in Figure~\ref{sem:classify},
 defines rules to judge the consistency class of a contact. For example, the
 scheme classifies the \rcf{getBalance} contract ($\cv_{gb}$) from
 \S~\ref{sec:motivation} as a {\sf\small CausallyConsistent} contract, because
-the sequent $\Delta \vdash \ccc \Rightarrow \cv_{gb}$ is valid in first-order
-logic (therefore, $\cv_{gb} \le \ccc$), whereas the sequent $\Delta \vdash \ecc
-\Rightarrow \cv_{gb}$ is invalid (therefore, $\cv_{gb} \not\le \ecc$). Since we
-confine our contract language to a decidable subset of the logic, validity
-of such sequents can be decided mechanically allowing us to automate the
-classification scheme in \name.
+the sequent $\Delta \vdash \forall \cureff. \ccc \Rightarrow \cv_{gb}$ is valid
+in first-order logic (therefore, $\cv_{gb} \le \ccc$), whereas the sequent
+$\Delta \vdash \forall \cureff. \ecc \Rightarrow \cv_{gb}$ is invalid
+(therefore, $\cv_{gb} \not\le \ecc$). Since we confine our contract language to
+a decidable subset of the logic, validity of such sequents can be decided
+mechanically allowing us to automate the classification scheme in \name.
 
 Along with three straightforward rules that classify contracts into consistency
 classes, the classification scheme also presents a rule that judges
@@ -280,13 +289,13 @@ the contracts below:
 \begin{smathpar}
 \renewcommand{\arraystretch}{1.2}
 \begin{array}{rcl}
-\R{Read Your Writes (RYW)} & \coloneqq & \forall a,b. ~\soo{a}{b} \Rightarrow \vis{a}{b} \\
-\R{Monotonic Reads (MR)} & \coloneqq & \forall a,b,c. ~\vis{a}{b} \wedge \soo{b}{c} \\
- & & \quad \Rightarrow \vis{a}{c} \\
-\R{Monotonic Writes (MW)} & \coloneqq & \forall a,b,c. ~\soo{a}{b} \wedge \vis{b}{c} \\
- & & \quad \Rightarrow \vis{a}{c} \\
-\R{Writes Follow Reads (WFR)} & \coloneqq & \forall a,b,c,d. ~\vis{a}{b} \wedge \vis{c}{d} \\
- & & \wedge (\sooZ ~\cup =)(b,c) \Rightarrow \vis{a}{d}
+\R{Read Your Writes (RYW)} & \coloneqq & \forall a. ~\soo{a}{\cureff} \Rightarrow \vis{a}{\cureff} \\
+\R{Monotonic Reads (MR)} & \coloneqq & \forall a,b. ~\vis{a}{b} \wedge \soo{b}{\cureff} \\
+ & & \quad \Rightarrow \vis{a}{\cureff} \\
+\R{Monotonic Writes (MW)} & \coloneqq & \forall a,b. ~\soo{a}{b} \wedge \vis{b}{\cureff} \\
+ & & \quad \Rightarrow \vis{a}{\cureff} \\
+\R{Writes Follow Reads (WFR)} & \coloneqq & \forall a,b,c. ~\vis{a}{b} \wedge \vis{c}{\cureff} \\
+ & & \wedge (\sooZ ~\cup =)(b,c) \Rightarrow \vis{a}{\cureff}
 \end{array}
 \end{smathpar}
 
@@ -302,15 +311,14 @@ In this scheme, the consistency level of an operation is any combination of the
 above guarantees, which form a partially ordered consistency lattice show in
 Figure~\ref{fig:lattice}. Each element in this lattice corresponds to a
 store-consistency level, and is represented by its contract. An edge from an
-upper level element to a lower level element corresponds to weaker than
-relation between their corresponding contracts. Classifying a contract under
-this scheme is a directed search in the lattice, starting from the bottom, and
+upper level element to a lower level element corresponds to a weaker-than
+relation between the corresponding contracts. Classifying a contract under this
+scheme is a directed search in the lattice, starting from the bottom, and
 determining the weakest consistency level under which the contract can be
-satisfied. Under this scheme, \rcf{deposit} operations does not need any
-guarantees, \rcf{getBalance} needs RYW and WFR ($\Delta \vdash \R{RYW} \wedge
-\R{WFR} \Rightarrow \cv_{gb}$), and \rcf{withdraw} cannot be satisfied ($\Delta
-\vdash \R{RYW} \wedge \R{MW} \wedge \R{MR} \wedge \R{WFR} \not\Rightarrow
-\cv_{w}$).
+satisfied. Under this scheme, \rcf{deposit} operations do not need any
+guarantees, \rcf{getBalance} needs RYW and WFR ($\cv_{gb} \le \R{RYW} \wedge
+\R{WFR}$), and \rcf{withdraw} cannot be satisfied ($\cv_{w} \not\le \R{RYW}
+\wedge \R{MW} \wedge \R{MR} \wedge \R{WFR} $).
 
 \subsection{Soundness of Contract Classification}
 
@@ -318,8 +326,7 @@ We now present a meta-theoretic result that certifies the soundness of
 classification-based contract enforcement. To help us state the result, we
 define an operational semantics of the system described informally in
 \S~\ref{sec:sysmod}:
-
-\begin{smathpar}
+\begin{mathpar}
 \renewcommand{\arraystretch}{1.2}
 \begin{array}{lclcl}
 {\it op} 	& \in & \mathtt{Operation} \\
@@ -328,7 +335,7 @@ define an operational semantics of the system described informally in
 \Sigma 		& \in & \mathtt{Session\;Soup}   	 	& \coloneqq & \sigma \pll \Sigma \ALT \emptyset \\
 					&			&	\mathtt{Config}		  			 	& \coloneqq & \E,\Sigma \\
 \end{array}
-\end{smathpar}
+\end{mathpar}
 
 We model the system as a tuple $\E,\Sigma$, where the axiomatic execution $\E$
 captures the data store's current state, and session soup $\Sigma$ is the set
@@ -336,11 +343,10 @@ of concurrent client sessions interacting with the store. A session $\sigma$ is
 a sequence of pairs composed of replicated data type operations $\mathit{op}$,
 tagged with the consistency class $\tau$ of their contracts (as determined by
 the contract classification scheme). We assume a reduction relation of form:
-
-\begin{smathpar}
+\begin{mathpar}
   \auxred{} {\E,\langle op,\tau \rangle;\sigma \pll \Sigma} {\eff}
     {\E',\sigma \pll \Sigma}
-\end{smathpar}
+\end{mathpar}
 
 \noindent on the system state. The relation captures the progress of the
 execution (from $\E$ to $\E'$)  due to the successful completion of a client

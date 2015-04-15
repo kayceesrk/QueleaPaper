@@ -219,7 +219,7 @@
 %formatting for captioning figures
 \DeclareCaptionFormat{figformat}{\hrulefill\\#1#2#3}
 \captionsetup[figure]{format=figformat}
-\setlength{\abovecaptionskip}{2pt}
+\setlength{\abovecaptionskip}{3pt}
 
 % To eliminate orphans
 \clubpenalty = 10000
@@ -230,7 +230,7 @@
 \conferenceinfo{PLDI'15}{, June 13--17, 2015, Portland, OR, USA}
 \CopyrightYear{2015}
 \crdata{978-1-4503-3468-6/15/06}
-\doi{nnnnnnn.nnnnnn}
+\doi{2737924.2737981}
 %
 % any author declaration will be ignored  when using 'pldi' option (for double blind review)
 %
@@ -253,7 +253,7 @@
 
 \begin{abstract}
 User-facing online services utilize geo-distributed data stores to minimize
-latency and tolerate partial failures, with the intention to provide a fast,
+latency and tolerate partial failures, with the intention of providing a fast,
 always-on experience. However, geo-distribution does not come for free;
 application developers have to contend with weak consistency behaviors, and
 the lack of abstractions to composably construct high-level replicated data
@@ -270,7 +270,7 @@ capable of specifying fine-grained application-level consistency properties. A
 \emph{contract enforcement system} analyses contracts, and \emph{automatically}
 generates the appropriate consistency protocol for the method protected by the
 contract. We describe an implementation of \name\ on top of an off-the-shelf
-\ecds, and provide support for \emph{coordination-free} transactions. Several
+\ecds that provides support for \emph{coordination-free} transactions. Several
 benchmarks including two large web applications, illustrate the effectiveness
 of our approach.
 \end{abstract}
@@ -308,6 +308,12 @@ Decidable Logic, Quelea, Cassandra, Haskell
 \input{related}
 
 \input{concl}
+
+\section*{Acknowledgements}
+
+We thank the anonymous reviewers for their detailed comments.  This work is
+supported in part by the National Science Foundation under grants
+CCF-1216613 and CCF-1318227.
 
 \renewcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}
 

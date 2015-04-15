@@ -7,9 +7,9 @@ construct distributed data structures~\cite{Cassandra,Bayou,Tango}. These
 systems typically propose to implement the datatypes directly over a cluster of
 nodes, and only focus on basic eventual consistency. Hence, these systems
 implement custom solutions for durability and fault-tolerance. \name realizes
-RDTs stronger consistency models on top of off-the-shelf eventually consistent
+stronger consistency models for RDTs on top of off-the-shelf eventually consistent
 distributed stores. In this respect, \name is similar to~\cite{BoltOn} where
-causal consistency is achieved through a shim layer on Cassandra, which
+causal consistency is achieved through a shim layer layered on top of Cassandra, which
 explicitly tracks and enforces dependencies between updates.
 However,~\cite{BoltOn} does not support user-defined RDTs, automatic contract
 classification and transactions.
@@ -21,51 +21,50 @@ systems~\cite{Berenson95} and their replicated variants~\cite{BailisHAT}
 propose weaker isolation levels for performance. In these systems, the onus is
 on the developer to choose the correct consistency(isolation) level for
 operations(transactions). \name relieves the developer of this burden, and
-instead expects  contracts expressing declarative visibility requirements.
+instead only requires contracts to express declarative visibility requirements.
 
 Our contract language and system model is inspired by the axiomatic description
-of RDT semantics proposed by~\cite{Burckhardt2014}. While they use axioms for
-formal verification of correctness of an RDT implementation, we utilize them as
-a means for the user to express the desired consistency guarantees in the
-application. Operational semantics of \name (described in the accompanying tech
-report~\cite{techrep}) describe an operational manifestation of our system
-model.  ~\cite{Burckhardt2015} also presents an operational model of a
-replicated data store that is based on the abstract system model presented in
-~\cite{Burckhardt2014}. Their claims about the expressivity and practicality of
-the system model vindicate ours.  However, both differ in the way they aim to
-empower the application programmer. In~\cite{Burckhardt2015}, they expose their
-operational model to the application programmer, along with primitives, such as
-\cf{push}, \cf{pull} and \cf{fetch}, that make it easy to \emph{implement} the
-required consistency and isolation guarantees. In contrast, \name completely
-abstracts its operational model, and instead relies on contract classification
-to \emph{choose} appropriate consistency and isolation levels.  Similar
-to~\cite{Burckhardt2014} and~\cite{Burckhardt2015}, our system model does not
-incorporate real (i.e., wall-clock) time. Hence, our contract language cannot
-describe store semantics such as recency or bounded-staleness guarantees offered
-by certain stores~\cite{Pileus}.
+of RDT semantics proposed in~\cite{Burckhardt2014}. While ~\cite{Burckhardt2014}
+uses axioms for formal verification of an RDT implementation, we utilize them as
+a means for the user to express desired consistency guarantees in the
+application. The operational semantics of \name describes an operational
+manifestation of our system model.~\cite{Burckhardt2015} also presents an
+operational model of a replicated data store that is based on the abstract
+system model presented in ~\cite{Burckhardt2014}. Their claims about the
+expressivity and practicality of the system model vindicate ours. However, both
+approaches differ in the way they aim to empower the application programmer.
+\cite{Burckhardt2015} exposes the operational model to the programmer, along
+with primitives, such as \cf{push}, \cf{pull} and \cf{fetch}, that make it easy
+to \emph{implement} required consistency and isolation guarantees. In contrast,
+\name completely abstracts its operational model, and instead relies on contract
+classification to automatically \emph{choose} appropriate consistency and
+isolation levels.  Similar to~\cite{Burckhardt2014} and~\cite{Burckhardt2015},
+our system model does not incorporate real (i.e., wall-clock) time. Hence, our
+contract language cannot describe store semantics such as recency or
+bounded-staleness guarantees offered by certain stores~\cite{Pileus}.
 
 Several conditions have been proposed to judge whether an operation on a
 replicated data object needs coordination or not. ~\cite{Calm} defines
-\emph{logical monotonicity} as a sufficient condition for coordination freedom,
-and proposes a consistency analysis that marks code regions performing
-non-monotonic reasoning (eg: aggregations, such as \cf{COUNT}) as potential
-coordination points. ~\cite{IConfluence} and ~\cite{Sieve} define
+\emph{logical monotonicity} as a sufficient condition for coordination
+freedom, and proposes a consistency analysis that marks code regions
+performing non-monotonic reasoning (eg: aggregations, such as \cf{COUNT}) as
+potential coordination points. ~\cite{IConfluence} and ~\cite{Sieve} define
 \emph{invariant confluence} and \emph{invariant safety}, respectively, as
 conditions for safely executing an operation without coordination.
-~\cite{Sieve} also proposes a program analysis that conservatively marks certain
-operations as \emph{blue} (coordination not required), while marking the
-remaining as \emph{red} (coordination required). ~\cite{indigo} requires
+~\cite{Sieve} also proposes a program analysis that conservatively marks
+certain operations as \emph{blue} (coordination not required), while marking
+the remaining as \emph{red} (coordination required). ~\cite{indigo} requires
 programmers to declare application semantics, and the desired
-application-specific invariants as formulas in first-order logic. It performs
-static analysis on these formulas to determine $I$-offender sets - sets of
-operations, which, when performed concurrently, result in violation of one or
-more of the stated invariants. For each offending set of operation, if
-programmer chooses invariant-violation avoidance over violation repair, the
-system employs various techniques, such as escrow reservation, to ensure that
-the offending set of operations are effectively serialized. Unlike \name, these
-works focus on a coarse-grained classification of consistency as eventual or
-strong, and do not focus on finer-grained transaction isolation levels. However,
-the analyses that some of them propose relieve programmers of the burden to tag
-operations with consistency levels. Indeed, we do consider automatic inference
-of consistency contracts from application-specific integrity constraints as the
-next step for \name.
+application-specific invariants as formulas in first-order logic. It
+performs static analysis on these formulas to determine $I$-offender sets -
+sets of operations, which, when performed concurrently, result in violation
+of one or more of the stated invariants. For each offending set of
+operations, if the programmer chooses invariant-violation avoidance over
+violation repair, the system employs various techniques, such as escrow
+reservation, to ensure that the offending set is effectively
+serialized. Unlike \name, these approaches focus on a coarse-grained
+classification of consistency as eventual or strong, and do not consider
+finer-grained transaction isolation levels. However, these analyses do
+relieve programmers of the burden of tagging operations with consistency
+levels. We consider automatic inference of consistency contracts from
+application-specific integrity constraints as an obvious  next step for \name.

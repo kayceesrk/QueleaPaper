@@ -1,6 +1,6 @@
 graph G {
   graph [ranksep=0.75];
-  node [shape=box, style=rounded, fixedsize = true, width=1];
+  node [shape=box, fixedsize = true, width=1];
   subgraph l0 {
     rank = "min";
     l0n0 [label="true"];

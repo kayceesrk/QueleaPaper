@@ -13,15 +13,15 @@ partitions, but only provide weaker isolation guarantees. Coordination-free
 transactions have intricate consistency semantics and widely varying runtime
 overheads. As with operation-level consistency, the onus is on the programmer
 to pick the correct transaction kind. This choice is further complicated by
-consistency semantics of individual operations.
+the consistency semantics of individual operations.
 
 \subsection{Syntax and Semantics Extensions}
 \label{sec:syn_sem_ext}
 
 \name automates the choice of assigning the correct and most efficient
 transaction isolation level. Similar to contracts on individual operations, the
-programmer associates contracts with transactions, declaratively expressing its
-consistency specification. We extend the contract language with a new term
+programmer associates contracts with transactions, declaratively expressing 
+consistency specifications. We extend the contract language with a new term
 under quantifier-free propositions - ${\small \txnZ}~S_1~S_2$, where $S_1$ and
 $S_2$ are sets of effects, and introduce a new primitive equivalence relation
 $\small \sametxnZ$ that holds for effects from the same transaction. $\small
@@ -52,7 +52,7 @@ defined previously. We consider two transactions -- \cf{save(amt)}, which
 transfers \cf{amt} from current to savings, and \cf{totalBalance}, which
 returns the sum of the balances of individual accounts. Our goal is to ensure
 that \cf{totalBalance} returns the result obtained from a consistent snapshot
-of the object states. The \name code for the transactions is given below:
+of the object states. The \name code for these transactions is given below:
 
 \noindent \begin{minipage}[t]{0.53\columnwidth}
 \begin{codehaskell}
@@ -83,22 +83,23 @@ given isolation level $x$, ensuring that the effects of the operations are made
 visible atomically.
 
 While making both transactions serializable would ensure correctness,
-distributed stores rarely offer serializable transactions since it is
-unavailable and hinders scalability~\cite{BailisHAT}. As we will see, these
-transactions can be satisfied with much weaker isolation guarantees. Despite
-the atomicity offered by the transaction, anomalies are still possible. For
-example, the two \rcf{getBalance} operations in \cf{totalBalance} transactions
-might be served by different replicas with distinct set of committed \cf{save}
-transactions. If the first(second) \rcf{getBalance} operation witness a
+distributed stores rarely offer serializable transactions given their
+availability requirements and implications for
+scalability~\cite{BailisHAT}. Fortunately, these transactions can be
+satisfied with much weaker isolation guarantees. However, despite the atomicity
+offered by the transaction, anomalies are still possible. For example, the
+two \rcf{getBalance} operations in a \cf{totalBalance} transaction might be
+served by different replicas with a distinct set of committed \cf{save}
+transactions. If the first(second) \rcf{getBalance} operation witnesses a
 \cf{save} transaction that is not witnessed by the second(first)
-\rcf{getBalance} operation, then the balance returned will be less(greater) than
-the actual balance. It is not immediately apparent which weakest isolation
-guarantee will be sufficient to prevent the anomaly.
+\rcf{getBalance} operation, then the balance returned will be less(greater)
+than the actual balance. It is not immediately apparent how to choose the weakest
+isolation guarantee that would be sufficient to prevent the anomaly.
 
 Instead, \name requires the programmer to simply state the consistency
 requirement as a contract. Since we would like both the \rcf{getBalance}
 operations to witness the same set of \cf{save} transactions, we define the
-constraint on \cf{totalBalance} transaction $\psi_{tb}$ as:
+constraint on the \cf{totalBalance} transaction $\psi_{tb}$ as:
 
 \begin{cmathpar}
 \begin{array}{l}
@@ -114,7 +115,7 @@ allows us to relate operations on different objects.
 The \cf{save} transaction only needs to ensure that the two writes it performs
 are made visible atomically. Since this is ensured by combining them in a
 transaction, \cf{save} does not require any additional constraints, and
-$\psi_1$ is simply $\small \true$.
+$\psi_{sv}$ is simply $\small \true$.
 
 \subsection{Coordination-free Transactions}
 
@@ -143,14 +144,14 @@ In order to illustrate the utility of transaction contract classification, we
 identify three well-understood coordination-free transaction semantics -- Read
 Committed (RC)~\cite{Berenson95}, Monotonic Atomic View (MAV)~\cite{BailisHAT}
 and Repeatable Read (RR)~\cite{Berenson95}, and illustrate the classification
-strategy. Our technique can indeed be applied to a different isolation level
+strategy. Our technique can indeed be applied to a different isolation-level
 lattice.
 
 A transaction with ANSI RC semantics only witnesses committed operations. Let
 us assume that a replica will buffer transactional updates until all the
 updates from the same transaction are available at that replica. Once all the
 updates from a transaction are available, the buffered updates are made visible
-to subsequent client requests. This ensure atomicity of transactions.
+to subsequent client requests. This ensures atomicity of transactions.
 Importantly, RC does not entail any other guarantees. As a result, a store
 implementing RC does not require inter-replica coordination. We can express RC
 as follows:
@@ -164,7 +165,7 @@ as follows:
 
 \noindent Notice that the above definition is the same as the atomicity
 guarantee of transaction described in \S~\ref{sec:syn_sem_ext}. The \cf{save}
-is an example for RC transaction.
+operation is an example of an RC transaction.
 
 MAV semantics ensures that if some operation in a transaction $T_1$ witnesses
 the effects of another transaction $T_2$, then subsequent operations in $T_1$
@@ -187,7 +188,7 @@ semantics is captured with the following contract:
 
 ANSI RR semantics requires that the transaction witness a snapshot of the data
 store state. Importantly, this snapshot can be obtained from any replica, and
-hence RR is coordination-free. An example for such a transaction is the
+hence RR is also coordination-free. An example for such a transaction is the
 \cf{totalBalance} transaction. The semantics of RR is captured by the following
 contract:
 

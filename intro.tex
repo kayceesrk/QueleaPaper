@@ -10,7 +10,7 @@ consistency} guarantees such as linearizability~\cite{Herlihy1990} or
 serializability~\cite{Serializability} in order to build correct applications.
 While strong consistency is an easily stated property, it masks the reality
 underlying large-scale distributed systems with respect to non-uniform latency,
-availability and network partitions~\cite{Brewer2000,Gilbert2002}. Indeed,
+availability, and network partitions~\cite{Brewer2000,Gilbert2002}. Indeed,
 modern web services, which aim to provide an "always-on" experience,
 overwhelmingly favor availability and partition tolerance over strong
 consistency. To this end, several \emph{weak consistency} models such as
@@ -21,7 +21,7 @@ Under weak consistency, the developer needs to be aware of concurrent
 conflicting updates, and has to pay careful attention to avoid unwanted
 inconsistencies (e.g., negative balances in a bank account, or having an item
 appear in a shopping cart after it has been removed~\cite{Dynamo}). Oftentimes,
-these inconsistencies leak from the application and is witnessed by the user.
+these inconsistencies leak from the application and are witnessed by the user.
 Ultimately, the developer must decide the consistency level appropriate for a
 particular operation; this is understandably an error-prone process requiring
 intricate knowledge of both the application as well as the semantics and
@@ -57,10 +57,11 @@ correctness of the mapping. The paper makes the following contributions:
 
 \begin{itemize}
 \item We introduce \name, a shallow extension of Haskell that supports the
-	description and validation of replicated data types found on \ecds. Contracts
-	are used to specify fine-grained application-level consistency properties,
-	and are statically analyzed to assign the most efficient and sound store
-	consistency level to the corresponding operation.
+  description and validation of replicated data types found in an
+  \ecds. Contracts are used to specify fine-grained application-level
+  consistency properties, and are statically analyzed to assign the most
+  efficient and sound store consistency level to the corresponding
+  operation.
 \item \name supports coordination-free transactions over arbitrary datatypes.
 	We extend our contract language to express fine-grained transaction isolation
 	guarantees, and utilize the contract enforcement system to automatically
@@ -68,7 +69,7 @@ correctness of the mapping. The paper makes the following contributions:
 \item We provide meta-theory that certifies the soundness of our contract
 	enforcement system, and ensures that an operation is only executed if the
 	required conditions on consistency are met.
-\item An implementation of \name as a transparent shim layer over
+\item We describe an implementation of \name as a transparent shim layer over
 	Cassandra~\cite{Cassandra}, a well-known general-purpose data store.
 	Experimental evaluation over a set of real-world applications, including a
 	Twitter-like micro-blogging site and an eBay-like auction site illustrates
@@ -79,7 +80,7 @@ correctness of the mapping. The paper makes the following contributions:
 describes the system model.  We describe the challenges in programming under
 eventual consistency, and introduce \name\ contracts as a proposed solution to
 overcome these issues in \S~\ref{sec:motivation}. \S~\ref{sec:lang} provides
-more details on the contract language, and its mapping to the store consistency
+more details on the contract language, and its mapping to store consistency
 levels, along with meta-theory for certifying the correctness of the mapping.
 \S~\ref{sec:txns} introduces transaction contracts and their classification.
 \S~\ref{sec:impl} describes the implementation of \name on top of Cassandra.
