@@ -128,12 +128,13 @@ consistency, with increasing overhead in terms of latency and availability.
   \ecc = \forall a,b. ~\hbo{a}{b} \wedge \vis{b}{\cureff} \Rightarrow \vis{a}{\cureff}
   \end{cmathpar}
 
-%  The above contract mandates that an effect $a$ must be visible to the current
-%effect $\cureff$ if some effect $b$ that causally succeeds $a$ is also visible
-%to $\cureff$. Thus, if every store replica always maintains and exposes a
-%causal cut of updates to the client, then such a store will satisfy this
-%contract. In such a system, an eventually consistent operation, such as
-%\rcf{deposit}, can be satisfied as long as some replica is reachable.
+  The above contract mandates that an effect $a$ must be visible to the current
+  effect $\cureff$ if some effect $b$ that causally succeeds $a$ is also visible
+  to $\cureff$. Thus, if every store replica always maintains and exposes a
+  causal cut of updates to the client, then such a store will satisfy this
+  contract. In such a system, an eventually consistent operation, such as
+  \rcf{deposit}, which requires weaker guarantees than offered by the store, can
+  be satisfied as long as some replica is reachable.
 
 \item \textbf{Causal consistency}: Causally consistent operations are required
 	to see a causally consistent snapshot of the object state, including the
@@ -160,6 +161,7 @@ consistency, with increasing overhead in terms of latency and availability.
   \begin{cmathpar}
   \scc = \forall a.~\sameobj{a}{\cureff} \Rightarrow \vis{a}{\cureff} ~\vee~ \vis{\cureff}{a} ~\vee~ a = \cureff
   \end{cmathpar}
+
 \end{itemize}
 
 \subsection{Contract Classification}
